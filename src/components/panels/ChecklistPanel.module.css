@@ -182,3 +182,32 @@
 }
 
 .addItemBtn:hover { background: var(--bg-active); }
+
+/* Category groups */
+.group {
+  margin-bottom: 6px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 4px;
+  margin-top: 4px;
+}
+
+.groupName {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.groupCount {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--bg-raised);
+  padding: 1px 6px;
+  border-radius: 8px;
+}

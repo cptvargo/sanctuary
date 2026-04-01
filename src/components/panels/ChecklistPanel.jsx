@@ -77,15 +77,42 @@ export default function ChecklistPanel({ section, title }) {
       </div>
 
       <div className={styles.items}>
-        {items.map(item => (
-          <div key={item.id} className={`${styles.item} ${item.done ? styles.done : ''}`}>
-            <div className={styles.checkbox} onClick={() => toggleChecklistItem(section, item.id)}>
-              {item.done ? <span className={styles.checkmark}>✓</span> : null}
-            </div>
-            <span className={styles.itemText}>{item.text}</span>
-            <button className={styles.removeItem} onClick={() => removeChecklistItem(section, item.id)}>×</button>
-          </div>
-        ))}
+        {(() => {
+          // Group items by category (text before " — ")
+          const groups = []
+          const groupMap = new Map()
+          items.forEach(item => {
+            const sep = item.text.indexOf(' — ')
+            const category = sep > -1 ? item.text.slice(0, sep) : 'General'
+            const task = sep > -1 ? item.text.slice(sep + 3) : item.text
+            if (!groupMap.has(category)) {
+              const group = { category, items: [] }
+              groups.push(group)
+              groupMap.set(category, group)
+            }
+            groupMap.get(category).items.push({ ...item, displayText: task })
+          })
+          return groups.map(group => {
+            const groupDone = group.items.filter(i => i.done).length
+            return (
+              <div key={group.category} className={styles.group}>
+                <div className={styles.groupHeader}>
+                  <span className={styles.groupName}>{group.category}</span>
+                  <span className={styles.groupCount}>{groupDone}/{group.items.length}</span>
+                </div>
+                {group.items.map(item => (
+                  <div key={item.id} className={`${styles.item} ${item.done ? styles.done : ''}`}>
+                    <div className={styles.checkbox} onClick={() => toggleChecklistItem(section, item.id)}>
+                      {item.done ? <span className={styles.checkmark}>✓</span> : null}
+                    </div>
+                    <span className={styles.itemText}>{item.displayText}</span>
+                    <button className={styles.removeItem} onClick={() => removeChecklistItem(section, item.id)}>×</button>
+                  </div>
+                ))}
+              </div>
+            )
+          })
+        })()}
       </div>
 
       {/* Add item */}

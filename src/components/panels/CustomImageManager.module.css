@@ -1,0 +1,207 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 700;
+}
+
+.modal {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-xl);
+  width: 700px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-dim);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.uploadBtn {
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.uploadBtn:hover { background: var(--accent-bright); }
+
+.closeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: 1px solid var(--border-mid);
+  color: var(--text-muted);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+  line-height: 1;
+}
+
+.closeBtn:hover { color: var(--red); border-color: var(--red); }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 10px;
+}
+
+.emptyIcon { font-size: 48px; opacity: 0.3; }
+.emptyText { font-size: 16px; color: var(--text-secondary); font-weight: 500; }
+.emptyHint { font-size: 12px; color: var(--text-dim); }
+
+.uploadBtnLarge {
+  margin-top: 8px;
+  padding: 10px 24px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.uploadBtnLarge:hover { background: var(--accent-bright); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dim);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.card:hover { border-color: var(--border-mid); }
+
+.preview {
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: opacity var(--transition);
+}
+
+.preview:hover { opacity: 0.85; }
+
+.cardFooter {
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-base);
+}
+
+.name {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background var(--transition);
+}
+
+.name:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.nameInput {
+  flex: 1;
+  background: var(--bg-base);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  padding: 3px 6px;
+  outline: none;
+  min-width: 0;
+}
+
+.cardActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.applyBtn {
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.applyBtn:hover { background: var(--accent); color: #fff; }
+
+.deleteBtn {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: 1px solid var(--border-dim);
+  color: var(--text-dim);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+  line-height: 1;
+}
+
+.deleteBtn:hover { color: var(--red); border-color: var(--red); }

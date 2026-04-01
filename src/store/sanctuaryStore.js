@@ -24,23 +24,50 @@ export const makeSong = (overrides = {}) => ({
 
 const makeChecklist = () => ({
   preService: [
-    { id: uid(), text: 'Sound system powered on', done: false },
-    { id: uid(), text: 'Microphones tested', done: false },
-    { id: uid(), text: 'Slides loaded and previewed', done: false },
-    { id: uid(), text: 'Offering bags in place', done: false },
-    { id: uid(), text: 'Stream / camera ready', done: false },
-    { id: uid(), text: 'Bulletins printed and ready', done: false },
-    { id: uid(), text: 'Worship team briefed on order', done: false },
-    { id: uid(), text: 'Pastor notified — service ready', done: false },
+    { id: uid(), text: 'Sound Board — Has soundboard cart been rolled out and powered on', done: false },
+    { id: uid(), text: 'Sound Board — Has network cable been run to stage box', done: false },
+    { id: uid(), text: 'Sound Board — Has channel routing been done (AVB outputs reset)', done: false },
+    { id: uid(), text: 'Sound Board — Are wireless microphone packs hooked to correct transmitters', done: false },
+    { id: uid(), text: "Sound Board — Batteries swapped out on Pastor Russ' & Nick's mic receivers", done: false },
+    { id: uid(), text: "Sound Board — Battery swapped out on Mrs. Jamie's microphone", done: false },
+    { id: uid(), text: 'Sound Board — Batteries swapped out on all in-ear monitors + brought to stage', done: false },
+    { id: uid(), text: "Sound Board — Pastor Russ' mic put together, turned on, tested", done: false },
+    { id: uid(), text: "Sound Board — Mrs. Jamie's mic turned on and tested", done: false },
+    { id: uid(), text: 'Sound Board — Headphones connected to soundboard', done: false },
+    { id: uid(), text: 'Sound Board — Is laptop connected to soundboard', done: false },
+    { id: uid(), text: 'Laptop — Is power cord in and is there power to the laptop', done: false },
+    { id: uid(), text: 'Laptop — Is Wi-Fi connected to laptop', done: false },
+    { id: uid(), text: 'Laptop — Is OBS Studio on and working', done: false },
+    { id: uid(), text: 'Laptop — Does Spotify have internet and is it working', done: false },
+    { id: uid(), text: 'Laptop — Is projector on', done: false },
+    { id: uid(), text: 'Laptop — Is HDMI cable connected to projector', done: false },
+    { id: uid(), text: 'Laptop — Are slides prepared for service', done: false },
+    { id: uid(), text: 'Camera — Camera on tripod', done: false },
+    { id: uid(), text: 'Camera — Does camera have power', done: false },
+    { id: uid(), text: 'Camera — Is camera connected to laptop', done: false },
+    { id: uid(), text: 'Sound Check — Pastor Russ', done: false },
+    { id: uid(), text: 'Sound Check — Mrs. Jamie', done: false },
+    { id: uid(), text: 'Sound Check — Anna', done: false },
+    { id: uid(), text: 'Sound Check — Kelsey', done: false },
+    { id: uid(), text: 'Sound Check — Nick', done: false },
+    { id: uid(), text: 'Sound Check — Bass', done: false },
+    { id: uid(), text: 'Sound Check — Guitar', done: false },
+    { id: uid(), text: 'Sound Check — Keyboard', done: false },
+    { id: uid(), text: 'Sound Check — Drums', done: false },
+    { id: uid(), text: 'Sound Check — Laptop', done: false },
   ],
   postService: [
-    { id: uid(), text: 'Offering collected and secured', done: false },
-    { id: uid(), text: 'Microphones returned and stored', done: false },
-    { id: uid(), text: 'Sound system powered down', done: false },
-    { id: uid(), text: 'Slides closed', done: false },
-    { id: uid(), text: 'Projector off', done: false },
-    { id: uid(), text: 'Lights checked', done: false },
-    { id: uid(), text: 'Building secured', done: false },
+    { id: uid(), text: 'Sound Board — Does Aux1 out have channel B', done: false },
+    { id: uid(), text: 'Sound Board — Does Mono out have channel A', done: false },
+    { id: uid(), text: 'Sound Board — Are Mics 1 thru 6 in ports 1 thru 6', done: false },
+    { id: uid(), text: 'Sound Board — Is power cord in and power switch off', done: false },
+    { id: uid(), text: "Sound Board — Is amp off (it's located off stage to the right)", done: false },
+    { id: uid(), text: 'Sound Board — Is the projector off', done: false },
+    { id: uid(), text: 'Floodgates Media — Is camera and its cord stored away', done: false },
+    { id: uid(), text: 'Floodgates Media — Is the laptop and its cord stored away', done: false },
+    { id: uid(), text: 'Floodgates Media — Is sound board stored away', done: false },
+    { id: uid(), text: 'Floodgates Media — Microphone batteries charged or charging for next service', done: false },
+    { id: uid(), text: 'Floodgates Media — All worship team equipment stored away', done: false },
   ],
 })
 
@@ -66,6 +93,65 @@ const goodness = makeSong({
     makeSlide('lyrics', { name: 'Chorus 1', song: 'Goodness Of God', section: 'Chorus 1', lines: ['All my life You have been faithful', 'All my life You have been so so good', 'With every breath that I am able', 'I will sing of the goodness of God'] }),
     makeSlide('lyrics', { name: 'Bridge', song: 'Goodness Of God', section: 'Bridge', lines: ['Your goodness is running after', "It's running after me", 'Your goodness is running after', "It's running after me", 'With my life laid down', "I'm surrendered now", 'I give You everything', 'Your goodness is running after', "It's running after me"] }),
     makeSlide('lyrics', { name: 'Chorus 1', song: 'Goodness Of God', section: 'Chorus 1', lines: ['All my life You have been faithful', 'All my life You have been so so good', 'With every breath that I am able', 'I will sing of the goodness of God'] }),
+  ],
+})
+
+
+const iAmAChristian = makeSong({
+  name: 'I Am A Christian',
+  slides: [
+    makeSlide('lyrics', { name: 'Chorus', song: 'I Am A Christian', section: 'Chorus 1', lines: ['I am a Christian', 'A mighty mighty Christian', 'I am a Christian', 'A mighty mighty Christian'] }),
+    makeSlide('lyrics', { name: 'Verse', song: 'I Am A Christian', section: 'Verse 1', lines: ["I've got a shield of faith", 'Righteous breastplate', 'Sword of the Spirit', 'My loins are covered by truth'] }),
+    makeSlide('lyrics', { name: 'Verse 2', song: 'I Am A Christian', section: 'Verse 1', lines: ['Helmet of salvation', 'Gospel shoes on', 'And above all', 'I said above all'] }),
+    makeSlide('lyrics', { name: 'Verse 3', song: 'I Am A Christian', section: 'Verse 1', lines: ['I said above all', "I'm dressed in the whole armor of God", "'Cause I am a Christian"] }),
+  ],
+})
+
+const faith = makeSong({
+  name: 'F.A.I.T.H.',
+  slides: [
+    makeSlide('lyrics', { name: 'Chorus', song: 'F.A.I.T.H.', section: 'Chorus 1', lines: ['Give me an F(F)', 'A(A) I(I) TH(TH)', 'I said F(F) A(A)', 'I(I) TH(TH)', "We're talkin' power", 'That comes from F A I T H'] }),
+    makeSlide('lyrics', { name: 'Verse 1', song: 'F.A.I.T.H.', section: 'Verse 1', lines: ['Got a mountain', "It's in your way", 'You want to move it', 'It wants to stay', 'You need the power', 'That comes from F A I T H'] }),
+    makeSlide('lyrics', { name: 'Verse 2', song: 'F.A.I.T.H.', section: 'Verse 2', lines: ["We're talkin' sickness", 'Or poverty', 'Any problem has got to flee', 'With the power', 'That comes from F A I T H'] }),
+    makeSlide('lyrics', { name: 'Verse 3', song: 'F.A.I.T.H.', section: 'Verse 3', lines: ['It will always work for you', 'The blood of Jesus', "Guarantees it's true", "It's the power", 'That comes from F A I T H'] }),
+  ],
+})
+
+const biggerThanBig = makeSong({
+  name: 'Bigger Than Big',
+  slides: [
+    makeSlide('lyrics', { name: 'Chorus', song: 'Bigger Than Big', section: 'Chorus 1', lines: ["God You're bigger than big", 'Stronger than strong', "Yeah You're mightier than mighty", 'And louder than this song'] }),
+    makeSlide('lyrics', { name: 'Chorus 2', song: 'Bigger Than Big', section: 'Chorus 1', lines: ['Your love for me stretches farther than far', "And I can't imagine just how big You are", 'Just how big You are'] }),
+    makeSlide('lyrics', { name: 'Verse', song: 'Bigger Than Big', section: 'Verse 1', lines: ['God You made our big blue sky', 'You made the oceans deep and wide', 'God You made the trees so tall', 'And Your love is bigger than it all'] }),
+  ],
+})
+
+const knowingYou = makeSong({
+  name: 'Knowing You',
+  slides: [
+    makeSlide('lyrics', { name: 'Verse 1', song: 'Knowing You', section: 'Verse 1', lines: ['I was made for You', 'To love and be loved by You', 'All of my life will be', 'An offering'] }),
+    makeSlide('lyrics', { name: 'Verse 1b', song: 'Knowing You', section: 'Verse 1', lines: ['Oh I I was made for You'] }),
+    makeSlide('lyrics', { name: 'Chorus', song: 'Knowing You', section: 'Chorus 1', lines: ['Knowing You', 'Knowing You', 'I found my reason for living', "And Jesus it's knowing You"] }),
+    makeSlide('lyrics', { name: 'Chorus 2', song: 'Knowing You', section: 'Chorus 1', lines: ['Loving You', 'Loving You', 'I found my reason for breathing', "And Jesus it's loving You"] }),
+    makeSlide('lyrics', { name: 'Verse 2', song: 'Knowing You', section: 'Verse 2', lines: ['I was made for You', 'To hear and obey Your voice', "There's life in the words You speak", 'Your servant is listening'] }),
+    makeSlide('lyrics', { name: 'Verse 2b', song: 'Knowing You', section: 'Verse 2', lines: ['Oh I was made for You'] }),
+    makeSlide('lyrics', { name: 'Verse 3', song: 'Knowing You', section: 'Verse 3', lines: ['We we were made for You', 'To worship and bless Your name', 'To sing of our risen hope', 'Until the whole world knows'] }),
+    makeSlide('lyrics', { name: 'Verse 3b', song: 'Knowing You', section: 'Verse 3', lines: ['Oh we we were made for You'] }),
+  ],
+})
+
+const cleansed = makeSong({
+  name: 'Cleansed',
+  slides: [
+    makeSlide('lyrics', { name: 'Verse 1', song: 'Cleansed', section: 'Verse 1', lines: ['Here at the altar where I run to rest', 'Where I wait resurrection', 'And the touch of Your breath'] }),
+    makeSlide('lyrics', { name: 'Pre-Chorus', song: 'Cleansed', section: 'Pre-Chorus', lines: ['I die now daily because I have learned to live', 'In the grace that belongs to all who are born again'] }),
+    makeSlide('lyrics', { name: 'Chorus 1', song: 'Cleansed', section: 'Chorus 1', lines: ['I am cleansed I am washed', 'I am sanctified', 'I am Holy Ghost filled and water baptized'] }),
+    makeSlide('lyrics', { name: 'Chorus 1b', song: 'Cleansed', section: 'Chorus 1', lines: ['I am right with my God for all time', "Cause Jesus my Savior's alive"] }),
+    makeSlide('lyrics', { name: 'Verse 2', song: 'Cleansed', section: 'Verse 2', lines: ['Here at the table where children are fed', 'We are filled with', 'The mercy of the Lamb and the Bread'] }),
+    makeSlide('lyrics', { name: 'Pre-Chorus 2', song: 'Cleansed', section: 'Pre-Chorus', lines: ['I feast now daily because I have learned to live', 'In the grace that belongs to all who are born again'] }),
+    makeSlide('lyrics', { name: 'Bridge', song: 'Cleansed', section: 'Bridge', lines: ['Glory glory', 'This is what is called glory'] }),
+    makeSlide('lyrics', { name: 'Chorus 2', song: 'Cleansed', section: 'Chorus 1', lines: ['I am cleansed I am washed', 'I am sanctified', 'I am Holy Ghost filled and water baptized'] }),
+    makeSlide('lyrics', { name: 'Chorus 2b', song: 'Cleansed', section: 'Chorus 1', lines: ['I am right with my God for all time', 'Cause Jesus my Savior', 'Jesus my Savior', "Jesus my Savior's alive"] }),
   ],
 })
 
@@ -151,7 +237,13 @@ export const useSanctuaryStore = create((set, get) => ({
 
   // Song library — persisted songs for reuse across services
   songLibrary: [
-    { id: uid(), name: 'Goodness Of God', slides: goodness.slides },
+    { id: uid(), name: 'Goodness Of God',   slides: goodness.slides },
+    { id: uid(), name: 'I Am A Christian',  slides: iAmAChristian.slides },
+    { id: uid(), name: 'F.A.I.T.H.',        slides: faith.slides },
+    { id: uid(), name: 'Bigger Than Big',   slides: biggerThanBig.slides },
+    { id: uid(), name: 'Knowing You',       slides: knowingYou.slides },
+    { id: uid(), name: 'Cleansed',          slides: cleansed.slides },
+    { id: uid(), name: 'Amazing Grace',     slides: [] }, // built-in
   ],
 
   // ── Derived ───────────────────────────────────────────────────────────────

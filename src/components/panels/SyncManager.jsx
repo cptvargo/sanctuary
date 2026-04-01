@@ -144,8 +144,8 @@ export function SyncButton() {
 
   const getServiceData = () => ({
     serviceOrder,
-    checklist,
     songLibrary,
+    // checklist intentionally excluded — always loads from store defaults
     savedAt: new Date().toISOString(),
     version: '1.0',
   })
@@ -177,8 +177,9 @@ export function SyncButton() {
     if (!data?.serviceOrder) return
     useSanctuaryStore.setState({
       serviceOrder: data.serviceOrder,
-      ...(data.checklist   ? { checklist: data.checklist } : {}),
       ...(data.songLibrary ? { songLibrary: data.songLibrary } : {}),
+      // Checklist always uses store defaults — not restored from disk
+      // This ensures new items from app updates always appear
     })
   }
 

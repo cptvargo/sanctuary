@@ -2,10 +2,13 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useSanctuaryStore, makeSlide } from '../../store/sanctuaryStore'
 import SlideCanvas from '../slides/SlideCanvas'
 import { sectionBadge } from '../slides/LyricsSlide'
+import { SMART_MEDIA_PRESETS, applySmartMedia } from '../slides/SmartMediaPresets'
+import CustomImageManager, { loadCustomImages } from './CustomImageManager'
 import LogoEditor from '../slides/editors/LogoEditor'
 import CountdownEditor from '../slides/editors/CountdownEditor'
 import ScriptureEditor from '../slides/editors/ScriptureEditor'
 import { AnnouncementEditor } from '../slides/editors/ScriptureEditor'
+import ImageEditor from '../slides/editors/ImageEditor'
 import styles from './CenterPanel.module.css'
 
 const BADGE_COLORS = { C:'#ff9500',C1:'#ff9500',C2:'#ff9500',C3:'#ff9500', B:'#bf5af2',B2:'#bf5af2', PC:'#30d158', I:'#636366', O:'#636366', T:'#30d158' }
@@ -148,6 +151,21 @@ function SongTextEditor({ item }) {
     autoSave(text, val)
   }
 
+  const [showThemePicker, setShowThemePicker] = useState(false)
+  const [showMyImages, setShowMyImages] = useState(false)
+
+  const applyThemeToAllSlides = (preset) => {
+    const themeChanges = applySmartMedia(preset)
+    useSanctuaryStore.setState(state => ({
+      serviceOrder: state.serviceOrder.map(i =>
+        i.id === item.id && i.kind === 'song'
+          ? { ...i, slides: i.slides.map(s => ({ ...s, ...themeChanges })) }
+          : i
+      ),
+    }))
+    setShowThemePicker(false)
+  }
+
   return (
     <div className={styles.songEditorWrap}>
       <div className={styles.songEditorHeader}>
@@ -157,10 +175,74 @@ function SongTextEditor({ item }) {
           onChange={e => handleNameChange(e.target.value)}
           placeholder="Song title"
         />
+        <button
+          className={styles.themePickerBtn}
+          onClick={() => setShowThemePicker(!showThemePicker)}
+          title="Apply background theme to all slides in this song"
+        >
+          ✦ Theme {showThemePicker ? '▴' : '▾'}
+        </button>
+        <button
+          className={styles.themePickerBtn}
+          onClick={() => setShowMyImages(true)}
+          title="Apply your own uploaded image to all slides"
+          style={{ marginLeft: 4 }}
+        >
+          🖼 My Images
+        </button>
         <span className={`${styles.autoSaveLabel} ${savedIndicator ? styles.autoSaveVisible : ''}`}>
           ✓ Auto-saved
         </span>
       </div>
+
+      {/* Theme picker — applies to ALL slides in this song at once */}
+      {showThemePicker && (
+        <div className={styles.themePickerWrap}>
+          <div className={styles.themePickerLabel}>Apply to all slides in this song</div>
+          <div className={styles.themeGrid}>
+            {SMART_MEDIA_PRESETS.map(preset => (
+              <div
+                key={preset.id}
+                className={styles.themePreset}
+                onClick={() => applyThemeToAllSlides(preset)}
+                style={{
+                  background: preset.type === 'image'
+                    ? `url(${preset.bgImageUrl}) center/cover`
+                    : preset.preview,
+                }}
+                title={preset.label}
+              >
+                <span className={styles.themePresetLabel}>{preset.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showMyImages && (
+        <CustomImageManager
+          onClose={() => setShowMyImages(false)}
+          onSelect={(img) => {
+            const themeChanges = {
+              bgImageUrl: img.dataUrl,
+              bgGradient: null,
+              bgColor: '#000000',
+              bgOverlayOpacity: 0.50,
+              textColor: '#ffffff',
+              smartMediaId: img.id,
+              fontId: 'montserrat',
+            }
+            useSanctuaryStore.setState(state => ({
+              serviceOrder: state.serviceOrder.map(i =>
+                i.id === item.id && i.kind === 'song'
+                  ? { ...i, slides: i.slides.map(s => ({ ...s, ...themeChanges })) }
+                  : i
+              ),
+            }))
+            setShowMyImages(false)
+          }}
+        />
+      )}
 
       <div className={styles.songEditorBody}>
         {/* Left: text input */}
@@ -226,6 +308,7 @@ function StandaloneEditor({ item }) {
       case 'countdown':    return <CountdownEditor {...props} />
       case 'scripture':    return <ScriptureEditor {...props} />
       case 'announcement': return <AnnouncementEditor {...props} />
+      case 'image':         return <ImageEditor {...props} />
       default:             return null
     }
   }
@@ -309,11 +392,43 @@ export default function CenterPanel({ activeItem }) {
         )}
       </div>
 
-      {/* Per-slide font size / color controls — shown when a tile is selected in preview mode */}
+      {/* Per-slide controls — shown when a tile is selected */}
       {isSong && !isEditMode && selectedSlide && selectedSlide.type === 'lyrics' && (
         <div className={styles.tileEditorBar}>
           <span className={styles.tileEditorLabel}>{selectedSlide.section || selectedSlide.name}</span>
           <span className={styles.tileEditorDivider} />
+
+          {/* Image overlay dimmer — show when slide has any image background */}
+          {(selectedSlide.bgImageUrl || (selectedSlide.smartMediaId && selectedSlide.smartMediaId !== 'none')) && (
+            <>
+              <label className={styles.tileEditorFieldLabel}>🌑 Dim</label>
+              <input
+                type="range"
+                min={0} max={0.95} step={0.05}
+                value={selectedSlide.bgOverlayOpacity ?? 0.55}
+                onChange={e => {
+                  const val = Number(e.target.value)
+                  // Apply to ALL slides in this song that share the same bgImageUrl
+                  const store = useSanctuaryStore.getState()
+                  store.serviceOrder.forEach(item => {
+                    if (item.kind === 'song' && item.id === activeItem.id) {
+                      item.slides.forEach(s => {
+                        if (s.bgImageUrl === selectedSlide.bgImageUrl) {
+                          store.updateSlide(s.id, { bgOverlayOpacity: val })
+                        }
+                      })
+                    }
+                  })
+                }}
+                style={{ width: 90, accentColor: 'var(--accent)' }}
+              />
+              <span className={styles.tileEditorVal}>
+                {Math.round((selectedSlide.bgOverlayOpacity ?? 0.55) * 100)}%
+              </span>
+              <span className={styles.tileEditorDivider} />
+            </>
+          )}
+
           <label className={styles.tileEditorFieldLabel}>Font size</label>
           <input
             type="range"

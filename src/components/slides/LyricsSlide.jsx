@@ -1,11 +1,12 @@
 import React from 'react'
+import { FONT_OPTIONS } from './SmartMediaPresets'
 
 export function sectionBadge(section = '') {
   const s = section.trim()
   if (!s) return ''
   const u = s.toUpperCase()
   if (/^CHORUS\s*(\d*)$/.test(u)) { const n = u.replace('CHORUS','').trim(); return n ? `C${n}` : 'C' }
-  if (/^VERSE\s*(\d+)$/.test(u)) return u.replace('VERSE','').trim()
+  if (/^VERSE\s*(\d+)$/.test(u)) { const n = u.replace('VERSE','').trim(); return n ? `V${n}` : 'V' }
   if (/^BRIDGE\s*(\d*)$/.test(u)) { const n = u.replace('BRIDGE','').trim(); return n ? `B${n}` : 'B' }
   if (/^PRE.?CHORUS/.test(u)) return 'PC'
   if (/^INTRO/.test(u)) return 'I'
@@ -33,42 +34,60 @@ export default function LyricsSlide({ slide }) {
     song = '',
     section = '',
     bgColor = '#050813',
+    bgGradient = null,
     textColor = '#ffffff',
     bgImageUrl = null,
-    fontSize = 100,  // percentage scale, 100 = default
+    bgOverlayOpacity = 0.55,
+    fontSize = 100,
+    fontId = 'montserrat',
   } = slide
+
+  const fontOpt = FONT_OPTIONS.find(f => f.id === fontId) || FONT_OPTIONS[1]
+  const fontFamily = fontOpt.family
+  const fontWeight = fontOpt.weight
 
   const nonEmptyLines = lines.filter(l => l && l.trim())
   const badge = sectionBadge(section)
   const badgeColor = getBadgeColor(badge)
 
-  // Base font size from line count, then scaled by user fontSize %
   const lineCount = nonEmptyLines.length || 1
   const basePct = lineCount <= 2 ? 9 : lineCount <= 4 ? 7 : lineCount <= 6 ? 5.5 : lineCount <= 8 ? 4.5 : 3.5
   const scaledPct = (basePct * (fontSize / 100)).toFixed(2)
 
+  // Build background style
+  let background
+  if (bgImageUrl) {
+    background = `url(${bgImageUrl}) center/cover no-repeat`
+  } else if (bgGradient) {
+    background = bgGradient
+  } else {
+    background = bgColor
+  }
+
   return (
     <div style={{
-      width: '100%',
-      height: '100%',
-      background: bgImageUrl
-        ? `linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),url(${bgImageUrl}) center/cover no-repeat`
-        : bgColor,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '6% 8%',
-      position: 'relative',
-      fontFamily: "'Cormorant Garamond', Georgia, serif",
+      width: '100%', height: '100%',
+      background,
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '6% 8%', position: 'relative',
+      fontFamily: fontFamily,
       overflow: 'hidden',
     }}>
+      {/* Dark overlay for image backgrounds */}
+      {bgImageUrl && bgOverlayOpacity > 0 && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `rgba(0,0,0,${bgOverlayOpacity})`,
+          pointerEvents: 'none',
+        }} />
+      )}
+
+      {/* Lyrics */}
       <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '2%',
-        width: '100%',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', gap: '3%',
+        width: '100%', position: 'relative', zIndex: 1,
       }}>
         {nonEmptyLines.map((line, i) => (
           <div key={i} style={{
@@ -76,9 +95,12 @@ export default function LyricsSlide({ slide }) {
             color: textColor,
             textAlign: 'center',
             lineHeight: 1.3,
-            fontWeight: 400,
-            textShadow: '0 2px 16px rgba(0,0,0,0.9)',
-            letterSpacing: '0.01em',
+            fontFamily,
+            fontWeight,
+            textShadow: bgImageUrl
+              ? '0 2px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,1), 0 4px 24px rgba(0,0,0,0.9)'
+              : '0 2px 8px rgba(0,0,0,0.8)',
+            letterSpacing: fontId === 'impact' ? '0.05em' : '0.01em',
             width: '100%',
           }}>
             {line}
@@ -86,43 +108,30 @@ export default function LyricsSlide({ slide }) {
         ))}
       </div>
 
-      {/* Section badge — bottom right, Proclaim style */}
+      {/* Section badge */}
       {badge && (
         <div style={{
-          position: 'absolute',
-          bottom: '4%',
-          right: '3%',
-          background: badgeColor,
-          color: '#000',
+          position: 'absolute', bottom: '4%', right: '3%',
+          background: badgeColor, color: '#000',
           fontFamily: "'Inter', sans-serif",
-          fontSize: '3.5cqh',
-          fontWeight: 800,
-          padding: '1% 2.5%',
-          borderRadius: '4px',
-          lineHeight: 1,
-          letterSpacing: '0.04em',
-          minWidth: '5%',
-          textAlign: 'center',
+          fontSize: '3.5cqh', fontWeight: 800,
+          padding: '1% 2.5%', borderRadius: '4px',
+          lineHeight: 1, letterSpacing: '0.04em',
+          minWidth: '5%', textAlign: 'center', zIndex: 2,
         }}>
           {badge}
         </div>
       )}
 
-      {/* Song title — bottom left */}
+      {/* Song title */}
       {song && (
         <div style={{
-          position: 'absolute',
-          bottom: '4%',
-          left: '3%',
-          fontSize: '2.2cqh',
-          color: `${textColor}55`,
+          position: 'absolute', bottom: '4%', left: '3%',
+          fontSize: '2.2cqh', color: `${textColor}55`,
           fontFamily: "'Inter', sans-serif",
-          fontWeight: 400,
-          letterSpacing: '0.05em',
-          maxWidth: '70%',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
+          fontWeight: 400, letterSpacing: '0.05em',
+          maxWidth: '70%', overflow: 'hidden',
+          textOverflow: 'ellipsis', whiteSpace: 'nowrap', zIndex: 2,
         }}>
           {song}
         </div>
