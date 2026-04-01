@@ -1,0 +1,246 @@
+import React, { useEffect, useState } from 'react'
+import { useSanctuaryStore } from '../../store/sanctuaryStore'
+import styles from './SyncManager.module.css'
+
+// ─── Update notification banner ───────────────────────────────────────────────
+
+export function UpdateBanner() {
+  const [state, setState] = useState(null) // null | 'available' | 'ready'
+
+  useEffect(() => {
+    if (typeof window.sanctuary === 'undefined') return
+    window.sanctuary.onUpdateAvailable(() => setState('available'))
+    window.sanctuary.onUpdateReady(() => setState('ready'))
+  }, [])
+
+  if (!state) return null
+
+  return (
+    <div className={styles.updateBanner}>
+      {state === 'available' && (
+        <span>⬇ Downloading update…</span>
+      )}
+      {state === 'ready' && (
+        <>
+          <span>✓ Update ready</span>
+          <button
+            className={styles.installBtn}
+            onClick={() => window.sanctuary?.installUpdate()}
+          >
+            Restart to update
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Sync settings modal ──────────────────────────────────────────────────────
+
+export function SyncSettings({ onClose }) {
+  const [token, setToken] = useState('')
+  const [status, setStatus] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [tokenSet, setTokenSet] = useState(false)
+
+  useEffect(() => {
+    if (typeof window.sanctuary === 'undefined') return
+    window.sanctuary.getConfig().then(cfg => {
+      setTokenSet(cfg.githubToken === '***set***')
+    })
+  }, [])
+
+  const handleSave = async () => {
+    if (!token && !tokenSet) { setStatus('Please enter your GitHub token'); return }
+    setLoading(true)
+    try {
+      await window.sanctuary.setConfig({ githubToken: token || '***set***' })
+      setTokenSet(true)
+      setStatus('✓ Token saved')
+    } catch (e) {
+      setStatus('Error: ' + e.message)
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={e => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <span className={styles.modalTitle}>Sync Settings</span>
+          <button className={styles.closeBtn} onClick={onClose}>×</button>
+        </div>
+
+        <div className={styles.modalBody}>
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>GitHub Token</div>
+            <div className={styles.sectionDesc}>
+              Used to sync your service order between home and church.
+              Generate a token at GitHub → Settings → Developer Settings → Personal Access Tokens → Tokens (classic).
+              Check <strong>gist</strong> scope only.
+            </div>
+            <div className={styles.tokenRow}>
+              <input
+                className={styles.tokenInput}
+                type="password"
+                value={token}
+                onChange={e => setToken(e.target.value)}
+                placeholder={tokenSet ? '••••••••••••• (already set)' : 'ghp_xxxxxxxxxxxx'}
+              />
+              <button className={styles.saveTokenBtn} onClick={handleSave} disabled={loading}>
+                {loading ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+            {status && <div className={styles.statusMsg}>{status}</div>}
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>How it works</div>
+            <div className={styles.sectionDesc}>
+              <strong>At home:</strong> Build your Sunday service, then click <strong>Push to Cloud</strong> in the top bar. Takes 2 seconds.<br/><br/>
+              <strong>At church:</strong> Open Sanctuary — it automatically pulls the latest service on startup. Everything is already set up.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Sync button component (used in TopBar) ───────────────────────────────────
+
+export function SyncButton() {
+  const { serviceOrder, checklist, songLibrary } = useSanctuaryStore()
+  const [syncState, setSyncState] = useState('idle') // idle | pushing | pulling | done | error
+  const [showSettings, setShowSettings] = useState(false)
+  const [lastSync, setLastSync] = useState(null)
+
+  // Auto-load on startup
+  useEffect(() => {
+    if (typeof window.sanctuary === 'undefined') return
+    pullOnStartup()
+  }, [])
+
+  // Auto-save locally every 30 seconds
+  useEffect(() => {
+    if (typeof window.sanctuary === 'undefined') return
+    const interval = setInterval(() => autoSaveLocal(), 30000)
+    autoSaveLocal() // save immediately on mount
+    return () => clearInterval(interval)
+  }, [serviceOrder, checklist, songLibrary])
+
+  const getServiceData = () => ({
+    serviceOrder,
+    checklist,
+    songLibrary,
+    savedAt: new Date().toISOString(),
+    version: '1.0',
+  })
+
+  const autoSaveLocal = async () => {
+    try {
+      await window.sanctuary.saveService(getServiceData())
+    } catch (_) {}
+  }
+
+  const pullOnStartup = async () => {
+    try {
+      // Try cloud first
+      const cloud = await window.sanctuary.pullService()
+      if (cloud.ok && cloud.data) {
+        loadServiceData(cloud.data)
+        setLastSync(new Date())
+        return
+      }
+      // Fall back to local
+      const local = await window.sanctuary.loadService()
+      if (local.ok && local.data) {
+        loadServiceData(local.data)
+      }
+    } catch (_) {}
+  }
+
+  const loadServiceData = (data) => {
+    if (!data?.serviceOrder) return
+    useSanctuaryStore.setState({
+      serviceOrder: data.serviceOrder,
+      ...(data.checklist   ? { checklist: data.checklist } : {}),
+      ...(data.songLibrary ? { songLibrary: data.songLibrary } : {}),
+    })
+  }
+
+  const handlePush = async () => {
+    if (typeof window.sanctuary === 'undefined') return
+    setSyncState('pushing')
+    try {
+      const result = await window.sanctuary.pushService(getServiceData())
+      if (result.ok) {
+        setLastSync(new Date())
+        setSyncState('done')
+        setTimeout(() => setSyncState('idle'), 2500)
+      } else {
+        setSyncState('error')
+        setTimeout(() => setSyncState('idle'), 3000)
+      }
+    } catch (_) {
+      setSyncState('error')
+      setTimeout(() => setSyncState('idle'), 3000)
+    }
+  }
+
+  const handlePull = async () => {
+    if (typeof window.sanctuary === 'undefined') return
+    setSyncState('pulling')
+    try {
+      const result = await window.sanctuary.pullService()
+      if (result.ok && result.data) {
+        loadServiceData(result.data)
+        setLastSync(new Date())
+        setSyncState('done')
+        setTimeout(() => setSyncState('idle'), 2500)
+      } else {
+        setSyncState('error')
+        setTimeout(() => setSyncState('idle'), 3000)
+      }
+    } catch (_) {
+      setSyncState('error')
+      setTimeout(() => setSyncState('idle'), 3000)
+    }
+  }
+
+  const syncLabel = {
+    idle:    '☁ Sync',
+    pushing: '↑ Pushing…',
+    pulling: '↓ Pulling…',
+    done:    '✓ Synced',
+    error:   '✗ Error',
+  }[syncState]
+
+  return (
+    <>
+      <div className={styles.syncGroup}>
+        <button
+          className={`${styles.syncBtn} ${styles[syncState]}`}
+          onClick={handlePush}
+          disabled={syncState !== 'idle'}
+          title="Push service to cloud (home → church)"
+        >
+          {syncLabel}
+        </button>
+        <button
+          className={styles.syncMenuBtn}
+          onClick={() => setShowSettings(true)}
+          title="Sync settings"
+        >
+          ⚙
+        </button>
+      </div>
+      {lastSync && (
+        <span className={styles.lastSync}>
+          Synced {lastSync.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </span>
+      )}
+      {showSettings && <SyncSettings onClose={() => setShowSettings(false)} />}
+    </>
+  )
+}

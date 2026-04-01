@@ -1,0 +1,184 @@
+.panel {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-mid);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border-dim);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.progress {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.printBtn, .resetBtn {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.printBtn:hover { color: var(--accent); border-color: var(--accent-border); }
+.resetBtn:hover { color: var(--green); border-color: #2a5a30; }
+
+.progressBar {
+  height: 2px;
+  background: var(--border-dim);
+  flex-shrink: 0;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition: all var(--transition);
+  cursor: default;
+}
+
+.item:hover { background: var(--bg-hover); border-color: var(--border-dim); }
+.item.done { opacity: 0.55; }
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border-bright);
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.item.done .checkbox {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkmark {
+  font-size: 11px;
+  color: white;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.itemText {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.item.done .itemText {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.removeItem {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+
+.item:hover .removeItem { opacity: 1; }
+.removeItem:hover { color: var(--live); }
+
+.addRow {
+  display: flex;
+  gap: 6px;
+  padding: 10px 8px;
+  border-top: 1px solid var(--border-dim);
+  flex-shrink: 0;
+}
+
+.addInput {
+  flex: 1;
+  background: var(--bg-base);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.addInput:focus { border-color: var(--accent-border); }
+.addInput::placeholder { color: var(--text-dim); }
+
+.addItemBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition);
+}
+
+.addItemBtn:hover { background: var(--bg-active); }

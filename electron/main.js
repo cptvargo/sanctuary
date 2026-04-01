@@ -1,0 +1,328 @@
+const { app, BrowserWindow, ipcMain, dialog, screen } = require('electron')
+const { autoUpdater } = require('electron-updater')
+const path = require('path')
+const fs = require('fs')
+const https = require('https')
+
+const isDev = process.env.NODE_ENV !== 'production'
+
+let operatorWin = null
+let projectorWin = null
+
+// ─── Paths ────────────────────────────────────────────────────────────────────
+
+// User data dir for persisted service file
+const USER_DATA = app.getPath('userData')
+const SERVICE_FILE = path.join(USER_DATA, 'service.json')
+const CONFIG_FILE  = path.join(USER_DATA, 'config.json')
+
+function loadConfig() {
+  try {
+    if (fs.existsSync(CONFIG_FILE)) return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'))
+  } catch (_) {}
+  return { githubToken: '', githubOwner: '', githubRepo: 'sanctuary' }
+}
+
+function saveConfig(cfg) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2))
+}
+
+// ─── Auto-updater ─────────────────────────────────────────────────────────────
+
+function setupAutoUpdater() {
+  if (isDev) return
+
+  autoUpdater.autoDownload = true
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on('update-available', () => {
+    if (operatorWin) operatorWin.webContents.send('update:available')
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    if (operatorWin) operatorWin.webContents.send('update:ready')
+  })
+
+  autoUpdater.on('error', (err) => {
+    console.log('Auto-update error:', err.message)
+  })
+
+  // Check for updates every 30 minutes
+  autoUpdater.checkForUpdates()
+  setInterval(() => autoUpdater.checkForUpdates(), 30 * 60 * 1000)
+}
+
+// ─── GitHub service sync ──────────────────────────────────────────────────────
+
+// Save service JSON to a GitHub Gist (identified by gist ID stored in config)
+function githubRequest(method, endpoint, token, body) {
+  return new Promise((resolve, reject) => {
+    const data = body ? JSON.stringify(body) : null
+    const options = {
+      hostname: 'api.github.com',
+      path: endpoint,
+      method,
+      headers: {
+        'User-Agent': 'Sanctuary-App',
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json',
+        ...(data ? { 'Content-Length': Buffer.byteLength(data) } : {}),
+      },
+    }
+
+    const req = https.request(options, (res) => {
+      let raw = ''
+      res.on('data', chunk => raw += chunk)
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(raw) }) }
+        catch (_) { resolve({ status: res.statusCode, body: raw }) }
+      })
+    })
+
+    req.on('error', reject)
+    if (data) req.write(data)
+    req.end()
+  })
+}
+
+async function pushServiceToGist(serviceData, config) {
+  const { githubToken, gistId } = config
+  if (!githubToken) throw new Error('No GitHub token configured')
+
+  const content = JSON.stringify(serviceData, null, 2)
+
+  if (gistId) {
+    // Update existing gist
+    const res = await githubRequest('PATCH', `/gists/${gistId}`, githubToken, {
+      files: { 'sanctuary-service.json': { content } }
+    })
+    if (res.status !== 200) throw new Error(`Gist update failed: ${res.status}`)
+    return gistId
+  } else {
+    // Create new gist
+    const res = await githubRequest('POST', '/gists', githubToken, {
+      description: 'Sanctuary Church Service Data',
+      public: false,
+      files: { 'sanctuary-service.json': { content } }
+    })
+    if (res.status !== 201) throw new Error(`Gist create failed: ${res.status}`)
+    const newId = res.body.id
+    // Save gist ID to config
+    const newConfig = { ...config, gistId: newId }
+    saveConfig(newConfig)
+    return newId
+  }
+}
+
+async function pullServiceFromGist(config) {
+  const { githubToken, gistId } = config
+  if (!githubToken || !gistId) return null
+
+  const res = await githubRequest('GET', `/gists/${gistId}`, githubToken)
+  if (res.status !== 200) throw new Error(`Gist fetch failed: ${res.status}`)
+
+  const fileContent = res.body.files?.['sanctuary-service.json']?.content
+  if (!fileContent) return null
+  return JSON.parse(fileContent)
+}
+
+// ─── Window creation ─────────────────────────────────────────────────────────
+
+function createOperatorWindow() {
+  operatorWin = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 1100,
+    minHeight: 700,
+    title: 'Sanctuary',
+    backgroundColor: '#111318',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  })
+
+  if (isDev) {
+    operatorWin.loadURL('http://localhost:5175')
+  } else {
+    operatorWin.loadFile(path.join(__dirname, '../dist/index.html'))
+  }
+
+  operatorWin.on('closed', () => {
+    operatorWin = null
+    if (projectorWin) projectorWin.close()
+  })
+}
+
+function createProjectorWindow() {
+  const displays = screen.getAllDisplays()
+  const external = displays.find(d => d.id !== screen.getPrimaryDisplay().id)
+  const target = external || screen.getPrimaryDisplay()
+
+  projectorWin = new BrowserWindow({
+    x: target.bounds.x,
+    y: target.bounds.y,
+    width: target.bounds.width,
+    height: target.bounds.height,
+    frame: false,
+    alwaysOnTop: !isDev,
+    backgroundColor: '#000000',
+    title: 'Sanctuary — Projector',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  })
+
+  if (isDev) {
+    projectorWin.loadURL('http://localhost:5175/?projector=1')
+    projectorWin.setSize(960, 540)
+    projectorWin.setPosition(target.bounds.x + 200, target.bounds.y + 150)
+    projectorWin.setAlwaysOnTop(false)
+  } else {
+    projectorWin.loadFile(path.join(__dirname, '../dist/index.html'), {
+      query: { projector: '1' },
+    })
+    if (external) projectorWin.setFullScreen(true)
+  }
+
+  projectorWin.on('closed', () => { projectorWin = null })
+}
+
+// ─── IPC handlers ─────────────────────────────────────────────────────────────
+
+// Projector relay
+ipcMain.on('projector:update', (event, payload) => {
+  if (projectorWin && !projectorWin.isDestroyed()) {
+    projectorWin.webContents.send('projector:update', payload)
+  }
+})
+
+ipcMain.handle('projector:open', () => {
+  if (!projectorWin || projectorWin.isDestroyed()) {
+    createProjectorWindow()
+    return true
+  }
+  return false
+})
+
+ipcMain.handle('projector:close', () => {
+  if (projectorWin && !projectorWin.isDestroyed()) projectorWin.close()
+})
+
+// File dialogs
+ipcMain.handle('dialog:openPptx', async () => {
+  const result = await dialog.showOpenDialog(operatorWin, {
+    title: 'Import PowerPoint',
+    filters: [{ name: 'PowerPoint', extensions: ['pptx', 'ppt'] }],
+    properties: ['openFile'],
+  })
+  if (result.canceled || !result.filePaths.length) return null
+  return result.filePaths[0]
+})
+
+ipcMain.handle('dialog:openImage', async () => {
+  const result = await dialog.showOpenDialog(operatorWin, {
+    title: 'Select Church Logo',
+    filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'svg', 'webp'] }],
+    properties: ['openFile'],
+  })
+  if (result.canceled || !result.filePaths.length) return null
+  const filePath = result.filePaths[0]
+  const buffer = fs.readFileSync(filePath)
+  const ext = path.extname(filePath).slice(1).toLowerCase()
+  const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext}`
+  return `data:${mime};base64,${buffer.toString('base64')}`
+})
+
+ipcMain.handle('file:read', async (event, filePath) => {
+  try { return fs.readFileSync(filePath).toString('base64') }
+  catch (_) { return null }
+})
+
+// ── Service data persistence ──────────────────────────────────────────────────
+
+// Save service to local disk
+ipcMain.handle('service:save', async (event, serviceData) => {
+  try {
+    fs.writeFileSync(SERVICE_FILE, JSON.stringify(serviceData, null, 2))
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+// Load service from local disk
+ipcMain.handle('service:load', async () => {
+  try {
+    if (fs.existsSync(SERVICE_FILE)) {
+      return { ok: true, data: JSON.parse(fs.readFileSync(SERVICE_FILE, 'utf8')) }
+    }
+    return { ok: false, error: 'No saved service' }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+// Push service to GitHub Gist
+ipcMain.handle('service:push', async (event, serviceData) => {
+  try {
+    const config = loadConfig()
+    const gistId = await pushServiceToGist(serviceData, config)
+    return { ok: true, gistId }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+// Pull service from GitHub Gist
+ipcMain.handle('service:pull', async () => {
+  try {
+    const config = loadConfig()
+    const data = await pullServiceFromGist(config)
+    if (!data) return { ok: false, error: 'No cloud data found' }
+    // Also save locally
+    fs.writeFileSync(SERVICE_FILE, JSON.stringify(data, null, 2))
+    return { ok: true, data }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+// Config (GitHub token etc.)
+ipcMain.handle('config:get', () => {
+  const cfg = loadConfig()
+  // Don't send token to renderer in full — just indicate if it's set
+  return { ...cfg, githubToken: cfg.githubToken ? '***set***' : '' }
+})
+
+ipcMain.handle('config:set', (event, cfg) => {
+  const current = loadConfig()
+  // If token is the masked value, keep existing
+  const token = cfg.githubToken === '***set***' ? current.githubToken : cfg.githubToken
+  saveConfig({ ...current, ...cfg, githubToken: token })
+  return { ok: true }
+})
+
+// Auto-updater controls
+ipcMain.handle('updater:install', () => {
+  autoUpdater.quitAndInstall()
+})
+
+// ─── App lifecycle ────────────────────────────────────────────────────────────
+
+app.whenReady().then(() => {
+  createOperatorWindow()
+  setupAutoUpdater()
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createOperatorWindow()
+  })
+})
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit()
+})

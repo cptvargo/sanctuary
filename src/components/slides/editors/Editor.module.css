@@ -1,0 +1,242 @@
+.editor {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+  margin-bottom: 2px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.label {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.input {
+  background: var(--bg-base);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  padding: 4px 8px;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  transition: border-color var(--transition);
+}
+
+.input:focus {
+  border-color: var(--border-bright);
+}
+
+.input::placeholder {
+  color: var(--text-dim);
+}
+
+.lineRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lineNum {
+  font-size: 10px;
+  color: var(--text-dim);
+  width: 14px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.lineInput {
+  flex: 1;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color var(--transition);
+  flex-shrink: 0;
+}
+
+.removeBtn:hover {
+  color: var(--accent-red);
+}
+
+.addLineBtn {
+  background: none;
+  border: 1px dashed var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.addLineBtn:hover {
+  border-color: var(--border-bright);
+  color: var(--text-secondary);
+}
+
+.colorPicker {
+  width: 28px;
+  height: 22px;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: 1px;
+  background: var(--bg-base);
+  cursor: pointer;
+}
+
+.textarea {
+  background: var(--bg-base);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  padding: 6px 8px;
+  outline: none;
+  width: 100%;
+  resize: vertical;
+  min-height: 60px;
+  transition: border-color var(--transition);
+  line-height: 1.5;
+}
+
+.textarea:focus {
+  border-color: var(--border-bright);
+}
+
+.textarea::placeholder {
+  color: var(--text-dim);
+}
+
+.importBtn {
+  padding: 5px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-purple-bg);
+  border: 1px solid #3a1a5a;
+  color: var(--accent-purple);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.importBtn:hover {
+  background: #1e0a2e;
+}
+
+.uploadedFile {
+  font-size: 11px;
+  color: var(--accent-purple);
+  background: var(--accent-purple-bg);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.slideNav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slideNavBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-mid);
+  color: var(--text-muted);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition);
+}
+
+.slideNavBtn:hover {
+  color: var(--text-primary);
+}
+
+.slideNavInfo {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 60px;
+  text-align: center;
+}
+
+.select {
+  background: var(--bg-base);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  padding: 4px 8px;
+  outline: none;
+  cursor: pointer;
+}
+
+.numberInput {
+  width: 60px;
+  background: var(--bg-base);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  padding: 4px 8px;
+  outline: none;
+  text-align: center;
+}
+
+.resetBtn {
+  background: none;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.resetBtn:hover {
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}

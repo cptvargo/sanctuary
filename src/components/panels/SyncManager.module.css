@@ -1,0 +1,214 @@
+.updateBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  background: var(--accent-bg);
+  border-bottom: 1px solid var(--accent-border);
+  font-size: 12px;
+  color: var(--accent-bright);
+  flex-shrink: 0;
+}
+
+.installBtn {
+  padding: 3px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.installBtn:hover { background: var(--accent-bright); }
+
+/* Sync button group */
+.syncGroup {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.syncBtn {
+  padding: 6px 12px;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border: 1px solid var(--border-mid);
+  border-right: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.syncBtn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.syncBtn:disabled { opacity: 0.6; cursor: default; }
+
+.syncBtn.done {
+  color: var(--green);
+  border-color: #2a5a30;
+  background: var(--green-bg);
+}
+
+.syncBtn.error {
+  color: var(--red);
+  border-color: var(--red);
+  background: var(--red-bg);
+}
+
+.syncBtn.pushing,
+.syncBtn.pulling {
+  color: var(--accent);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+}
+
+.syncMenuBtn {
+  padding: 6px 8px;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.syncMenuBtn:hover {
+  color: var(--text-secondary);
+  border-color: var(--border-bright);
+  background: var(--bg-hover);
+}
+
+.lastSync {
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Settings modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 600;
+}
+
+.modal {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-xl);
+  width: 500px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.8);
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.modalTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.closeBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: 1px solid var(--border-mid);
+  color: var(--text-muted);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+  line-height: 1;
+}
+
+.closeBtn:hover { color: var(--red); border-color: var(--red); }
+
+.modalBody { padding: 18px; display: flex; flex-direction: column; gap: 20px; }
+
+.section { display: flex; flex-direction: column; gap: 8px; }
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.sectionDesc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.sectionDesc strong { color: var(--text-secondary); }
+
+.tokenRow {
+  display: flex;
+  gap: 8px;
+}
+
+.tokenInput {
+  flex: 1;
+  background: var(--bg-base);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  padding: 7px 12px;
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.tokenInput:focus { border-color: var(--accent-border); }
+.tokenInput::placeholder { color: var(--text-dim); }
+
+.saveTokenBtn {
+  padding: 7px 16px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.saveTokenBtn:hover { background: var(--accent-bright); }
+.saveTokenBtn:disabled { opacity: 0.5; cursor: default; }
+
+.statusMsg {
+  font-size: 11px;
+  color: var(--green);
+  padding: 4px 0;
+}

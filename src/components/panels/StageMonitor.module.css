@@ -1,0 +1,90 @@
+.panel {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border-mid);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-dim);
+  flex-shrink: 0;
+}
+
+.headerLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.livePip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--live);
+  box-shadow: 0 0 0 2px rgba(255,149,0,0.2);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+.liveBar { height: 2px; background: transparent; transition: background var(--transition); flex-shrink: 0; }
+.liveBarOn { background: var(--live); }
+
+.monitorWrap { padding: 10px; flex-shrink: 0; }
+
+.monitor {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-mid);
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.monitorCanvas { width: 100%; height: 100%; pointer-events: none; }
+.blackText { font-size: 9px; color: #2a2a2a; font-weight: 700; letter-spacing: 0.1em; }
+.noOutput  { font-size: 10px; color: #1e2030; }
+
+.monitorLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 5px;
+}
+
+.modeBar {
+  margin: 0 10px 8px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.modePreview { background: rgba(255,149,0,0.08); color: var(--live); border: 1px solid rgba(255,149,0,0.15); }
+.modeEdit    { background: var(--bg-raised); color: var(--text-muted); border: 1px solid var(--border-dim); }
+
+.upNext { padding: 4px 10px 8px; border-bottom: 1px solid var(--border-dim); }
+.upNextLabel { font-size: 9px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 5px; }
+.upNextItem { display: flex; align-items: center; gap: 7px; padding: 4px 6px; border-radius: var(--radius-sm); margin-bottom: 2px; }
+.upNextItem:hover { background: var(--bg-hover); }
+.upNextIdx { font-size: 9px; color: var(--text-dim); min-width: 12px; }
+.upNextName { font-size: 11px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.shortcuts { margin-top: auto; padding: 10px 12px; border-top: 1px solid var(--border-dim); }
+.shortcutsLabel { font-size: 9px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 7px; }
+.shortcutRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.kbd { background: var(--bg-active); border: 1px solid var(--border-mid); border-radius: 3px; padding: 1px 5px; font-size: 9px; color: var(--text-muted); font-family: var(--font-ui); font-style: normal; }
+.kbdDesc { font-size: 9px; color: var(--text-dim); }

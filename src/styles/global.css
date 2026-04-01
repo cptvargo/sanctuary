@@ -1,0 +1,92 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Premium charcoal — like a pro broadcast tool */
+  --bg-base:       #111318;
+  --bg-surface:    #181b22;
+  --bg-raised:     #1e2130;
+  --bg-hover:      #232838;
+  --bg-active:     #2a3040;
+  --bg-card:       #1a1d28;
+
+  --border-dim:    #232838;
+  --border-mid:    #2e3448;
+  --border-bright: #3a4060;
+
+  --text-primary:  #f0f2f8;
+  --text-secondary:#9aa3be;
+  --text-muted:    #505878;
+  --text-dim:      #2e3448;
+
+  /* Electric indigo accent — premium, not churchy */
+  --accent:        #7b8fff;
+  --accent-bright: #9aaeff;
+  --accent-dim:    #4a5acc;
+  --accent-bg:     #141830;
+  --accent-border: #2a3268;
+
+  /* Warm amber for "live" state */
+  --live:          #ff9500;
+  --live-bright:   #ffb340;
+  --live-bg:       #1e1400;
+  --live-border:   #4a3000;
+
+  /* Status */
+  --green:         #34c759;
+  --green-bg:      #0a1e10;
+  --red:           #ff453a;
+  --red-bg:        #1e0a08;
+  --gold:          #ffd60a;
+  --gold-dim:      #a08800;
+  --purple:        #bf5af2;
+  --purple-bg:     #1a0828;
+
+  --font-ui:      'Inter', system-ui, sans-serif;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+
+  --radius-sm:    4px;
+  --radius-md:    6px;
+  --radius-lg:    10px;
+  --radius-xl:    16px;
+  --transition:   0.12s ease;
+
+  /* Legacy aliases */
+  --accent-blue:       var(--accent);
+  --accent-blue-bg:    var(--accent-bg);
+  --accent-gold:       var(--gold);
+  --accent-gold-bg:    var(--live-bg);
+  --accent-green:      var(--green);
+  --accent-green-bg:   var(--green-bg);
+  --accent-purple:     var(--purple);
+  --accent-purple-bg:  var(--purple-bg);
+  --accent-red:        var(--red);
+  --accent-red-bg:     var(--red-bg);
+  --accent-dim:        var(--accent-dim);
+  --accent-border:     var(--accent-border);
+  --live-border:       var(--live-border);
+}
+
+html, body, #root { height: 100%; overflow: hidden; }
+
+body {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+input, textarea { user-select: text; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+
+button { font-family: var(--font-ui); cursor: pointer; }
+
+@media print {
+  body { background: white; color: black; }
+  .no-print { display: none !important; }
+}
