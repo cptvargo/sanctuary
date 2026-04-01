@@ -121,12 +121,25 @@ export function SyncButton() {
     pullOnStartup()
   }, [])
 
-  // Auto-save locally every 30 seconds
+  // Auto-save locally on every change with a short debounce
+  const saveTimerRef = React.useRef(null)
   useEffect(() => {
     if (typeof window.sanctuary === 'undefined') return
-    const interval = setInterval(() => autoSaveLocal(), 30000)
-    autoSaveLocal() // save immediately on mount
-    return () => clearInterval(interval)
+    // Debounce saves to avoid hammering disk on every keystroke
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => autoSaveLocal(), 800)
+    return () => clearTimeout(saveTimerRef.current)
+  }, [serviceOrder, checklist, songLibrary])
+
+  // Also save on window close
+  useEffect(() => {
+    if (typeof window.sanctuary === 'undefined') return
+    const handleUnload = () => {
+      // Synchronous save attempt on close
+      window.sanctuary.saveService(getServiceData()).catch(() => {})
+    }
+    window.addEventListener('beforeunload', handleUnload)
+    return () => window.removeEventListener('beforeunload', handleUnload)
   }, [serviceOrder, checklist, songLibrary])
 
   const getServiceData = () => ({
@@ -145,17 +158,17 @@ export function SyncButton() {
 
   const pullOnStartup = async () => {
     try {
-      // Try cloud first
+      // Always load local first — it's the most recent save
+      const local = await window.sanctuary.loadService()
+      if (local.ok && local.data) {
+        loadServiceData(local.data)
+        return
+      }
+      // If no local data, try cloud
       const cloud = await window.sanctuary.pullService()
       if (cloud.ok && cloud.data) {
         loadServiceData(cloud.data)
         setLastSync(new Date())
-        return
-      }
-      // Fall back to local
-      const local = await window.sanctuary.loadService()
-      if (local.ok && local.data) {
-        loadServiceData(local.data)
       }
     } catch (_) {}
   }
