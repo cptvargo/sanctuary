@@ -4,7 +4,7 @@ const path = require('path')
 const fs = require('fs')
 const https = require('https')
 
-const isDev = process.env.NODE_ENV !== 'production'
+const isDev = !app.isPackaged
 
 let operatorWin = null
 let projectorWin = null
