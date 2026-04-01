@@ -4,7 +4,6 @@ import SlideCanvas from '../slides/SlideCanvas'
 import { sectionBadge } from '../slides/LyricsSlide'
 import LogoEditor from '../slides/editors/LogoEditor'
 import CountdownEditor from '../slides/editors/CountdownEditor'
-import PptxEditor from '../slides/editors/PptxEditor'
 import ScriptureEditor from '../slides/editors/ScriptureEditor'
 import { AnnouncementEditor } from '../slides/editors/ScriptureEditor'
 import styles from './CenterPanel.module.css'
@@ -225,7 +224,6 @@ function StandaloneEditor({ item }) {
     switch (slide.type) {
       case 'logo':         return <LogoEditor {...props} />
       case 'countdown':    return <CountdownEditor {...props} />
-      case 'pptx':         return <PptxEditor {...props} />
       case 'scripture':    return <ScriptureEditor {...props} />
       case 'announcement': return <AnnouncementEditor {...props} />
       default:             return null
@@ -244,7 +242,7 @@ function StandaloneEditor({ item }) {
         {isClickToSend && !isLiveSlide && <div className={styles.clickToSendOverlay}>Click to send live</div>}
       </div>
 
-      {/* Editor controls */}
+      {/* Editor controls — edit mode only */}
       {mode === 'edit' && renderEditor() && (
         <div className={styles.standaloneEditor}>
           {renderEditor()}

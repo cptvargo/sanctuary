@@ -6,8 +6,7 @@ export const makeSlide = (type, overrides = {}) => {
   const defaults = {
     logo:         { name: 'Church Logo', churchName: 'The Floodgates Church', tagline: 'Newport News, VA', logoDataUrl: null, bgColor: '#000000', textColor: '#c8a84a' },
     lyrics:       { name: 'New Lyrics', song: '', section: '', lines: ['', '', '', ''], bgColor: '#050813', textColor: '#ffffff', bgImageUrl: null },
-    countdown:    { name: 'Countdown', message: 'Service begins in', subMessage: 'Welcome — please be seated', durationMinutes: 10, bgColor: '#000000', accentColor: '#4a9edd', onEnd: 'advance' },
-    pptx:         { name: 'PowerPoint', filePath: null, slides: [], currentSlideIndex: 0 },
+    countdown:    { name: 'Countdown', message: 'Service begins in', subMessage: 'Welcome — please be seated', durationMinutes: 5, bgColor: '#000000', accentColor: '#4a9edd', onEnd: 'advance' },
     blank:        { name: 'Blank', bgColor: '#000000' },
     scripture:    { name: 'Scripture', reference: '', text: '', translation: 'KJV', bgColor: '#050813', textColor: '#e0e8ff' },
     announcement: { name: 'Announcement', title: '', body: '', bgColor: '#0a0a14', textColor: '#ffffff' },
@@ -55,8 +54,7 @@ export const flattenOrder = (order) => {
 }
 
 const logo = makeSlide('logo', { name: 'Church Logo' })
-const countdown = makeSlide('countdown', { name: 'Countdown — 10 min' })
-const pptx = makeSlide('pptx', { name: 'Sermon Notes' })
+const countdown = makeSlide('countdown', { name: 'Countdown' })
 const blank = makeSlide('blank', { name: 'Blank' })
 
 const goodness = makeSong({
@@ -90,7 +88,6 @@ const defaultOrder = [
       makeSlide('lyrics', { name: 'Chorus 1', song: 'I Am A Christian', section: 'Chorus 1', lines: ["I've got a shield of faith", 'Righteous breastplate', 'Sword of the Spirit', 'My loins are covered by truth'] }),
     ],
   }),
-  { id: uid(), kind: 'slide', slide: pptx },
   { id: uid(), kind: 'slide', slide: blank },
 ]
 
@@ -305,19 +302,6 @@ export const useSanctuaryStore = create((set, get) => ({
   setActiveSection: (section) => set({ activeSection: section }),
 
   // ── PPTX ─────────────────────────────────────────────────────────────────
-  pptxNext: (slideId) => {
-    const slide = flattenOrder(get().serviceOrder).find(s => s.id === slideId)
-    if (!slide) return
-    get().updateSlide(slideId, { currentSlideIndex: Math.min(slide.currentSlideIndex + 1, slide.slides.length - 1) })
-    get()._syncProjector()
-  },
-  pptxPrev: (slideId) => {
-    const slide = flattenOrder(get().serviceOrder).find(s => s.id === slideId)
-    if (!slide) return
-    get().updateSlide(slideId, { currentSlideIndex: Math.max(slide.currentSlideIndex - 1, 0) })
-    get()._syncProjector()
-  },
-  pptxGoTo: (slideId, index) => { get().updateSlide(slideId, { currentSlideIndex: index }); get()._syncProjector() },
 
   // ── Countdown ─────────────────────────────────────────────────────────────
   initCountdown: (slideId, minutes) => {

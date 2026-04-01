@@ -2,7 +2,6 @@ import React from 'react'
 import LogoSlide from './LogoSlide'
 import LyricsSlide from './LyricsSlide'
 import CountdownSlide from './CountdownSlide'
-import PptxSlide from './PptxSlide'
 import BlankSlide from './BlankSlide'
 import ScriptureSlide from './ScriptureSlide'
 import AnnouncementSlide from './AnnouncementSlide'
@@ -16,7 +15,6 @@ export default function SlideCanvas({ slide, mini = false }) {
       case 'logo':         return <LogoSlide slide={slide} />
       case 'lyrics':       return <LyricsSlide slide={slide} />
       case 'countdown':    return <CountdownSlide slide={slide} />
-      case 'pptx':         return <PptxSlide slide={slide} />
       case 'blank':        return <BlankSlide slide={slide} />
       case 'scripture':    return <ScriptureSlide slide={slide} />
       case 'announcement': return <AnnouncementSlide slide={slide} />

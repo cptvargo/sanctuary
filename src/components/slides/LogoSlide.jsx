@@ -22,23 +22,21 @@ export default function LogoSlide({ slide }) {
       fontFamily: "'Cormorant Garamond', Georgia, serif",
     }}>
       {/* Logo area */}
-      <div style={{
-        width: '18%',
-        aspectRatio: '1',
-        borderRadius: '50%',
-        border: `2px solid ${textColor}44`,
-        background: `${textColor}11`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-      }}>
-        {logoDataUrl ? (
-          <img src={logoDataUrl} alt="Church logo" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
-        ) : (
+      {logoDataUrl ? (
+        <img
+          src={logoDataUrl}
+          alt="Church logo"
+          style={{ width: '55%', maxHeight: '60%', objectFit: 'contain' }}
+        />
+      ) : (
+        <div style={{
+          width: '18%', aspectRatio: '1', borderRadius: '50%',
+          border: `2px solid ${textColor}44`, background: `${textColor}11`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
           <span style={{ fontSize: '3.5vw', color: textColor }}>✦</span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Church name */}
       <div style={{

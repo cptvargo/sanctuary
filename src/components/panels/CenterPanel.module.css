@@ -520,3 +520,45 @@
 }
 
 .tileEditorReset:hover { color: var(--accent); border-color: var(--accent-border); }
+
+/* PPTX navigation bar — always visible */
+.pptxNavBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--bg-raised);
+  border-top: 1px solid var(--border-mid);
+  flex-shrink: 0;
+  gap: 12px;
+}
+
+.pptxNavBtn {
+  padding: 6px 20px;
+  border-radius: var(--radius-md);
+  background: var(--bg-active);
+  border: 1px solid var(--border-mid);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.pptxNavBtn:hover:not(:disabled) {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.pptxNavBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.pptxNavInfo {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}

@@ -4,7 +4,7 @@ import ChecklistPanel from './ChecklistPanel'
 import styles from './ServiceList.module.css'
 
 const ITEM_ICONS = {
-  song: '♪', logo: '✦', countdown: '⏱', pptx: '⊞',
+  song: '♪', logo: '✦', countdown: '⏱',
   blank: '◻', scripture: '✝', announcement: '!', lyrics: '♪',
 }
 
@@ -79,8 +79,7 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
               { type: 'song',         icon: '♪', label: 'Song',         desc: 'Song with lyrics editor' },
               { type: 'logo',         icon: '✦', label: 'Church Logo',  desc: 'Logo / welcome screen' },
               { type: 'countdown',    icon: '⏱', label: 'Countdown',    desc: 'Pre-service timer' },
-              { type: 'pptx',         icon: '⊞', label: 'PowerPoint',   desc: 'Import .pptx file' },
-              { type: 'scripture',    icon: '✝', label: 'Scripture',     desc: 'Bible verse' },
+                      { type: 'scripture',    icon: '✝', label: 'Scripture',     desc: 'Bible verse' },
               { type: 'announcement', icon: '!', label: 'Announcement',  desc: 'Title + body' },
               { type: 'blank',        icon: '◻', label: 'Blank',         desc: 'Black screen' },
             ].map(({ type, icon, label, desc }) => (
