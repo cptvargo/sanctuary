@@ -1,6 +1,6 @@
 {
   "name": "sanctuary",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Church presentation software — Sanctuary",
   "main": "electron/main.js",
   "scripts": {
@@ -37,12 +37,14 @@
       "dist/**/*",
       "electron/**/*"
     ],
-    "publish": {
-      "provider": "github",
-      "owner": "cptvargo",
-      "repo": "sanctuary",
-      "private": false
-    },
+"publish": {
+  "provider": "github",
+  "owner": "cptvargo",
+  "repo": "sanctuary",
+  "private": false,
+  "draft": false,
+  "prerelease": false
+},
     "win": {
       "target": [
         {
