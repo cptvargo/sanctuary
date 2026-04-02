@@ -240,7 +240,7 @@ ipcMain.handle('dialog:openPptx', async () => {
 
 ipcMain.handle('dialog:openImage', async () => {
   const result = await dialog.showOpenDialog(operatorWin, {
-    title: 'Select Church Logo',
+    title: 'Select Image',
     filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'svg', 'webp'] }],
     properties: ['openFile'],
   })
@@ -250,6 +250,21 @@ ipcMain.handle('dialog:openImage', async () => {
   const ext = path.extname(filePath).slice(1).toLowerCase()
   const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext}`
   return `data:${mime};base64,${buffer.toString('base64')}`
+})
+
+// Multiple image picker for announcements
+ipcMain.handle('dialog:openImages', async () => {
+  const result = await dialog.showOpenDialog(operatorWin, {
+    title: 'Select Images',
+    filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp'] }],
+    properties: ['openFile', 'multiSelections'],
+  })
+  if (result.canceled || !result.filePaths.length) return []
+  return result.filePaths.map(filePath => {
+    const buffer = fs.readFileSync(filePath)
+    const ext = path.extname(filePath).slice(1).toLowerCase()
+    return `data:image/${ext};base64,${buffer.toString('base64')}`
+  })
 })
 
 ipcMain.handle('file:read', async (event, filePath) => {

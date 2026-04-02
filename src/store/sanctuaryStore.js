@@ -10,6 +10,7 @@ export const makeSlide = (type, overrides = {}) => {
     blank:        { name: 'Blank', bgColor: '#000000' },
     scripture:    { name: 'Scripture', reference: '', text: '', translation: 'KJV', bgColor: '#050813', textColor: '#e0e8ff' },
     announcement: { name: 'Announcement', title: '', body: '', bgColor: '#0a0a14', textColor: '#ffffff' },
+    image:        { name: 'Announcement', images: [], currentIndex: 0, displayMode: 'announcement', bgColor: '#000000' },
   }
   return { id: uid(), type, transition: 'cut', ...(defaults[type] || {}), ...overrides }
 }
@@ -82,7 +83,6 @@ export const flattenOrder = (order) => {
 
 const logo = makeSlide('logo', { name: 'Church Logo' })
 const countdown = makeSlide('countdown', { name: 'Countdown' })
-const blank = makeSlide('blank', { name: 'Blank' })
 
 const goodness = makeSong({
   name: 'Goodness Of God',
@@ -174,7 +174,6 @@ const defaultOrder = [
       makeSlide('lyrics', { name: 'Chorus 1', song: 'I Am A Christian', section: 'Chorus 1', lines: ["I've got a shield of faith", 'Righteous breastplate', 'Sword of the Spirit', 'My loins are covered by truth'] }),
     ],
   }),
-  { id: uid(), kind: 'slide', slide: blank },
 ]
 
 // ─── Single global countdown interval — owned by the store, not any component ──
@@ -417,6 +416,22 @@ export const useSanctuaryStore = create((set, get) => ({
     })
   },
 
+  // ── Service management ────────────────────────────────────────────────────
+  resetServiceOrder: () => {
+    const freshLogo = makeSlide('logo', { name: 'Church Logo', churchName: 'The Floodgates Church', tagline: 'Newport News, VA' })
+    const freshCountdown = makeSlide('countdown', { name: 'Countdown', durationMinutes: 5, onEnd: 'advance' })
+    set({
+      serviceOrder: [
+        { id: uid(), kind: 'slide', slide: freshLogo },
+        { id: uid(), kind: 'slide', slide: freshCountdown },
+      ],
+      activeSlideId: freshLogo.id,
+      liveSlideId: null,
+      isLive: false,
+      isBlackOut: false,
+    })
+  },
+
   _checkStartCountdown: () => {
     const state = get()
     const liveSlide = state.getLiveSlide()
@@ -492,7 +507,15 @@ export const useSanctuaryStore = create((set, get) => ({
   _syncProjector: () => {
     const state = get()
     const liveSlide = state.getLiveSlide()
-    const payload = { isLive: state.isLive, isBlackOut: state.isBlackOut, slide: liveSlide, countdownRemaining: liveSlide ? state.countdownRemaining[liveSlide.id] : null }
+    // Inject logo data url into lyrics slides so projector can show church logo watermark
+    let enrichedSlide = liveSlide
+    if (liveSlide?.type === 'lyrics') {
+      const logoSlide = state.serviceOrder.find(i => i.slide?.type === 'logo')?.slide
+      if (logoSlide?.logoDataUrl) {
+        enrichedSlide = { ...liveSlide, _logoDataUrl: logoSlide.logoDataUrl }
+      }
+    }
+    const payload = { isLive: state.isLive, isBlackOut: state.isBlackOut, slide: enrichedSlide, countdownRemaining: liveSlide ? state.countdownRemaining[liveSlide.id] : null }
     if (typeof window.sanctuary !== 'undefined') window.sanctuary.sendToProjector(payload)
     try { const bc = new BroadcastChannel('sanctuary-projector'); bc.postMessage(payload); bc.close() } catch (_) {}
     // Start/stop countdown interval based on what's now live

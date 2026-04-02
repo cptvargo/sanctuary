@@ -1,0 +1,126 @@
+.imageList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 6px 0;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.imageRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-dim);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.imageRow:hover { border-color: var(--border-mid); background: var(--bg-hover); }
+
+.imageRowActive {
+  border-color: var(--accent-border) !important;
+  background: var(--accent-bg) !important;
+}
+
+.thumb {
+  width: 64px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border-dim);
+}
+
+.imageInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.captionInput {
+  background: var(--bg-base);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  padding: 3px 6px;
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+
+.captionInput:focus { border-color: var(--accent-border); }
+.captionInput::placeholder { color: var(--text-dim); }
+
+.imageNum {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.imageActions {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  color: var(--text-muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0;
+  line-height: 1;
+}
+
+.actionBtn:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--border-mid);
+}
+
+.actionBtn:disabled { opacity: 0.3; cursor: default; }
+
+.deleteBtn:hover:not(:disabled) {
+  color: var(--red) !important;
+  border-color: var(--red) !important;
+}
+
+.empty {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 16px;
+  border: 1px dashed var(--border-dim);
+  border-radius: var(--radius-md);
+}
+
+.addBtn {
+  width: 100%;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: var(--accent-bg);
+  border: 1px dashed var(--accent-border);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: 2px;
+}
+
+.addBtn:hover { background: var(--bg-active); }

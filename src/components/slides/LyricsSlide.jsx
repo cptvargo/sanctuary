@@ -1,5 +1,33 @@
 import React from 'react'
 import { FONT_OPTIONS } from './SmartMediaPresets'
+import { useSanctuaryStore } from '../../store/sanctuaryStore'
+
+function ChurchLogoWatermark({ textColor, logoDataUrl: propLogoUrl }) {
+  const serviceOrder = useSanctuaryStore(s => s.serviceOrder)
+  const logoSlide = serviceOrder.find(i => i.slide?.type === 'logo')?.slide
+  const logoDataUrl = propLogoUrl || logoSlide?.logoDataUrl || null
+
+  return (
+    <div style={{
+      position: 'absolute', bottom: '3%', right: '3%',
+      zIndex: 2, display: 'flex', alignItems: 'center', gap: '1.2%',
+      opacity: 0.45,
+    }}>
+      {logoDataUrl ? (
+        <img src={logoDataUrl} alt="logo"
+          style={{ height: '5cqh', width: 'auto', objectFit: 'contain' }} />
+      ) : (
+        <div style={{
+          fontSize: '2.2cqh', color: textColor,
+          fontFamily: "'Inter', sans-serif", fontWeight: 600,
+          letterSpacing: '0.08em', textTransform: 'uppercase',
+        }}>
+          The Floodgates
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function sectionBadge(section = '') {
   const s = section.trim()
@@ -28,7 +56,7 @@ function getBadgeColor(badge) {
   return '#636366'
 }
 
-export default function LyricsSlide({ slide }) {
+export default function LyricsSlide({ slide, mini = false, hideChrome = false }) {
   const {
     lines = [],
     song = '',
@@ -40,6 +68,7 @@ export default function LyricsSlide({ slide }) {
     bgOverlayOpacity = 0.55,
     fontSize = 100,
     fontId = 'montserrat',
+    _logoDataUrl = null,
   } = slide
 
   const fontOpt = FONT_OPTIONS.find(f => f.id === fontId) || FONT_OPTIONS[1]
@@ -108,8 +137,8 @@ export default function LyricsSlide({ slide }) {
         ))}
       </div>
 
-      {/* Section badge */}
-      {badge && (
+      {/* Section badge — operator slide tiles only */}
+      {badge && mini && (
         <div style={{
           position: 'absolute', bottom: '4%', right: '3%',
           background: badgeColor, color: '#000',
@@ -123,19 +152,22 @@ export default function LyricsSlide({ slide }) {
         </div>
       )}
 
-      {/* Song title */}
-      {song && (
+      {/* Song title bottom-left — projector only */}
+      {!mini && song && (
         <div style={{
-          position: 'absolute', bottom: '4%', left: '3%',
-          fontSize: '2.2cqh', color: `${textColor}55`,
+          position: 'absolute', bottom: '3%', left: '3%',
+          fontSize: '1.8cqh', color: `${textColor}50`,
           fontFamily: "'Inter', sans-serif",
           fontWeight: 400, letterSpacing: '0.05em',
-          maxWidth: '70%', overflow: 'hidden',
+          maxWidth: '55%', overflow: 'hidden',
           textOverflow: 'ellipsis', whiteSpace: 'nowrap', zIndex: 2,
         }}>
           {song}
         </div>
       )}
+
+      {/* Church logo bottom-right — projector only */}
+      {!mini && <ChurchLogoWatermark textColor={textColor} logoDataUrl={_logoDataUrl} />}
     </div>
   )
 }

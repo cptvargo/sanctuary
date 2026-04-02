@@ -4,7 +4,7 @@ import ChecklistPanel from './ChecklistPanel'
 import styles from './ServiceList.module.css'
 
 const ITEM_ICONS = {
-  song: '♪', logo: '✦', countdown: '⏱',
+  song: '♪', logo: '✦', countdown: '⏱', image: '🖼',
   blank: '◻', scripture: '✝', announcement: '!', lyrics: '♪',
 }
 
@@ -77,11 +77,10 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
             <div className={styles.menuTitle}>Add to Service</div>
             {[
               { type: 'song',         icon: '♪', label: 'Song',         desc: 'Song with lyrics editor' },
-              { type: 'logo',         icon: '✦', label: 'Church Logo',  desc: 'Logo / welcome screen' },
-              { type: 'countdown',    icon: '⏱', label: 'Countdown',    desc: 'Pre-service timer' },
-                      { type: 'scripture',    icon: '✝', label: 'Scripture',     desc: 'Bible verse' },
-              { type: 'announcement', icon: '!', label: 'Announcement',  desc: 'Title + body' },
-              { type: 'blank',        icon: '◻', label: 'Blank',         desc: 'Black screen' },
+              { type: 'logo',      icon: '✦', label: 'Church Logo',          desc: 'Logo / welcome screen' },
+              { type: 'countdown', icon: '⏱', label: 'Countdown',              desc: 'Pre-service timer' },
+              { type: 'image',     icon: '🖼', label: 'Image / Announcement',   desc: 'Photos, graphics, baby pics' },
+              { type: 'scripture', icon: '✝', label: 'Scripture',               desc: 'Bible verse' },
             ].map(({ type, icon, label, desc }) => (
               <button key={type} className={styles.menuItem} onClick={() => handleAdd(type)}>
                 <span className={styles.menuIcon}>{icon}</span>

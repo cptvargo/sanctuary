@@ -1,6 +1,6 @@
 {
   "name": "sanctuary",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Church presentation software — Sanctuary",
   "main": "electron/main.js",
   "scripts": {

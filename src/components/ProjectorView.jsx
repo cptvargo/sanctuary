@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react'
+import { useSanctuaryStore } from '../store/sanctuaryStore'
 import LogoSlide from './slides/LogoSlide'
 import LyricsSlide from './slides/LyricsSlide'
 import PptxSlide from './slides/PptxSlide'
 import BlankSlide, { ScriptureSlide, AnnouncementSlide } from './slides/BlankSlide'
+import ImageSlide from './slides/ImageSlide'
 
 // Projector-side countdown — NO local tick.
 // Operator sends countdownRemaining every second via _syncProjector.
 // Projector just renders what it receives. Perfect sync, no drift.
 function ProjectorCountdown({ slide, countdownRemaining }) {
   const remaining = countdownRemaining ?? slide.durationMinutes * 60
-  const { message, subMessage, bgColor = '#000', accentColor = '#4a9edd' } = slide
+  const { message, subMessage, bgColor = '#000', accentColor = '#4a9edd', bgImageUrl = null, bgOverlayOpacity = 0.6 } = slide
   const minutes = Math.floor(remaining / 60)
   const seconds = remaining % 60
   const timeStr = `${minutes}:${String(seconds).padStart(2, '0')}`
@@ -17,10 +19,15 @@ function ProjectorCountdown({ slide, countdownRemaining }) {
 
   return (
     <div style={{
-      width: '100%', height: '100%', background: bgColor,
+      width: '100%', height: '100%',
+      background: bgImageUrl ? `url(${bgImageUrl}) center/cover no-repeat` : bgColor,
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       justifyContent: 'center', gap: '2%', fontFamily: "'Inter', sans-serif",
+      position: 'relative', overflow: 'hidden',
     }}>
+      {bgImageUrl && (
+        <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${bgOverlayOpacity})`, pointerEvents: 'none', zIndex: 0 }} />
+      )}
       {message && (
         <div style={{
           fontSize: '3.5cqh', color: `${accentColor}88`,
@@ -55,6 +62,7 @@ function renderSlide(slide, countdownRemaining) {
     case 'blank':        return <BlankSlide slide={slide} />
     case 'scripture':    return <ScriptureSlide slide={slide} />
     case 'announcement': return <AnnouncementSlide slide={slide} />
+    case 'image':         return <ImageSlide slide={slide} />
     default:             return <BlankSlide slide={slide} />
   }
 }
@@ -79,11 +87,19 @@ export default function ProjectorView() {
   }, [])
 
   const handlePayload = (payload) => {
-    if (payload.slide?.transition === 'fade') {
+    // For image slides, read full slide data from store (avoids BroadcastChannel size limits)
+    let resolvedPayload = payload
+    if (payload.slide?.type === 'image') {
+      const storeSlide = useSanctuaryStore.getState().getLiveSlide()
+      if (storeSlide?.type === 'image') {
+        resolvedPayload = { ...payload, slide: storeSlide }
+      }
+    }
+    if (resolvedPayload.slide?.transition === 'fade') {
       setVisible(false)
-      setTimeout(() => { setState(payload); setVisible(true) }, 200)
+      setTimeout(() => { setState(resolvedPayload); setVisible(true) }, 200)
     } else {
-      setState(payload)
+      setState(resolvedPayload)
     }
   }
 

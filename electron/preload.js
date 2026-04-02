@@ -12,7 +12,8 @@ contextBridge.exposeInMainWorld('sanctuary', {
 
   // File dialogs
   openPptxDialog:  () => ipcRenderer.invoke('dialog:openPptx'),
-  openImageDialog: () => ipcRenderer.invoke('dialog:openImage'),
+  openImageDialog:  () => ipcRenderer.invoke('dialog:openImage'),
+  openImagesDialog: () => ipcRenderer.invoke('dialog:openImages'),
   readFile:        (filePath) => ipcRenderer.invoke('file:read', filePath),
 
   // Service data sync

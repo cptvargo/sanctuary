@@ -5,6 +5,7 @@ import CountdownSlide from './CountdownSlide'
 import BlankSlide from './BlankSlide'
 import ScriptureSlide from './ScriptureSlide'
 import AnnouncementSlide from './AnnouncementSlide'
+import ImageSlide from './ImageSlide'
 import styles from './SlideCanvas.module.css'
 
 export default function SlideCanvas({ slide, mini = false }) {
@@ -18,6 +19,7 @@ export default function SlideCanvas({ slide, mini = false }) {
       case 'blank':        return <BlankSlide slide={slide} />
       case 'scripture':    return <ScriptureSlide slide={slide} />
       case 'announcement': return <AnnouncementSlide slide={slide} />
+      case 'image':         return <ImageSlide slide={slide} />
       default:             return <BlankSlide slide={slide} />
     }
   }
