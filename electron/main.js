@@ -44,27 +44,50 @@ function setupAutoUpdater() {
   })
 
   autoUpdater.on('checking-for-update', () => {
-    console.log('Checking for update...')
-    if (operatorWin) operatorWin.webContents.send('update:checking')
+    console.log('[updater] Checking for update...')
+    if (operatorWin && !operatorWin.isDestroyed()) {
+      operatorWin.webContents.send('update:checking')
+      // Also send to renderer console for visibility
+      operatorWin.webContents.executeJavaScript('console.log("[updater] checking for update")')
+    }
   })
 
   autoUpdater.on('update-not-available', (info) => {
-    console.log('Update not available:', info.version)
-    if (operatorWin) operatorWin.webContents.send('update:not-available', info.version)
+    console.log('[updater] Up to date:', info.version)
+    if (operatorWin && !operatorWin.isDestroyed()) {
+      operatorWin.webContents.send('update:not-available', info.version)
+      operatorWin.webContents.executeJavaScript(`console.log("[updater] up to date: ${info.version}")`)
+    }
+  })
+
+  autoUpdater.on('update-available', (info) => {
+    console.log('[updater] Update available:', info.version)
+    if (operatorWin && !operatorWin.isDestroyed()) {
+      operatorWin.webContents.send('update:available')
+      operatorWin.webContents.executeJavaScript(`console.log("[updater] update available: ${info.version}")`)
+    }
   })
 
   autoUpdater.on('error', (err) => {
-    console.log('Auto-update error:', err.message)
-    if (operatorWin) operatorWin.webContents.send('update:error', err.message)
+    console.log('[updater] Error:', err.message)
+    if (operatorWin && !operatorWin.isDestroyed()) {
+      operatorWin.webContents.send('update:error', err.message)
+      operatorWin.webContents.executeJavaScript(`console.log("[updater] error: ${err.message.replace(/`/g, '')}")`)
+    }
   })
 
   autoUpdater.on('download-progress', (progress) => {
-    console.log('Download progress:', Math.round(progress.percent) + '%')
+    console.log('[updater] Download:', Math.round(progress.percent) + '%')
   })
 
-  // Check for updates every 30 minutes
-  autoUpdater.checkForUpdates()
-  setInterval(() => autoUpdater.checkForUpdates(), 30 * 60 * 1000)
+  // Small delay to ensure window is ready before first check
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch(err => console.log('[updater] checkForUpdates failed:', err.message))
+  }, 3000)
+
+  setInterval(() => {
+    autoUpdater.checkForUpdates().catch(err => console.log('[updater] interval check failed:', err.message))
+  }, 30 * 60 * 1000)
 }
 
 // ─── GitHub service sync ──────────────────────────────────────────────────────
