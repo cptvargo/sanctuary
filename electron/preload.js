@@ -26,9 +26,12 @@ contextBridge.exposeInMainWorld('sanctuary', {
   setConfig: (cfg) => ipcRenderer.invoke('config:set', cfg),
 
   // Auto-updater
-  onUpdateAvailable: (cb) => ipcRenderer.on('update:available', cb),
-  onUpdateReady:     (cb) => ipcRenderer.on('update:ready', cb),
-  installUpdate:     ()   => ipcRenderer.invoke('updater:install'),
+  onUpdateAvailable:    (cb) => ipcRenderer.on('update:available', cb),
+  onUpdateReady:        (cb) => ipcRenderer.on('update:ready', cb),
+  onUpdateChecking:     (cb) => ipcRenderer.on('update:checking', cb),
+  onUpdateNotAvailable: (cb) => ipcRenderer.on('update:not-available', (_, v) => cb(v)),
+  onUpdateError:        (cb) => ipcRenderer.on('update:error', (_, msg) => cb(msg)),
+  installUpdate:        ()   => ipcRenderer.invoke('updater:install'),
 
   // Detect projector window
   isProjector: () => {

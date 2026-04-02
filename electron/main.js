@@ -43,8 +43,23 @@ function setupAutoUpdater() {
     if (operatorWin) operatorWin.webContents.send('update:ready')
   })
 
+  autoUpdater.on('checking-for-update', () => {
+    console.log('Checking for update...')
+    if (operatorWin) operatorWin.webContents.send('update:checking')
+  })
+
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('Update not available:', info.version)
+    if (operatorWin) operatorWin.webContents.send('update:not-available', info.version)
+  })
+
   autoUpdater.on('error', (err) => {
     console.log('Auto-update error:', err.message)
+    if (operatorWin) operatorWin.webContents.send('update:error', err.message)
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    console.log('Download progress:', Math.round(progress.percent) + '%')
   })
 
   // Check for updates every 30 minutes
