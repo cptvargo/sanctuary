@@ -6,33 +6,18 @@ import styles from './SyncManager.module.css'
 
 export function UpdateBanner() {
   const [state, setState] = useState(null)
-  const [detail, setDetail] = useState('')
 
   useEffect(() => {
     if (typeof window.sanctuary === 'undefined') return
     window.sanctuary.onUpdateAvailable(() => setState('available'))
     window.sanctuary.onUpdateReady(() => setState('ready'))
-    // Listen for debug states
-    const { ipcRenderer } = window.require?.('electron') || {}
-    if (window.sanctuary.onUpdateChecking) {
-      window.sanctuary.onUpdateChecking(() => { setState('checking'); setDetail('') })
-    }
-    if (window.sanctuary.onUpdateNotAvailable) {
-      window.sanctuary.onUpdateNotAvailable((v) => { setState('current'); setDetail(v || '') })
-    }
-    if (window.sanctuary.onUpdateError) {
-      window.sanctuary.onUpdateError((msg) => { setState('error'); setDetail(msg || '') })
-    }
   }, [])
 
   if (!state) return null
 
   return (
     <div className={styles.updateBanner}>
-      {state === 'checking' && <span>🔍 Checking for updates…</span>}
-      {state === 'current' && <span style={{ color: 'var(--green)' }}>✓ App is up to date {detail ? `(v${detail})` : ''}</span>}
       {state === 'available' && <span>⬇ Downloading update…</span>}
-      {state === 'error' && <span style={{ color: 'var(--red)' }}>✗ Update error: {detail}</span>}
       {state === 'ready' && (
         <>
           <span>✓ Update ready</span>
