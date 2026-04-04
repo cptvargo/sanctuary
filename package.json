@@ -41,7 +41,7 @@
       "provider": "github",
       "owner": "cptvargo",
       "repo": "sanctuary",
-      "private": true
+      "private": false
     },
     "win": {
       "target": [

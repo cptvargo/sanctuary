@@ -39,9 +39,9 @@
 .uploadBtn {
   padding: 6px 16px;
   border-radius: var(--radius-md);
-  background: var(--accent);
-  border: none;
-  color: #fff;
+  background: transparent;
+  border: 1px solid var(--border-bright);
+  color: var(--text-primary);
   font-size: 12px;
   font-weight: 600;
   font-family: var(--font-ui);
@@ -49,7 +49,7 @@
   transition: all var(--transition);
 }
 
-.uploadBtn:hover { background: var(--accent-bright); }
+.uploadBtn:hover { border-color: #ffffff; color: #ffffff; }
 
 .closeBtn {
   width: 28px; height: 28px;
@@ -220,9 +220,9 @@
 .applyBtn {
   padding: 10px;
   border-radius: var(--radius-md);
-  background: var(--accent);
+  background: #ffffff;
   border: none;
-  color: #fff;
+  color: #000000;
   font-size: 13px;
   font-weight: 700;
   font-family: var(--font-ui);
@@ -231,8 +231,8 @@
   width: 100%;
 }
 
-.applyBtn:hover { background: var(--accent-bright); }
-.applyBtn:disabled { opacity: 0.4; cursor: default; }
+.applyBtn:hover { background: #e8e8e8; }
+.applyBtn:disabled { opacity: 0.3; cursor: default; }
 
 .activeDot {
   width: 7px;

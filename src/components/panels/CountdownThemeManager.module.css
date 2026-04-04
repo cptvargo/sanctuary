@@ -2,8 +2,8 @@
 .modal { background: var(--bg-raised); border: 1px solid var(--border-mid); border-radius: var(--radius-xl); width: 860px; max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 32px 80px rgba(0,0,0,0.9); }
 .header { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border-dim); flex-shrink: 0; }
 .title { font-size: 15px; font-weight: 700; color: var(--text-primary); flex: 1; }
-.uploadBtn { padding: 6px 16px; border-radius: var(--radius-md); background: var(--accent); border: none; color: #fff; font-size: 12px; font-weight: 600; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); }
-.uploadBtn:hover { background: var(--accent-bright); }
+.uploadBtn { padding: 6px 16px; border-radius: var(--radius-md); background: transparent; border: 1px solid var(--border-bright); color: var(--text-primary); font-size: 12px; font-weight: 600; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); }
+.uploadBtn:hover { border-color: #ffffff; color: #ffffff; }
 .closeBtn { width: 28px; height: 28px; border-radius: var(--radius-sm); background: none; border: 1px solid var(--border-mid); color: var(--text-muted); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--transition); padding: 0; line-height: 1; }
 .closeBtn:hover { color: var(--red); border-color: var(--red); }
 .body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
@@ -21,6 +21,6 @@
 .previewCanvas { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-md); overflow: hidden; background: #000; flex-shrink: 0; position: relative; }
 .styleInfo { display: flex; gap: 6px; }
 .stylePill { padding: 3px 10px; border-radius: 20px; background: var(--accent-bg); border: 1px solid var(--accent-border); color: var(--accent); font-size: 11px; font-weight: 600; text-transform: capitalize; }
-.applyBtn { margin-top: auto; padding: 10px; border-radius: var(--radius-md); background: var(--accent); border: none; color: #fff; font-size: 13px; font-weight: 700; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); width: 100%; }
-.applyBtn:hover { background: var(--accent-bright); }
+.applyBtn { margin-top: auto; padding: 10px; border-radius: var(--radius-md); background: #ffffff; border: none; color: #000000; font-size: 13px; font-weight: 700; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); width: 100%; }
+.applyBtn:hover { background: #e8e8e8; }
 .applyBtn:disabled { opacity: 0.4; cursor: default; }
