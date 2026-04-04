@@ -39,7 +39,7 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "GITHUB_USERNAME",
+      "owner": "cptvargo",
       "repo": "sanctuary",
       "private": true
     },
