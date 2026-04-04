@@ -11,6 +11,8 @@ const COUNTDOWN_THEMES = [
   { id: 'band-white',    label: 'Band — White',   timerStyle: 'band',    bgColor: '#0a0a0a', accentColor: '#ffffff', bgImageUrl: null, bgOverlayOpacity: 0.75 },
   { id: 'minimal-white', label: 'Minimal',        timerStyle: 'minimal', bgColor: '#000000', accentColor: '#ffffff', bgImageUrl: null, bgOverlayOpacity: 0.6 },
   { id: 'minimal-gold',  label: 'Minimal — Gold', timerStyle: 'minimal', bgColor: '#080600', accentColor: '#c8a84a', bgImageUrl: null, bgOverlayOpacity: 0.6 },
+  { id: 'risen',         label: 'He Is Risen',    timerStyle: 'risen',      bgColor: '#1a0800', accentColor: '#f5c842', bgImageUrl: './backgrounds/bg-he-is-risen.jpg', bgOverlayOpacity: 0.28, message: 'Service begins in', subMessage: 'He Is Risen' },
+  { id: 'victorious',    label: 'Victorious',      timerStyle: 'victorious', bgColor: '#f0f0f0', accentColor: '#e8140a', bgImageUrl: './backgrounds/bg-victorious.jpg', bgOverlayOpacity: 0 },
 ]
 
 const CUSTOM_KEY = 'sanctuary-countdown-themes'
@@ -58,8 +60,11 @@ export default function CountdownThemeManager({ slide, onClose }) {
 
   const handleApply = () => {
     if (!selectedTheme || !slide?.id) return
-    const { id: _id, label: _label, ...themeProps } = selectedTheme
-    updateSlide(slide.id, themeProps)
+    const { id: _id, label: _label, message, subMessage, ...themeProps } = selectedTheme
+    const updates = { ...themeProps }
+    if (message) updates.message = message
+    if (subMessage) updates.subMessage = subMessage
+    updateSlide(slide.id, updates)
     useSanctuaryStore.getState()._syncProjector()
     onClose()
   }

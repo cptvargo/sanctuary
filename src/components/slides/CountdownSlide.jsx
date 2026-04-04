@@ -116,6 +116,103 @@ export function CountdownRenderer({ slide, timeStr, isExpired }) {
     )
   }
 
+  // ── He Is Risen style ────────────────────────────────────────────────────
+  if (style === 'risen') {
+    return (
+      <div style={baseStyle}>
+        {overlay}
+        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+          {/* Top label */}
+          {message && (
+            <div style={{
+              fontSize: '2.8cqh', fontWeight: 400,
+              color: 'rgba(255,235,180,0.75)',
+              fontFamily: "'Inter', sans-serif",
+              letterSpacing: '0.35em', textTransform: 'uppercase',
+              marginBottom: '2cqh',
+            }}>{message}</div>
+          )}
+          {/* Gold timer */}
+          <div style={{
+            fontSize: '26cqh', fontWeight: 800,
+            color: isExpired ? '#888' : '#f5c842',
+            fontFamily: "'Inter', sans-serif",
+            letterSpacing: '-0.02em',
+            fontVariantNumeric: 'tabular-nums',
+            lineHeight: 1,
+            WebkitTextStroke: '1px rgba(255,255,255,0.2)',
+          }}>
+            {isExpired ? '—' : timeStr}
+          </div>
+          {/* White letterbox banner */}
+          {subMessage && (
+            <div style={{
+              marginTop: '3cqh',
+              background: 'rgba(255,255,255,0.92)',
+              padding: '1.4cqh 5cqh',
+              display: 'inline-block',
+            }}>
+              <div style={{
+                fontSize: '3.8cqh', fontWeight: 900,
+                color: '#1a0e00',
+                fontFamily: "'Inter', sans-serif",
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+              }}>
+                {subMessage}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // ── Victorious style ──────────────────────────────────────────────────────
+  if (style === 'victorious') {
+    return (
+      <div style={baseStyle}>
+        {overlay}
+        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' }}>
+          {/* Big bold red numbers with white stroke */}
+          <div style={{
+            fontSize: '28cqh',
+            fontWeight: 900,
+            color: isExpired ? '#888' : '#e8140a',
+            fontFamily: "'Inter', 'Arial Black', sans-serif",
+            letterSpacing: '-0.02em',
+            fontVariantNumeric: 'tabular-nums',
+            lineHeight: 1,
+            WebkitTextStroke: '2px #ffffff',
+            textShadow: '0 2px 0 rgba(0,0,0,0.15)',
+          }}>
+            {isExpired ? '—' : timeStr}
+          </div>
+          {/* White letterbox banner */}
+          {message && (
+            <div style={{
+              marginTop: '3cqh',
+              background: 'rgba(255,255,255,0.92)',
+              padding: '1.2cqh 4cqh',
+              display: 'inline-block',
+            }}>
+              <div style={{
+                fontSize: '3.8cqh',
+                fontWeight: 900,
+                color: '#1a1a1a',
+                fontFamily: "'Inter', 'Arial Black', sans-serif",
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+              }}>
+                {message}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   // ── Default style ──────────────────────────────────────────────────────────
   return (
     <div style={{ ...baseStyle, flexDirection: 'column', gap: '2%' }}>
