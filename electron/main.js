@@ -11,6 +11,9 @@ let projectorWin = null
 
 // ─── Paths ────────────────────────────────────────────────────────────────────
 
+// Lock userData to 'declare' folder regardless of productName changes
+app.setPath('userData', path.join(app.getPath('appData'), 'declare'))
+
 // User data dir for persisted service file
 const USER_DATA = app.getPath('userData')
 const SERVICE_FILE = path.join(USER_DATA, 'service.json')
