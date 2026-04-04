@@ -63,6 +63,32 @@ function parseSongText(text, songName) {
   return slides.map(s => makeSlide('lyrics', { song: songName, section: s.section, lines: s.lines }))
 }
 
+// ─── Auto-bracket section labels ─────────────────────────────────────────────
+
+const SECTION_KEYWORDS = [
+  'verse', 'chorus', 'bridge', 'pre-chorus', 'prechorus', 'pre chorus',
+  'intro', 'outro', 'hook', 'tag', 'interlude', 'refrain', 'vamp',
+  'instrumental', 'turnaround', 'ending', 'break',
+]
+
+function autoBracketLine(line) {
+  const trimmed = line.trim()
+  if (!trimmed) return line
+  // Already bracketed
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) return line
+  const lower = trimmed.toLowerCase()
+  const matched = SECTION_KEYWORDS.some(kw => {
+    // Match keyword at start, optionally followed by space + number/letter
+    return lower === kw || lower.startsWith(kw + ' ') || lower.startsWith(kw + '	')
+  })
+  if (matched) return `[${trimmed}]`
+  return line
+}
+
+function autoBracketText(text) {
+  return text.split('\n').map(autoBracketLine).join('\n')
+}
+
 // ─── Song text editor ─────────────────────────────────────────────────────────
 
 function SongTextEditor({ item }) {
@@ -81,11 +107,40 @@ function SongTextEditor({ item }) {
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => {
       const newSlides = parseSongText(newText, newName)
-      useSanctuaryStore.setState(state => ({
-        serviceOrder: state.serviceOrder.map(i =>
-          i.id === item.id ? { ...i, name: newName, slides: newSlides } : i
-        ),
-      }))
+      useSanctuaryStore.setState(state => {
+        const existing = state.serviceOrder.find(i => i.id === item.id)
+        // Preserve theme props from existing slides so editing never wipes the theme
+        const existingSlides = existing?.slides || []
+        const themeProps = (() => {
+          const src = existingSlides.find(s => s.type === 'lyrics') || existingSlides[0]
+          if (!src) return {}
+          return {
+            bgImageUrl: src.bgImageUrl ?? null,
+            bgGradient: src.bgGradient ?? null,
+            bgColor: src.bgColor ?? '#050813',
+            textColor: src.textColor ?? '#ffffff',
+            bgOverlayOpacity: src.bgOverlayOpacity ?? 0.55,
+            fontSize: src.fontSize ?? 100,
+            fontId: src.fontId ?? 'montserrat',
+            smartMediaId: src.smartMediaId ?? null,
+          }
+        })()
+        const mergedSlides = newSlides.map(s => ({ ...s, ...themeProps }))
+
+        // Also sync back to song library if this song exists there (match by name)
+        const updatedLibrary = state.songLibrary.map(libSong =>
+          libSong.name.toLowerCase() === (existing?.name || newName).toLowerCase()
+            ? { ...libSong, name: newName, slides: mergedSlides.map(s => ({ ...s })) }
+            : libSong
+        )
+
+        return {
+          serviceOrder: state.serviceOrder.map(i =>
+            i.id === item.id ? { ...i, name: newName, slides: mergedSlides } : i
+          ),
+          songLibrary: updatedLibrary,
+        }
+      })
       setSavedIndicator(true)
       setTimeout(() => setSavedIndicator(false), 1200)
     }, 600)
@@ -93,6 +148,20 @@ function SongTextEditor({ item }) {
 
   const handleTextChange = (val) => { setText(val); autoSave(val, name) }
   const handleNameChange = (val) => { setName(val); autoSave(text, val) }
+
+  // Auto-bracket on paste
+  const handlePaste = (e) => {
+    e.preventDefault()
+    const pasted = e.clipboardData.getData('text')
+    const bracketed = autoBracketText(pasted)
+    const textarea = e.target
+    const start = textarea.selectionStart
+    const end = textarea.selectionEnd
+    const newVal = text.slice(0, start) + bracketed + text.slice(end)
+    handleTextChange(newVal)
+  }
+
+
 
 
 
@@ -108,6 +177,7 @@ function SongTextEditor({ item }) {
         <button className={smStyles.smartMediaBtn} onClick={() => setShowThemeManager(true)}>
           ✦ Themes
         </button>
+
 
         <span className={`${styles.autoSaveLabel} ${savedIndicator ? styles.autoSaveVisible : ''}`}>
           ✓ Auto-saved
@@ -146,6 +216,7 @@ function SongTextEditor({ item }) {
             className={styles.lyricsTextarea}
             value={text}
             onChange={e => handleTextChange(e.target.value)}
+            onPaste={handlePaste}
             spellCheck={false}
             placeholder={`[Verse 1]\nI love You Lord\nOh Your mercy never fails me\nAll my days\n\n[Chorus]\nAll my life You have been faithful`}
           />
@@ -278,6 +349,59 @@ function StandaloneEditor({ item }) {
   )
 }
 
+// ─── Save Style button (preview bar) ─────────────────────────────────────────
+
+function SaveStyleBtn({ item }) {
+  const [saved, setSaved] = useState(false)
+
+  const handleSave = () => {
+    const store = useSanctuaryStore.getState()
+    const songItem = store.serviceOrder.find(i => i.id === item.id)
+    const src = songItem?.slides?.find(s => s.type === 'lyrics')
+    if (!src) return
+    const styleProps = {
+      bgImageUrl: src.bgImageUrl ?? null,
+      bgGradient: src.bgGradient ?? null,
+      bgColor: src.bgColor ?? '#050813',
+      textColor: src.textColor ?? '#ffffff',
+      bgOverlayOpacity: src.bgOverlayOpacity ?? 0.55,
+      fontSize: src.fontSize ?? 100,
+      fontId: src.fontId ?? 'montserrat',
+      smartMediaId: src.smartMediaId ?? null,
+    }
+    useSanctuaryStore.setState(state => {
+      const songItem = state.serviceOrder.find(i => i.id === item.id)
+      const updatedSlides = songItem?.slides?.map(s => ({ ...s, ...styleProps })) || []
+      return {
+        activeThemeProps: styleProps,
+        serviceOrder: state.serviceOrder.map(i =>
+          i.id === item.id && i.kind === 'song'
+            ? { ...i, slides: updatedSlides }
+            : i
+        ),
+        // Sync back to library too
+        songLibrary: state.songLibrary.map(libSong =>
+          libSong.name.toLowerCase() === (songItem?.name || '').toLowerCase()
+            ? { ...libSong, slides: updatedSlides.map(s => ({ ...s })) }
+            : libSong
+        ),
+      }
+    })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
+  }
+
+  return (
+    <button
+      className={styles.tileEditorReset}
+      onClick={handleSave}
+      style={{ padding: '2px 10px', minWidth: 90, color: saved ? 'var(--green)' : undefined, borderColor: saved ? 'var(--green)' : undefined }}
+    >
+      {saved ? '✓ Saved' : '💾 Save Style'}
+    </button>
+  )
+}
+
 // ─── Main CenterPanel ─────────────────────────────────────────────────────────
 
 export default function CenterPanel({ activeItem }) {
@@ -361,6 +485,8 @@ export default function CenterPanel({ activeItem }) {
           <span className={styles.tileEditorVal}>{selectedSlide.fontSize || 100}%</span>
           <button className={styles.tileEditorReset}
             onClick={() => updateSlide(selectedSlide.id, { fontSize: 100 })}>↺</button>
+          <span className={styles.tileEditorDivider} />
+          <SaveStyleBtn item={activeItem} />
         </div>
       )}
     </div>

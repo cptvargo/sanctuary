@@ -23,6 +23,7 @@ function saveCustomThemes(themes) {
 
 export default function ThemeManager({ onClose }) {
   const { serviceOrder } = useSanctuaryStore()
+  const activeThemeProps = useSanctuaryStore(s => s.activeThemeProps)
   const [customThemes, setCustomThemes] = useState(() => loadCustomThemes())
   const [hiddenIds, setHiddenIds] = useState(() => { try { return JSON.parse(localStorage.getItem('sanctuary-hidden-themes') || '[]') } catch { return [] } })
   const [nameOverrides, setNameOverrides] = useState(() => { try { return JSON.parse(localStorage.getItem('sanctuary-theme-names') || '{}') } catch { return {} } })
@@ -52,6 +53,9 @@ export default function ThemeManager({ onClose }) {
   const allThemes = [...builtInThemes, ...customThemes]
 
   const selectedTheme = allThemes.find(t => t.id === selected)
+
+  // Detect active theme from store props
+  const activeThemeId = activeThemeProps?.smartMediaId || null
 
   // Preview slide with selected theme applied
   const previewSlide = selectedTheme ? {
@@ -127,7 +131,9 @@ export default function ThemeManager({ onClose }) {
   const handleApply = () => {
     if (!selectedTheme) return
     const themeChanges = applySmartMedia(selectedTheme)
+    // Save as active theme so new songs inherit it
     useSanctuaryStore.setState(state => ({
+      activeThemeProps: { ...themeChanges, smartMediaId: selectedTheme.id },
       serviceOrder: state.serviceOrder.map(item => {
         if (item.kind !== 'song') return item
         if (applyScope !== 'all' && item.id !== applyScope) return item
@@ -172,6 +178,9 @@ export default function ThemeManager({ onClose }) {
 
                 {/* Name */}
                 <div className={styles.tileFooter}>
+                  {activeThemeId === theme.id && (
+                    <span className={styles.activeDot} title="Active theme" />
+                  )}
                   {editingName === theme.id ? (
                     <input
                       className={styles.nameInput}

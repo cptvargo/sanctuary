@@ -5,51 +5,17 @@ import LyricsSlide from './slides/LyricsSlide'
 import PptxSlide from './slides/PptxSlide'
 import BlankSlide, { ScriptureSlide, AnnouncementSlide } from './slides/BlankSlide'
 import ImageSlide from './slides/ImageSlide'
+import { CountdownRenderer } from './slides/CountdownSlide'
 
-// Projector-side countdown — NO local tick.
-// Operator sends countdownRemaining every second via _syncProjector.
-// Projector just renders what it receives. Perfect sync, no drift.
+// Projector-side countdown — uses same CountdownRenderer as operator.
+// No local tick — operator sends countdownRemaining every second via _syncProjector.
 function ProjectorCountdown({ slide, countdownRemaining }) {
   const remaining = countdownRemaining ?? slide.durationMinutes * 60
-  const { message, subMessage, bgColor = '#000', accentColor = '#4a9edd', bgImageUrl = null, bgOverlayOpacity = 0.6 } = slide
   const minutes = Math.floor(remaining / 60)
   const seconds = remaining % 60
   const timeStr = `${minutes}:${String(seconds).padStart(2, '0')}`
   const isExpired = remaining <= 0
-
-  return (
-    <div style={{
-      width: '100%', height: '100%',
-      background: bgImageUrl ? `url(${bgImageUrl}) center/cover no-repeat` : bgColor,
-      display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', gap: '2%', fontFamily: "'Inter', sans-serif",
-      position: 'relative', overflow: 'hidden',
-    }}>
-      {bgImageUrl && (
-        <div style={{ position: 'absolute', inset: 0, background: `rgba(0,0,0,${bgOverlayOpacity})`, pointerEvents: 'none', zIndex: 0 }} />
-      )}
-      {message && (
-        <div style={{
-          fontSize: '3.5cqh', color: `${accentColor}88`,
-          letterSpacing: '0.22em', textTransform: 'uppercase', fontWeight: 400,
-        }}>{message}</div>
-      )}
-      <div style={{
-        fontSize: '18cqh', fontWeight: 200,
-        color: isExpired ? '#cc4444' : accentColor,
-        letterSpacing: '0.04em', fontVariantNumeric: 'tabular-nums', lineHeight: 1,
-        transition: 'color 0.5s ease',
-      }}>
-        {isExpired ? '—' : timeStr}
-      </div>
-      {subMessage && (
-        <div style={{
-          fontSize: '2.5cqh', color: `${accentColor}44`,
-          letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: '1%',
-        }}>{subMessage}</div>
-      )}
-    </div>
-  )
+  return <CountdownRenderer slide={slide} timeStr={timeStr} isExpired={isExpired} />
 }
 
 function renderSlide(slide, countdownRemaining) {

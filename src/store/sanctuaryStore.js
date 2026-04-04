@@ -20,7 +20,7 @@ export const makeSong = (overrides = {}) => ({
   kind: 'song',
   name: overrides.name || 'New Song',
   expanded: true,
-  slides: overrides.slides || [makeSlide('lyrics', { name: 'V1' })],
+  slides: overrides.slides || [makeSlide('lyrics', { name: 'V1', ...( overrides.slideOverrides || {}) })],
 })
 
 const makeChecklist = () => ({
@@ -233,6 +233,7 @@ export const useSanctuaryStore = create((set, get) => ({
   activeSection: 'service',
   countdownRemaining: {},
   checklist: makeChecklist(),
+  activeThemeProps: null, // stores last applied theme slide props
 
   // Song library — persisted songs for reuse across services
   songLibrary: [
@@ -271,7 +272,15 @@ export const useSanctuaryStore = create((set, get) => ({
   },
 
   addSongItem: (afterItemId = null) => {
-    const song = makeSong({ name: 'New Song' })
+    const state = get()
+    // Only use activeThemeProps if it came from a lyrics theme (not countdown)
+    const themeProps = state.activeThemeProps || (() => {
+      // Fallback: inherit from first existing song's lyrics slides only
+      const existingSong = state.serviceOrder.find(i => i.kind === 'song' && i.slides?.some(s => s.type === 'lyrics'))
+      const s = existingSong?.slides?.find(sl => sl.type === 'lyrics')
+      return s ? { bgImageUrl: s.bgImageUrl || null, bgGradient: s.bgGradient || null, bgColor: s.bgColor || '#050813', textColor: s.textColor || '#ffffff', bgOverlayOpacity: s.bgOverlayOpacity ?? 0.55, fontSize: s.fontSize || 100, fontId: s.fontId || 'montserrat', smartMediaId: s.smartMediaId || null } : {}
+    })()
+    const song = makeSong({ name: 'New Song', slideOverrides: themeProps })
     set(state => {
       const order = [...state.serviceOrder]
       const idx = afterItemId ? order.findIndex(i => i.id === afterItemId) + 1 : order.length
@@ -483,10 +492,10 @@ export const useSanctuaryStore = create((set, get) => ({
   },
 
   addSongFromLibrary: (libSong) => {
-    // Deep-clone with new IDs so it's independent
+    const themeProps = get().activeThemeProps || {}
     const cloned = makeSong({
       name: libSong.name,
-      slides: libSong.slides.map(s => ({ ...s, id: uid() })),
+      slides: libSong.slides.map(s => ({ ...s, id: uid(), ...themeProps })),
     })
     set(state => ({ serviceOrder: [...state.serviceOrder, cloned] }))
   },

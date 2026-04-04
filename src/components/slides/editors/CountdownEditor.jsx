@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import CountdownThemeManager from '../../panels/CountdownThemeManager'
 import { useSanctuaryStore } from '../../../store/sanctuaryStore'
 import styles from './Editor.module.css'
 import cStyles from './CountdownEditor.module.css'
@@ -27,8 +28,19 @@ export default function CountdownEditor({ slide, onChange }) {
     resetCountdown(slide.id, mins)
   }
 
+  const [showThemes, setShowThemes] = useState(false)
+
   return (
     <div className={styles.editor}>
+
+      {/* Themes button */}
+      <div className={styles.row}>
+        <button className={styles.importBtn} style={{ width: '100%' }} onClick={() => setShowThemes(true)}>
+          ✦ Countdown Themes
+        </button>
+      </div>
+
+      {showThemes && <CountdownThemeManager slide={slide} onClose={() => setShowThemes(false)} />}
 
       {/* Duration + live controls */}
       <div className={styles.row}>
@@ -89,6 +101,50 @@ export default function CountdownEditor({ slide, onChange }) {
         <label className={styles.label}>Timer color</label>
         <input type="color" className={styles.colorPicker} value={accentColor} onChange={e => onChange({ accentColor: e.target.value })} />
       </div>
+
+      {/* Background image */}
+      <div className={styles.row}>
+        <label className={styles.label}>BG Image</label>
+        <button className={styles.importBtn} onClick={async () => {
+          let dataUrl = null
+          if (typeof window.sanctuary !== 'undefined') {
+            dataUrl = await window.sanctuary.openImageDialog()
+          } else {
+            dataUrl = await new Promise(res => {
+              const input = document.createElement('input')
+              input.type = 'file'; input.accept = 'image/*'
+              input.onchange = e => {
+                const file = e.target.files[0]; if (!file) { res(null); return }
+                const reader = new FileReader()
+                reader.onload = ev => res(ev.target.result)
+                reader.readAsDataURL(file)
+              }
+              input.click()
+            })
+          }
+          if (dataUrl) onChange({ bgImageUrl: dataUrl })
+        }}>
+          {slide.bgImageUrl ? '↺ Replace image' : '+ Background image'}
+        </button>
+        {slide.bgImageUrl && (
+          <button className={styles.resetBtn} onClick={() => onChange({ bgImageUrl: null })}>Clear</button>
+        )}
+      </div>
+
+      {slide.bgImageUrl && (
+        <div className={styles.row}>
+          <label className={styles.label}>Darkness</label>
+          <input
+            type="range" min={0} max={0.9} step={0.05}
+            value={slide.bgOverlayOpacity ?? 0.6}
+            onChange={e => onChange({ bgOverlayOpacity: Number(e.target.value) })}
+            style={{ flex: 1, accentColor: 'var(--accent)' }}
+          />
+          <span className={styles.label} style={{ minWidth: 36, textAlign: 'right' }}>
+            {Math.round((slide.bgOverlayOpacity ?? 0.6) * 100)}%
+          </span>
+        </div>
+      )}
     </div>
   )
 }
