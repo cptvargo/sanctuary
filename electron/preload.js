@@ -13,6 +13,12 @@ contextBridge.exposeInMainWorld('sanctuary', {
   // File dialogs
   openPptxDialog:  () => ipcRenderer.invoke('dialog:openPptx'),
   openImageDialog:  () => ipcRenderer.invoke('dialog:openImage'),
+  prefs: {
+    get:  (key)        => ipcRenderer.invoke('prefs:get', key),
+    set:  (key, value) => ipcRenderer.invoke('prefs:set', key, value),
+    load: ()           => ipcRenderer.invoke('prefs:load'),
+    save: (prefs)      => ipcRenderer.invoke('prefs:save', prefs),
+  },
   openImagesDialog: () => ipcRenderer.invoke('dialog:openImages'),
   readFile:        (filePath) => ipcRenderer.invoke('file:read', filePath),
 

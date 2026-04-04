@@ -3,6 +3,7 @@ import { useSanctuaryStore } from '../../store/sanctuaryStore'
 import { SMART_MEDIA_PRESETS, FONT_OPTIONS, applySmartMedia } from '../slides/SmartMediaPresets'
 import LyricsSlide from '../slides/LyricsSlide'
 import styles from './ThemeManager.module.css'
+import { persistGetSync, persistSetSync } from '../../utils/persistentStorage'
 
 const SAMPLE_SLIDE = {
   type: 'lyrics',
@@ -14,19 +15,15 @@ const SAMPLE_SLIDE = {
 
 const CUSTOM_THEMES_KEY = 'sanctuary-custom-themes'
 
-function loadCustomThemes() {
-  try { return JSON.parse(localStorage.getItem(CUSTOM_THEMES_KEY) || '[]') } catch { return [] }
-}
-function saveCustomThemes(themes) {
-  try { localStorage.setItem(CUSTOM_THEMES_KEY, JSON.stringify(themes)) } catch {}
-}
+function loadCustomThemes() { return persistGetSync(CUSTOM_THEMES_KEY) || [] }
+function saveCustomThemes(themes) { persistSetSync(CUSTOM_THEMES_KEY, themes) }
 
 export default function ThemeManager({ onClose }) {
   const { serviceOrder } = useSanctuaryStore()
   const activeThemeProps = useSanctuaryStore(s => s.activeThemeProps)
   const [customThemes, setCustomThemes] = useState(() => loadCustomThemes())
-  const [hiddenIds, setHiddenIds] = useState(() => { try { return JSON.parse(localStorage.getItem('sanctuary-hidden-themes') || '[]') } catch { return [] } })
-  const [nameOverrides, setNameOverrides] = useState(() => { try { return JSON.parse(localStorage.getItem('sanctuary-theme-names') || '{}') } catch { return {} } })
+  const [hiddenIds, setHiddenIds] = useState(() => persistGetSync('sanctuary-hidden-themes') || [])
+  const [nameOverrides, setNameOverrides] = useState(() => persistGetSync('sanctuary-theme-names') || {})
   const [selected, setSelected] = useState(null)
   const [editingName, setEditingName] = useState(null)
   const [editName, setEditName] = useState('')
@@ -103,7 +100,7 @@ export default function ThemeManager({ onClose }) {
       // Hide built-in theme
       const updated = [...hiddenIds, id]
       setHiddenIds(updated)
-      localStorage.setItem('sanctuary-hidden-themes', JSON.stringify(updated))
+      persistSetSync('sanctuary-hidden-themes', updated)
     }
     if (selected === id) setSelected(null)
   }
@@ -123,7 +120,7 @@ export default function ThemeManager({ onClose }) {
       // Built-in theme name override
       const updated = { ...nameOverrides, [id]: editName }
       setNameOverrides(updated)
-      localStorage.setItem('sanctuary-theme-names', JSON.stringify(updated))
+      persistSetSync('sanctuary-theme-names', updated)
     }
     setEditingName(null)
   }

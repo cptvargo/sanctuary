@@ -2,7 +2,7 @@
 .modal { background: var(--bg-raised); border: 1px solid var(--border-mid); border-radius: var(--radius-xl); width: 860px; max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 32px 80px rgba(0,0,0,0.9); }
 .header { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--border-dim); flex-shrink: 0; }
 .title { font-size: 15px; font-weight: 700; color: var(--text-primary); flex: 1; }
-.uploadBtn { padding: 6px 16px; border-radius: var(--radius-md); background: transparent; border: 1px solid var(--border-bright); color: var(--text-primary); font-size: 12px; font-weight: 600; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); }
+.uploadBtn { padding: 6px 16px; border-radius: var(--radius-md); background: transparent; border: 1px solid var(--border-bright); color: #ffffff; font-size: 12px; font-weight: 600; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); }
 .uploadBtn:hover { border-color: #ffffff; color: #ffffff; }
 .closeBtn { width: 28px; height: 28px; border-radius: var(--radius-sm); background: none; border: 1px solid var(--border-mid); color: var(--text-muted); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--transition); padding: 0; line-height: 1; }
 .closeBtn:hover { color: var(--red); border-color: var(--red); }
@@ -10,7 +10,7 @@
 .grid { flex: 1; overflow-y: auto; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; align-content: start; }
 .tile { border-radius: var(--radius-md); border: 2px solid var(--border-dim); overflow: hidden; cursor: pointer; transition: all var(--transition); }
 .tile:hover { border-color: var(--border-bright); transform: translateY(-1px); }
-.tileSelected { border-color: var(--accent) !important; box-shadow: 0 0 0 1px var(--accent); }
+.tileSelected { border-color: #ffffff !important; box-shadow: 0 0 0 1px rgba(255,255,255,0.4); }
 .thumb { aspect-ratio: 16 / 9; background: #000; overflow: hidden; position: relative; }
 .tileFooter { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: var(--bg-raised); }
 .tileName { font-size: 10px; color: var(--text-secondary); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
@@ -21,6 +21,6 @@
 .previewCanvas { width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-md); overflow: hidden; background: #000; flex-shrink: 0; position: relative; }
 .styleInfo { display: flex; gap: 6px; }
 .stylePill { padding: 3px 10px; border-radius: 20px; background: var(--accent-bg); border: 1px solid var(--accent-border); color: var(--accent); font-size: 11px; font-weight: 600; text-transform: capitalize; }
-.applyBtn { margin-top: auto; padding: 10px; border-radius: var(--radius-md); background: #ffffff; border: none; color: #000000; font-size: 13px; font-weight: 700; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); width: 100%; }
+.applyBtn { margin-top: auto; padding: 10px; border-radius: var(--radius-md); background: #ffffff !important; border: none; color: #000000 !important; font-size: 13px; font-weight: 800; font-family: var(--font-ui); cursor: pointer; transition: all var(--transition); width: 100%; }
 .applyBtn:hover { background: #e8e8e8; }
 .applyBtn:disabled { opacity: 0.4; cursor: default; }

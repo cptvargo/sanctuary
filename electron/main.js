@@ -275,6 +275,27 @@ ipcMain.handle('file:read', async (event, filePath) => {
 // ── Service data persistence ──────────────────────────────────────────────────
 
 // Save service to local disk
+// ── User preferences — persisted to userData so updates never wipe them ────
+const PREFS_FILE = path.join(USER_DATA, 'userPrefs.json')
+const loadPrefs = () => { try { return JSON.parse(fs.readFileSync(PREFS_FILE, 'utf8')) } catch { return {} } }
+
+ipcMain.handle('prefs:get', (_, key) => loadPrefs()[key] ?? null)
+ipcMain.handle('prefs:set', (_, key, value) => {
+  try {
+    const p = loadPrefs(); p[key] = value
+    fs.writeFileSync(PREFS_FILE, JSON.stringify(p, null, 2))
+    return { ok: true }
+  } catch (e) { return { ok: false } }
+})
+ipcMain.handle('prefs:load', () => loadPrefs())
+ipcMain.handle('prefs:save', (_, prefs) => {
+  try {
+    const p = { ...loadPrefs(), ...prefs }
+    fs.writeFileSync(PREFS_FILE, JSON.stringify(p, null, 2))
+    return { ok: true }
+  } catch (e) { return { ok: false } }
+})
+
 ipcMain.handle('service:save', async (event, serviceData) => {
   try {
     fs.writeFileSync(SERVICE_FILE, JSON.stringify(serviceData, null, 2))

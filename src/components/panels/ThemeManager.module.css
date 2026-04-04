@@ -89,7 +89,7 @@
 }
 
 .tile:hover { border-color: var(--border-bright); transform: translateY(-1px); }
-.tileSelected { border-color: var(--accent) !important; box-shadow: 0 0 0 1px var(--accent); }
+.tileSelected { border-color: #ffffff !important; box-shadow: 0 0 0 1px rgba(255,255,255,0.4); }
 
 .thumb {
   aspect-ratio: 16 / 9;

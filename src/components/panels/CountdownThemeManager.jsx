@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { persistGetSync, persistSetSync } from '../../utils/persistentStorage'
 import { useSanctuaryStore } from '../../store/sanctuaryStore'
 import { CountdownRenderer } from '../slides/CountdownSlide'
 import styles from './CountdownThemeManager.module.css'
@@ -13,8 +14,8 @@ const COUNTDOWN_THEMES = [
 ]
 
 const CUSTOM_KEY = 'sanctuary-countdown-themes'
-function loadCustom() { try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]') } catch { return [] } }
-function saveCustom(t) { try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(t)) } catch {} }
+function loadCustom() { return persistGetSync(CUSTOM_KEY) || [] }
+function saveCustom(t) { persistSetSync(CUSTOM_KEY, t) }
 
 const PREVIEW_SLIDE = { type: 'countdown', message: 'Service begins in', subMessage: 'Welcome — please be seated', durationMinutes: 5 }
 
