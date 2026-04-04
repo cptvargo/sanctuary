@@ -3,18 +3,17 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  height: 50px;
+  height: 46px;
   background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-mid);
+  border-bottom: 1px solid var(--border-dim);
   flex-shrink: 0;
   gap: 16px;
 }
 
-/* Left */
 .left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
   flex: 1;
   min-width: 0;
 }
@@ -27,43 +26,56 @@
 }
 
 .brandIcon {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  background: var(--accent-bg);
-  border: 1px solid var(--accent-border);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: -0.02em;
+  font-size: 12px;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: -0.01em;
 }
 
 .brandName {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.brandStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.serviceDate {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
 }
 
 .sectionTabs {
   display: flex;
   gap: 1px;
   background: var(--bg-base);
-  border: 1px solid var(--border-mid);
+  border: 1px solid var(--border-dim);
   border-radius: var(--radius-lg);
   padding: 3px;
 }
 
 .tab {
-  padding: 5px 14px;
+  padding: 4px 14px;
   border-radius: 7px;
   border: none;
   background: transparent;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
   font-family: var(--font-ui);
   cursor: pointer;
   transition: all var(--transition);
@@ -74,10 +86,9 @@
 .tabActive {
   background: var(--bg-raised);
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* Center */
 .center {
   display: flex;
   align-items: center;
@@ -88,33 +99,35 @@
 .liveIndicator {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
 }
 
 .liveDot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--live);
-  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.25);
+  background: #ffffff;
   animation: pulse 1.8s ease-in-out infinite;
 }
 
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
 .liveLabel {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--live);
+  letter-spacing: 0.1em;
+  color: #ffffff;
 }
 
-/* Toggle slider */
 .toggleTrack {
   position: relative;
   width: 148px;
-  height: 30px;
-  border-radius: 15px;
+  height: 28px;
+  border-radius: 14px;
   border: 1px solid var(--border-mid);
   background: var(--bg-base);
   cursor: pointer;
@@ -130,17 +143,16 @@
 .toggleThumb {
   position: absolute;
   width: 68px;
-  height: 24px;
-  border-radius: 12px;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s ease;
+  height: 22px;
+  border-radius: 11px;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.12s ease;
   top: 2px;
   left: 2px;
 }
 
 .togglePreview .toggleThumb {
-  background: var(--live);
+  background: #ffffff;
   transform: translateX(0px);
-  box-shadow: 0 0 12px rgba(255, 149, 0, 0.3);
 }
 
 .toggleEdit .toggleThumb {
@@ -156,11 +168,11 @@
   letter-spacing: 0.02em;
   pointer-events: none;
   z-index: 1;
-  transition: color 0.15s ease;
+  transition: color 0.12s ease;
 }
 
-.toggleLabelLeft { left: 14px; }
-.toggleLabelRight { right: 12px; }
+.toggleLabelLeft { left: 13px; }
+.toggleLabelRight { right: 11px; }
 
 .togglePreview .toggleLabelLeft { color: #000; }
 .togglePreview .toggleLabelRight { color: var(--text-muted); }
@@ -174,89 +186,128 @@
   font-style: italic;
 }
 
-/* Right */
 .right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   justify-content: flex-end;
 }
 
-.blackOutBtn {
-  padding: 6px 14px;
+.libraryBtn {
+  padding: 5px 13px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-mid);
   background: transparent;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+  letter-spacing: 0.02em;
+}
+
+.libraryBtn:hover { color: var(--text-primary); border-color: var(--border-bright); }
+
+.newServiceBtn {
+  padding: 5px 13px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-ui);
   cursor: pointer;
   transition: all var(--transition);
 }
 
-.blackOutBtn:hover { color: var(--text-secondary); border-color: var(--border-bright); }
+.newServiceBtn:hover { color: var(--text-primary); border-color: var(--border-bright); }
+
+.blackOutBtn {
+  padding: 5px 13px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-mid);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.blackOutBtn:hover { color: var(--text-primary); border-color: var(--border-bright); }
 
 .blackActive {
-  background: #1a0a00;
-  border-color: #4a2800;
+  background: var(--live-bg);
+  border-color: var(--live-border);
   color: var(--live);
 }
 
 .goLiveBtn {
-  padding: 7px 22px;
+  padding: 6px 20px;
   border-radius: var(--radius-md);
   border: none;
   font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   cursor: pointer;
   transition: all var(--transition);
   font-family: var(--font-ui);
 }
 
 .startLive {
-  background: var(--accent);
-  color: #fff;
+  background: #ffffff;
+  color: #000000;
 }
 
-.startLive:hover { background: var(--accent-bright); }
+.startLive:hover { background: #e8e8e8; }
 
 .endLive {
-  background: var(--live-bg);
-  color: var(--live);
-  border: 1px solid var(--live-border);
-}
-
-.endLive:hover { background: #2a1e00; }
-
-/* Date + brand stack */
-.brandStack {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.serviceDate {
-  font-size: 9px;
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
-}
-
-/* Library button */
-.libraryBtn {
-  padding: 6px 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-mid);
   background: transparent;
-  color: var(--text-muted);
-  font-size: 12px;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.endLive:hover { background: rgba(255,255,255,0.08); }
+
+.confirmRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.confirmText {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.confirmYes {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--red-bg);
+  border: 1px solid var(--red);
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 600;
   font-family: var(--font-ui);
   cursor: pointer;
   transition: all var(--transition);
 }
 
-.libraryBtn:hover {
-  color: var(--accent);
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
+.confirmYes:hover { background: #250a08; }
+
+.confirmNo {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--border-mid);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
 }
+
+.confirmNo:hover { color: var(--text-secondary); }

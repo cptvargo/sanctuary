@@ -15,8 +15,9 @@ function getServiceDate() {
 }
 
 export default function TopBar() {
-  const { isLive, mode, isBlackOut, activeSection, setMode, toggleBlackOut, setActiveSection } = useSanctuaryStore()
+  const { isLive, mode, isBlackOut, activeSection, setMode, toggleBlackOut, setActiveSection, resetServiceOrder } = useSanctuaryStore()
   const [showLibrary, setShowLibrary] = useState(false)
+  const [confirmNewService, setConfirmNewService] = useState(false)
 
   const handleGoLive = async () => {
     if (!isLive) {
@@ -36,9 +37,9 @@ export default function TopBar() {
         {/* Left: Brand + date + section tabs */}
         <div className={styles.left}>
           <div className={styles.brand}>
-            <div className={styles.brandIcon}>S</div>
+            <div className={styles.brandIcon}>D</div>
             <div className={styles.brandStack}>
-              <span className={styles.brandName}>Sanctuary</span>
+              <span className={styles.brandName}>Declare</span>
               <span className={styles.serviceDate}>{getServiceDate()}</span>
             </div>
           </div>
@@ -83,6 +84,18 @@ export default function TopBar() {
         {/* Right: Library + Black out + Go Live */}
         <div className={styles.right}>
           <SyncButton />
+
+          {confirmNewService ? (
+            <div className={styles.confirmRow}>
+              <span className={styles.confirmText}>Clear service order?</span>
+              <button className={styles.confirmYes} onClick={() => { resetServiceOrder(); setConfirmNewService(false) }}>Yes</button>
+              <button className={styles.confirmNo} onClick={() => setConfirmNewService(false)}>No</button>
+            </div>
+          ) : (
+            <button className={styles.newServiceBtn} onClick={() => setConfirmNewService(true)} title="Start a new service">
+              + New Service
+            </button>
+          )}
 
           <button className={styles.libraryBtn} onClick={() => setShowLibrary(true)} title="Song Library">
             ♪ Library

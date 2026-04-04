@@ -1,7 +1,7 @@
 {
-  "name": "sanctuary",
-  "version": "1.1.0",
-  "description": "Church presentation software — Sanctuary",
+  "name": "declare",
+  "version": "1.1.1",
+  "description": "Church presentation software — Declare",
   "main": "electron/main.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
@@ -28,8 +28,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.floodgates.sanctuary",
-    "productName": "Sanctuary",
+    "appId": "com.floodgates.declare",
+    "productName": "Declare",
     "directories": {
       "output": "dist-electron"
     },
@@ -37,11 +37,12 @@
       "dist/**/*",
       "electron/**/*"
     ],
-"publish": {
-  "provider": "github",
-  "owner": "cptvargo",
-  "repo": "sanctuary"
-},
+    "publish": {
+      "provider": "github",
+      "owner": "GITHUB_USERNAME",
+      "repo": "sanctuary",
+      "private": true
+    },
     "win": {
       "target": [
         {

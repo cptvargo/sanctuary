@@ -1,45 +1,45 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Premium charcoal — like a pro broadcast tool */
-  --bg-base:       #111318;
-  --bg-surface:    #181b22;
-  --bg-raised:     #1e2130;
-  --bg-hover:      #232838;
-  --bg-active:     #2a3040;
-  --bg-card:       #1a1d28;
+  /* Declare — deep black, sharp whites, minimal color */
+  --bg-base:       #08090c;
+  --bg-surface:    #0d0f14;
+  --bg-raised:     #12141e;
+  --bg-hover:      #171a26;
+  --bg-active:     #1e2130;
+  --bg-card:       #0f1118;
 
-  --border-dim:    #232838;
-  --border-mid:    #2e3448;
-  --border-bright: #3a4060;
+  --border-dim:    #1a1d27;
+  --border-mid:    #22263a;
+  --border-bright: #2e3448;
 
-  --text-primary:  #f0f2f8;
-  --text-secondary:#9aa3be;
-  --text-muted:    #505878;
-  --text-dim:      #2e3448;
+  --text-primary:  #f4f6ff;
+  --text-secondary:#8a94b8;
+  --text-muted:    #444868;
+  --text-dim:      #1e2130;
 
-  /* Electric indigo accent — premium, not churchy */
-  --accent:        #7b8fff;
-  --accent-bright: #9aaeff;
-  --accent-dim:    #4a5acc;
-  --accent-bg:     #141830;
-  --accent-border: #2a3268;
+  /* White accent — clean, no color bias */
+  --accent:        #ffffff;
+  --accent-bright: #ffffff;
+  --accent-dim:    #8a94b8;
+  --accent-bg:     #12141e;
+  --accent-border: #2e3448;
 
-  /* Warm amber for "live" state */
-  --live:          #ff9500;
-  --live-bright:   #ffb340;
-  --live-bg:       #1e1400;
-  --live-border:   #4a3000;
+  /* Live — tight green */
+  --live:          #22c55e;
+  --live-bright:   #4ade80;
+  --live-bg:       #071410;
+  --live-border:   #0f3020;
 
   /* Status */
-  --green:         #34c759;
-  --green-bg:      #0a1e10;
-  --red:           #ff453a;
-  --red-bg:        #1e0a08;
-  --gold:          #ffd60a;
-  --gold-dim:      #a08800;
-  --purple:        #bf5af2;
-  --purple-bg:     #1a0828;
+  --green:         #22c55e;
+  --green-bg:      #071410;
+  --red:           #ef4444;
+  --red-bg:        #150808;
+  --gold:          #f59e0b;
+  --gold-dim:      #92600a;
+  --purple:        #a855f7;
+  --purple-bg:     #110820;
 
   --font-ui:      'Inter', system-ui, sans-serif;
   --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -48,7 +48,7 @@
   --radius-md:    6px;
   --radius-lg:    10px;
   --radius-xl:    16px;
-  --transition:   0.12s ease;
+  --transition:   0.1s ease;
 
   /* Legacy aliases */
   --accent-blue:       var(--accent);
@@ -61,8 +61,6 @@
   --accent-purple-bg:  var(--purple-bg);
   --accent-red:        var(--red);
   --accent-red-bg:     var(--red-bg);
-  --accent-dim:        var(--accent-dim);
-  --accent-border:     var(--accent-border);
   --live-border:       var(--live-border);
 }
 
@@ -85,8 +83,3 @@ input, textarea { user-select: text; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
 
 button { font-family: var(--font-ui); cursor: pointer; }
-
-@media print {
-  body { background: white; color: black; }
-  .no-print { display: none !important; }
-}

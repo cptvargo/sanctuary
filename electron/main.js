@@ -77,7 +77,7 @@ function githubRequest(method, endpoint, token, body) {
       path: endpoint,
       method,
       headers: {
-        'User-Agent': 'Sanctuary-App',
+        'User-Agent': 'Declare-App',
         'Authorization': `token ${token}`,
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json',
@@ -116,7 +116,7 @@ async function pushServiceToGist(serviceData, config) {
   } else {
     // Create new gist
     const res = await githubRequest('POST', '/gists', githubToken, {
-      description: 'Sanctuary Church Service Data',
+      description: 'Declare Church Service Data',
       public: false,
       files: { 'sanctuary-service.json': { content } }
     })
@@ -149,7 +149,7 @@ function createOperatorWindow() {
     height: 900,
     minWidth: 1100,
     minHeight: 700,
-    title: 'Sanctuary',
+    title: 'Declare',
     backgroundColor: '#111318',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -183,7 +183,7 @@ function createProjectorWindow() {
     frame: false,
     alwaysOnTop: !isDev,
     backgroundColor: '#000000',
-    title: 'Sanctuary — Projector',
+    title: 'Declare — Projector',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

@@ -69,7 +69,7 @@
 
 .liveHint {
   font-size: 11px;
-  color: var(--live);
+  color: rgba(255,255,255,0.7);
   font-weight: 500;
 }
 
@@ -127,10 +127,10 @@
 .slideTile:hover { border-color: var(--border-bright); transform: translateY(-1px); }
 
 .tileActive { border-color: var(--accent) !important; }
-.tileLive   { border-color: var(--live) !important; box-shadow: 0 0 0 1px var(--live); }
+.tileLive   { border-color: rgba(255,255,255,0.9) !important; box-shadow: 0 0 0 1px rgba(255,255,255,0.4); }
 
 .tileClickable:hover {
-  border-color: var(--live) !important;
+  border-color: rgba(255,255,255,0.7) !important;
   transform: translateY(-1px);
 }
 
@@ -164,8 +164,8 @@
 }
 
 .tileLiveBadge {
-  background: var(--live);
-  color: #000;
+  background: #ffffff;
+  color: #000000;
   font-size: 8px;
   font-weight: 800;
   padding: 1px 5px;
@@ -213,8 +213,8 @@
   position: absolute;
   top: 32px;
   right: 32px;
-  background: var(--live);
-  color: #000;
+  background: #ffffff;
+  color: #000000;
   font-size: 10px;
   font-weight: 800;
   padding: 3px 10px;
@@ -228,18 +228,18 @@
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.7);
-  color: var(--live);
+  color: rgba(255,255,255,0.9);
   font-size: 11px;
   font-weight: 600;
   padding: 6px 16px;
   border-radius: 20px;
-  border: 1px solid var(--live-border);
+  border: 1px solid rgba(255,255,255,0.25);
   opacity: 0;
   transition: opacity var(--transition);
   white-space: nowrap;
 }
 
-.canvasLive .standaloneCanvas { outline: 2px solid var(--live); }
+.canvasLive .standaloneCanvas { outline: 1.5px solid rgba(255,255,255,0.8); }
 
 .standaloneEditor {
   border-top: 1px solid var(--border-dim);

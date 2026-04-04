@@ -73,7 +73,7 @@
 }
 
 .itemLive {
-  border-left: 2px solid var(--live) !important;
+  border-left: 2px solid rgba(255,255,255,0.8) !important;
 }
 
 .dragging { opacity: 0.3; }
@@ -104,7 +104,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--live);
+  background: rgba(255,255,255,0.9);
   flex-shrink: 0;
   animation: pulse 1.8s ease-in-out infinite;
 }
