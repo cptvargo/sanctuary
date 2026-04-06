@@ -2,15 +2,6 @@ import { create } from 'zustand'
 
 export const uid = () => crypto.randomUUID()
 
-// Persistent BroadcastChannel singleton — avoid creating/destroying on every sync
-let _projectorChannel = null
-function getProjectorChannel() {
-  if (!_projectorChannel) {
-    try { _projectorChannel = new BroadcastChannel('sanctuary-projector') } catch (_) {}
-  }
-  return _projectorChannel
-}
-
 export const makeSlide = (type, overrides = {}) => {
   const defaults = {
     logo:         { name: 'Church Logo', churchName: 'The Floodgates Church', tagline: 'Newport News, VA', logoDataUrl: null, bgColor: '#000000', textColor: '#c8a84a' },
@@ -210,7 +201,7 @@ function _startCountdownInterval(get, set) {
           const s = get()
           const payload = { isLive: s.isLive, isBlackOut: false, slide: slideWithFade, countdownRemaining: null }
           if (typeof window !== 'undefined' && window.sanctuary) window.sanctuary.sendToProjector(payload)
-          try { getProjectorChannel()?.postMessage(payload) } catch (_) {}
+          try { const bc = new BroadcastChannel('sanctuary-projector'); bc.postMessage(payload); bc.close() } catch (_) {}
         }
       } else if (onEnd === 'loop') {
         const mins = liveSlide.durationMinutes || 10
@@ -364,6 +355,9 @@ export const useSanctuaryStore = create((set, get) => ({
         return item
       }),
     }))
+    // If the updated slide is currently live, push changes to projector immediately
+    const s = get()
+    if (s.isLive && s.liveSlideId === slideId) get()._syncProjector()
   },
 
   setActiveSlide: (slideId) => set({ activeSlideId: slideId }),
@@ -525,24 +519,17 @@ export const useSanctuaryStore = create((set, get) => ({
   _syncProjector: () => {
     const state = get()
     const liveSlide = state.getLiveSlide()
-    // Only inject logoDataUrl when the slide itself changes, not on every style update
-    // Strip logoDataUrl from payload and let projector cache it separately
+    // Inject logo data url into lyrics slides so projector can show church logo watermark
     let enrichedSlide = liveSlide
     if (liveSlide?.type === 'lyrics') {
       const logoSlide = state.serviceOrder.find(i => i.slide?.type === 'logo')?.slide
       if (logoSlide?.logoDataUrl) {
-        // Only send logo if slide changed (not just a style update like fontSize)
-        const prevLiveId = typeof window._lastLiveSlideId !== 'undefined' ? window._lastLiveSlideId : null
-        const slideChanged = prevLiveId !== liveSlide.id
-        window._lastLiveSlideId = liveSlide.id
-        if (slideChanged) {
-          enrichedSlide = { ...liveSlide, _logoDataUrl: logoSlide.logoDataUrl }
-        }
+        enrichedSlide = { ...liveSlide, _logoDataUrl: logoSlide.logoDataUrl }
       }
     }
     const payload = { isLive: state.isLive, isBlackOut: state.isBlackOut, slide: enrichedSlide, countdownRemaining: liveSlide ? state.countdownRemaining[liveSlide.id] : null }
     if (typeof window.sanctuary !== 'undefined') window.sanctuary.sendToProjector(payload)
-    try { getProjectorChannel()?.postMessage(payload) } catch (_) {}
+    try { const bc = new BroadcastChannel('sanctuary-projector'); bc.postMessage(payload); bc.close() } catch (_) {}
     // Start/stop countdown interval based on what's now live
     if (liveSlide && liveSlide.type === 'countdown') {
       _startCountdownInterval(get, set)

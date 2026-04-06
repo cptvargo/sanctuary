@@ -479,28 +479,20 @@ function SaveStyleBtn({ item }) {
     const songItem = store.serviceOrder.find((i) => i.id === item.id);
     const src = songItem?.slides?.find((s) => s.type === "lyrics");
     if (!src) return;
-
-    // Global style props applied to ALL slides (not fontSize — that stays per-slide)
-    const globalProps = {
+    const styleProps = {
       bgImageUrl: src.bgImageUrl ?? null,
       bgGradient: src.bgGradient ?? null,
       bgColor: src.bgColor ?? "#050813",
       textColor: src.textColor ?? "#ffffff",
       bgOverlayOpacity: src.bgOverlayOpacity ?? 0.55,
+      fontSize: src.fontSize ?? 100,
       fontId: src.fontId ?? "montserrat",
       smartMediaId: src.smartMediaId ?? null,
     };
-
     useSanctuaryStore.setState((state) => {
       const songItem = state.serviceOrder.find((i) => i.id === item.id);
-      // Apply global props to all slides but preserve each slide's own fontSize
       const updatedSlides =
-        songItem?.slides?.map((s) => ({
-          ...s,
-          ...globalProps,
-          fontSize: s.fontSize ?? 100, // keep each slide's own font size
-        })) || [];
-      const styleProps = { ...globalProps, fontSize: src.fontSize ?? 100 };
+        songItem?.slides?.map((s) => ({ ...s, ...styleProps })) || [];
       return {
         activeThemeProps: styleProps,
         serviceOrder: state.serviceOrder.map((i) =>
@@ -646,7 +638,7 @@ export default function CenterPanel({ activeItem }) {
               type="range"
               min={40}
               max={180}
-              step={5}
+              step={1}
               value={selectedSlide.fontSize || 100}
               onChange={(e) =>
                 updateSlide(selectedSlide.id, {
