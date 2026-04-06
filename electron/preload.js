@@ -2,7 +2,8 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('sanctuary', {
   // Projector
-  openProjector:    () => ipcRenderer.invoke('projector:open'),
+  openProjector:    (displayId) => ipcRenderer.invoke('projector:open', displayId),
+  getDisplays:      () => ipcRenderer.invoke('displays:get'),
   closeProjector:   () => ipcRenderer.invoke('projector:close'),
   sendToProjector:  (payload) => ipcRenderer.send('projector:update', payload),
   onProjectorUpdate:(callback) => {

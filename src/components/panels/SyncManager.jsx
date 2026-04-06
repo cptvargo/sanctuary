@@ -150,7 +150,7 @@ export function SyncButton() {
     if (typeof window.sanctuary === "undefined") return;
     // Debounce saves to avoid hammering disk on every keystroke
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => autoSaveLocal(), 800);
+    saveTimerRef.current = setTimeout(() => autoSaveLocal(), 2000);
     return () => clearTimeout(saveTimerRef.current);
   }, [serviceOrder, checklist, songLibrary]);
 
@@ -173,10 +173,9 @@ export function SyncButton() {
     version: "1.0",
   });
 
-  const autoSaveLocal = async () => {
-    try {
-      await window.sanctuary.saveService(getServiceData());
-    } catch (_) {}
+  const autoSaveLocal = () => {
+    // Fire and forget — don't block UI waiting for disk write
+    window.sanctuary.saveService(getServiceData()).catch(() => {});
   };
 
   const pullOnStartup = async () => {

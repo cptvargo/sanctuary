@@ -173,10 +173,23 @@ function createOperatorWindow() {
   })
 }
 
-function createProjectorWindow() {
+function createProjectorWindow(preferredDisplayId = null) {
   const displays = screen.getAllDisplays()
-  const external = displays.find(d => d.id !== screen.getPrimaryDisplay().id)
-  const target = external || screen.getPrimaryDisplay()
+  const primary = screen.getPrimaryDisplay()
+  let target
+  if (preferredDisplayId) {
+    target = displays.find(d => d.id === preferredDisplayId)
+  }
+  if (!target) {
+    const externals = displays.filter(d => d.id !== primary.id)
+    if (externals.length > 1) {
+      target = externals.reduce((a, b) =>
+        (b.bounds.width * b.bounds.height) > (a.bounds.width * a.bounds.height) ? b : a
+      )
+    } else {
+      target = externals[0] || primary
+    }
+  }
 
   projectorWin = new BrowserWindow({
     x: target.bounds.x,
@@ -203,7 +216,7 @@ function createProjectorWindow() {
     projectorWin.loadFile(path.join(__dirname, '../dist/index.html'), {
       query: { projector: '1' },
     })
-    if (external) projectorWin.setFullScreen(true)
+    if (target && target.id !== screen.getPrimaryDisplay().id) projectorWin.setFullScreen(true)
   }
 
   projectorWin.on('closed', () => { projectorWin = null })
@@ -218,9 +231,9 @@ ipcMain.on('projector:update', (event, payload) => {
   }
 })
 
-ipcMain.handle('projector:open', () => {
+ipcMain.handle('projector:open', (event, preferredDisplayId = null) => {
   if (!projectorWin || projectorWin.isDestroyed()) {
-    createProjectorWindow()
+    createProjectorWindow(preferredDisplayId)
     return true
   }
   return false
@@ -228,6 +241,17 @@ ipcMain.handle('projector:open', () => {
 
 ipcMain.handle('projector:close', () => {
   if (projectorWin && !projectorWin.isDestroyed()) projectorWin.close()
+})
+
+// Return all available displays so the UI can show a picker
+ipcMain.handle('displays:get', () => {
+  const primary = screen.getPrimaryDisplay()
+  return screen.getAllDisplays().map((d, i) => ({
+    id: d.id,
+    label: d.id === primary.id ? `Display ${i + 1} (Primary)` : `Display ${i + 1} — ${d.bounds.width}x${d.bounds.height}`,
+    bounds: d.bounds,
+    isPrimary: d.id === primary.id,
+  }))
 })
 
 // File dialogs
@@ -301,7 +325,7 @@ ipcMain.handle('prefs:save', (_, prefs) => {
 
 ipcMain.handle('service:save', async (event, serviceData) => {
   try {
-    fs.writeFileSync(SERVICE_FILE, JSON.stringify(serviceData, null, 2))
+    await fs.promises.writeFile(SERVICE_FILE, JSON.stringify(serviceData, null, 2), 'utf8')
     return { ok: true }
   } catch (e) {
     return { ok: false, error: e.message }
@@ -311,10 +335,9 @@ ipcMain.handle('service:save', async (event, serviceData) => {
 // Load service from local disk
 ipcMain.handle('service:load', async () => {
   try {
-    if (fs.existsSync(SERVICE_FILE)) {
-      return { ok: true, data: JSON.parse(fs.readFileSync(SERVICE_FILE, 'utf8')) }
-    }
-    return { ok: false, error: 'No saved service' }
+    try { await fs.promises.access(SERVICE_FILE) } catch { return { ok: false, error: 'No saved service' } }
+    const data = JSON.parse(await fs.promises.readFile(SERVICE_FILE, 'utf8'))
+    return { ok: true, data }
   } catch (e) {
     return { ok: false, error: e.message }
   }

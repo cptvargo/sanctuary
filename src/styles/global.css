@@ -14,9 +14,9 @@
   --border-bright: #2e3448;
 
   --text-primary:  #f4f6ff;
-  --text-secondary:#8a94b8;
-  --text-muted:    #444868;
-  --text-dim:      #1e2130;
+  --text-secondary:#e8ecf8;
+  --text-muted:    #c0c8dc;
+  --text-dim:      #9aa3b8;
 
   /* White accent — clean, no color bias */
   --accent:        #ffffff;
