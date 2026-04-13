@@ -25,27 +25,34 @@ export const makeSong = (overrides = {}) => ({
 
 const makeChecklist = () => ({
   preService: [
-    { id: uid(), text: 'Sound Board — Has soundboard cart been rolled out and powered on', done: false },
+    // Sound Board
+    { id: uid(), text: 'Sound Board — Has soundboard cart been rolled out and power strip plugged in and powered on', done: false },
     { id: uid(), text: 'Sound Board — Has network cable been run to stage box', done: false },
-    { id: uid(), text: 'Sound Board — Has channel routing been done (AVB outputs reset)', done: false },
-    { id: uid(), text: 'Sound Board — Are wireless microphone packs hooked to correct transmitters', done: false },
-    { id: uid(), text: "Sound Board — Batteries swapped out on Pastor Russ' & Nick's mic receivers", done: false },
-    { id: uid(), text: "Sound Board — Battery swapped out on Mrs. Jamie's microphone", done: false },
-    { id: uid(), text: 'Sound Board — Batteries swapped out on all in-ear monitors + brought to stage', done: false },
-    { id: uid(), text: "Sound Board — Pastor Russ' mic put together, turned on, tested", done: false },
-    { id: uid(), text: "Sound Board — Mrs. Jamie's mic turned on and tested", done: false },
-    { id: uid(), text: 'Sound Board — Headphones connected to soundboard', done: false },
+    { id: uid(), text: 'Sound Board — Has channel routing been done (AVB outputs been reset) on the soundboard', done: false },
+    { id: uid(), text: 'Sound Board — Are wireless microphone packs in their wall holders and hooked up to correct microphone transmitters', done: false },
+    { id: uid(), text: "Sound Board — Have batteries been swapped out on Pastor Russ' and Nick's Microphone receivers", done: false },
+    { id: uid(), text: "Sound Board — Have the batteries been swapped out of Mrs. Jamie's Microphone", done: false },
+    { id: uid(), text: 'Sound Board — Have batteries been swapped out on all in ear monitor packs and have they been brought to the stage', done: false },
+    { id: uid(), text: "Sound Board — Has Pastor Russ' Microphone been put together, turned on and tested", done: false },
+    { id: uid(), text: "Sound Board — Has Mrs. Jamie's Microphone been turned on and tested", done: false },
+    { id: uid(), text: 'Sound Board — Have headphones been connected to soundboard', done: false },
     { id: uid(), text: 'Sound Board — Is laptop connected to soundboard', done: false },
+    { id: uid(), text: 'Sound Board — Is the tablet charged and opened to music stand', done: false },
+    { id: uid(), text: "Sound Board — Test Gary's mic", done: false },
+    // Laptop
     { id: uid(), text: 'Laptop — Is power cord in and is there power to the laptop', done: false },
     { id: uid(), text: 'Laptop — Is Wi-Fi connected to laptop', done: false },
-    { id: uid(), text: 'Laptop — Is OBS Studio on and working', done: false },
-    { id: uid(), text: 'Laptop — Does Spotify have internet and is it working', done: false },
+    { id: uid(), text: 'Laptop — Is OBS Studio on and is it working', done: false },
+    { id: uid(), text: 'Laptop — Does Spotify have connection to internet and working', done: false },
     { id: uid(), text: 'Laptop — Is projector on', done: false },
-    { id: uid(), text: 'Laptop — Is HDMI cable connected to projector', done: false },
+    { id: uid(), text: 'Laptop — Is HDMI cable connected to laptop and projector working', done: false },
     { id: uid(), text: 'Laptop — Are slides prepared for service', done: false },
+    // Camera
     { id: uid(), text: 'Camera — Camera on tripod', done: false },
     { id: uid(), text: 'Camera — Does camera have power', done: false },
     { id: uid(), text: 'Camera — Is camera connected to laptop', done: false },
+    { id: uid(), text: 'Camera — Does it have internet connected', done: false },
+    // Sound Check
     { id: uid(), text: 'Sound Check — Pastor Russ', done: false },
     { id: uid(), text: 'Sound Check — Mrs. Jamie', done: false },
     { id: uid(), text: 'Sound Check — Anna', done: false },
@@ -58,18 +65,25 @@ const makeChecklist = () => ({
     { id: uid(), text: 'Sound Check — Laptop', done: false },
   ],
   postService: [
+    // Sound Board
     { id: uid(), text: 'Sound Board — Does Aux1 out have channel B', done: false },
     { id: uid(), text: 'Sound Board — Does Mono out have channel A', done: false },
     { id: uid(), text: 'Sound Board — Are Mics 1 thru 6 in ports 1 thru 6', done: false },
     { id: uid(), text: 'Sound Board — Is power cord in and power switch off', done: false },
     { id: uid(), text: "Sound Board — Is amp off (it's located off stage to the right)", done: false },
     { id: uid(), text: 'Sound Board — Is the projector off', done: false },
+    // Floodgates Media
     { id: uid(), text: 'Floodgates Media — Is camera and its cord stored away', done: false },
     { id: uid(), text: 'Floodgates Media — Is the laptop and its cord stored away', done: false },
+    { id: uid(), text: 'Floodgates Media — Is the Apple TV and its cord stored away', done: false },
+    { id: uid(), text: 'Floodgates Media — Are all the Wi-Fi amplifiers stored away', done: false },
     { id: uid(), text: 'Floodgates Media — Is sound board stored away', done: false },
     { id: uid(), text: 'Floodgates Media — Microphone batteries charged or charging for next service', done: false },
     { id: uid(), text: 'Floodgates Media — All worship team equipment stored away', done: false },
   ],
+  // Metadata for tracking who completed the checklist
+  preServiceMeta: { date: '', technicianName: '' },
+  postServiceMeta: { date: '', technicianName: '' },
 })
 
 export const flattenOrder = (order) => {
@@ -394,12 +408,62 @@ export const useSanctuaryStore = create((set, get) => ({
     get()._checkStartCountdown()
   },
   toggleBlackOut: () => { set(s => ({ isBlackOut: !s.isBlackOut })); get()._syncProjector() },
+  // Store the position context when entering edit mode so we can restore it
+  _editModeContext: null,
+
   setMode: (mode) => {
-    set({ mode })
-    // When toggling back to preview while live, push current state immediately
     const state = get()
-    if (mode === 'preview' && state.isLive) {
+    
+    if (mode === 'edit' && state.isLive && state.liveSlideId) {
+      // Entering edit mode while live — save the current position context
+      // Find which song/item contains the live slide and its index within that song
+      let context = null
+      for (const item of state.serviceOrder) {
+        if (item.kind === 'song') {
+          const idx = item.slides.findIndex(s => s.id === state.liveSlideId)
+          if (idx !== -1) {
+            context = { itemId: item.id, slideIndex: idx }
+            break
+          }
+        } else if (item.kind === 'slide' && item.slide.id === state.liveSlideId) {
+          context = { itemId: item.id, slideIndex: 0 }
+          break
+        }
+      }
+      set({ mode, _editModeContext: context })
+    } else if (mode === 'preview' && state.isLive) {
+      // Returning to preview mode while live — restore position if needed
+      const allSlides = flattenOrder(state.serviceOrder)
+      const liveSlideExists = state.liveSlideId && allSlides.some(s => s.id === state.liveSlideId)
+      
+      if (!liveSlideExists && state._editModeContext) {
+        // Slide IDs changed during editing — restore by position
+        const ctx = state._editModeContext
+        const item = state.serviceOrder.find(i => i.id === ctx.itemId)
+        let restoredSlideId = null
+        
+        if (item?.kind === 'song' && item.slides[ctx.slideIndex]) {
+          restoredSlideId = item.slides[ctx.slideIndex].id
+        } else if (item?.kind === 'song' && item.slides.length > 0) {
+          // Slide count changed, use closest valid index
+          restoredSlideId = item.slides[Math.min(ctx.slideIndex, item.slides.length - 1)].id
+        } else if (item?.kind === 'slide') {
+          restoredSlideId = item.slide.id
+        }
+        
+        if (restoredSlideId) {
+          set({ mode, liveSlideId: restoredSlideId, activeSlideId: restoredSlideId, isBlackOut: false, _editModeContext: null })
+        } else {
+          // Fallback to first slide if item was deleted
+          const fallbackId = allSlides[0]?.id || null
+          set({ mode, liveSlideId: fallbackId, activeSlideId: fallbackId, isBlackOut: false, _editModeContext: null })
+        }
+      } else {
+        set({ mode, _editModeContext: null })
+      }
       get()._syncProjector()
+    } else {
+      set({ mode })
     }
   },
   setActiveSection: (section) => set({ activeSection: section }),
@@ -473,6 +537,15 @@ export const useSanctuaryStore = create((set, get) => ({
   resetChecklist: (section) => {
     set(state => ({
       checklist: { ...state.checklist, [section]: state.checklist[section].map(i => ({ ...i, done: false })) }
+    }))
+  },
+  updateChecklistMeta: (section, field, value) => {
+    const metaKey = section + 'Meta'
+    set(state => ({
+      checklist: { 
+        ...state.checklist, 
+        [metaKey]: { ...state.checklist[metaKey], [field]: value }
+      }
     }))
   },
 
