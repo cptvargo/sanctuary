@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import styles from './Editor.module.css'
 import imgStyles from './ImageEditor.module.css'
 
@@ -19,6 +19,15 @@ async function pickImage() {
   })
 }
 
+function readFilesAsDataUrls(files) {
+  const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'))
+  return Promise.all(imageFiles.map(file => new Promise(res => {
+    const reader = new FileReader()
+    reader.onload = e => res(e.target.result)
+    reader.readAsDataURL(file)
+  })))
+}
+
 export default function ImageEditor({ slide, onChange }) {
   const {
     images = [],          // array of { dataUrl, caption }
@@ -36,6 +45,18 @@ export default function ImageEditor({ slide, onChange }) {
     : []
 
   const [activeIdx, setActiveIdx] = useState(0)
+  const [dragOver, setDragOver] = useState(false)
+
+  const handleDrop = async (e) => {
+    e.preventDefault()
+    setDragOver(false)
+    const dataUrls = await readFilesAsDataUrls(e.dataTransfer.files)
+    if (!dataUrls.length) return
+    const newImgs = dataUrls.map(dataUrl => ({ dataUrl, caption: '' }))
+    const updated = [...allImages, ...newImgs]
+    onChange({ images: updated, currentIndex: updated.length - 1, imageDataUrl: null })
+    setActiveIdx(updated.length - 1)
+  }
 
   const handleAddImage = async () => {
     // Use multi-select dialog if available
@@ -99,39 +120,59 @@ export default function ImageEditor({ slide, onChange }) {
         )}
       </div>
 
+      {/* Drop zone (shown when no images yet) */}
+      {allImages.length === 0 && (
+        <div
+          className={`${imgStyles.dropZone} ${dragOver ? imgStyles.dropZoneOver : ''}`}
+          onClick={handleAddImage}
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+        >
+          <div className={imgStyles.dropZoneIcon}>🖼</div>
+          <div>Drop image here or click to browse</div>
+          <div className={imgStyles.dropZoneHint}>Drag straight from File Explorer, Phone Link, or email</div>
+        </div>
+      )}
+
       {/* Image list */}
-      <div className={imgStyles.imageList}>
-        {allImages.map((img, idx) => (
-          <div key={idx} className={`${imgStyles.imageRow} ${idx === activeIdx ? imgStyles.imageRowActive : ''}`}
-            onClick={() => { setActiveIdx(idx); onChange({ currentIndex: idx }) }}>
-            <div className={imgStyles.thumb} style={{ backgroundImage: `url(${img.dataUrl})` }} />
-            <div className={imgStyles.imageInfo}>
-              <input
-                className={imgStyles.captionInput}
-                value={img.caption || ''}
-                onChange={e => { e.stopPropagation(); handleCaption(idx, e.target.value) }}
-                onClick={e => e.stopPropagation()}
-                placeholder={`Caption for image ${idx + 1}…`}
-              />
-              <span className={imgStyles.imageNum}>{idx + 1} / {allImages.length}</span>
+      {allImages.length > 0 && (
+        <div
+          className={imgStyles.imageList}
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+        >
+          {allImages.map((img, idx) => (
+            <div key={idx} className={`${imgStyles.imageRow} ${idx === activeIdx ? imgStyles.imageRowActive : ''}`}
+              onClick={() => { setActiveIdx(idx); onChange({ currentIndex: idx }) }}>
+              <div className={imgStyles.thumb} style={{ backgroundImage: `url(${img.dataUrl})` }} />
+              <div className={imgStyles.imageInfo}>
+                <input
+                  className={imgStyles.captionInput}
+                  value={img.caption || ''}
+                  onChange={e => { e.stopPropagation(); handleCaption(idx, e.target.value) }}
+                  onClick={e => e.stopPropagation()}
+                  placeholder={`Caption for image ${idx + 1}…`}
+                />
+                <span className={imgStyles.imageNum}>{idx + 1} / {allImages.length}</span>
+              </div>
+              <div className={imgStyles.imageActions} onClick={e => e.stopPropagation()}>
+                <button className={imgStyles.actionBtn} onClick={() => handleReorder(idx, -1)} disabled={idx === 0} title="Move up">↑</button>
+                <button className={imgStyles.actionBtn} onClick={() => handleReorder(idx, 1)} disabled={idx === allImages.length - 1} title="Move down">↓</button>
+                <button className={imgStyles.actionBtn} onClick={() => handleReplace(idx)} title="Replace">↺</button>
+                <button className={`${imgStyles.actionBtn} ${imgStyles.deleteBtn}`} onClick={() => handleRemove(idx)} title="Remove">×</button>
+              </div>
             </div>
-            <div className={imgStyles.imageActions} onClick={e => e.stopPropagation()}>
-              <button className={imgStyles.actionBtn} onClick={() => handleReorder(idx, -1)} disabled={idx === 0} title="Move up">↑</button>
-              <button className={imgStyles.actionBtn} onClick={() => handleReorder(idx, 1)} disabled={idx === allImages.length - 1} title="Move down">↓</button>
-              <button className={imgStyles.actionBtn} onClick={() => handleReplace(idx)} title="Replace">↺</button>
-              <button className={`${imgStyles.actionBtn} ${imgStyles.deleteBtn}`} onClick={() => handleRemove(idx)} title="Remove">×</button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
 
-        {allImages.length === 0 && (
-          <div className={imgStyles.empty}>No images yet — click Add Image to start</div>
-        )}
-      </div>
-
-      <button className={imgStyles.addBtn} onClick={handleAddImage}>
-        + Add Image
-      </button>
+      {allImages.length > 0 && (
+        <button className={imgStyles.addBtn} onClick={handleAddImage}>
+          + Add Image
+        </button>
+      )}
     </div>
   )
 }

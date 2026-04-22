@@ -12,8 +12,20 @@ contextBridge.exposeInMainWorld('sanctuary', {
   },
 
   // File dialogs
-  openPptxDialog:  () => ipcRenderer.invoke('dialog:openPptx'),
+  openPptxDialog:   () => ipcRenderer.invoke('dialog:openPptx'),
   openImageDialog:  () => ipcRenderer.invoke('dialog:openImage'),
+  openFolderDialog:    () => ipcRenderer.invoke('dialog:openFolder'),
+  getPhoneUploadUrl:   () => ipcRenderer.invoke('phoneUpload:getUrl'),
+
+  // Watch folder (Pastor photo pipeline)
+  setWatchFolder:   (folderPath) => ipcRenderer.invoke('watchFolder:set', folderPath),
+  getWatchFolder:   () => ipcRenderer.invoke('watchFolder:get'),
+  clearWatchFolder: () => ipcRenderer.invoke('watchFolder:clear'),
+  onWatchFolderImage: (callback) => {
+    const handler = (_, data) => callback(data)
+    ipcRenderer.on('watchFolder:newImage', handler)
+    return () => ipcRenderer.removeListener('watchFolder:newImage', handler)
+  },
   prefs: {
     get:  (key)        => ipcRenderer.invoke('prefs:get', key),
     set:  (key, value) => ipcRenderer.invoke('prefs:set', key, value),

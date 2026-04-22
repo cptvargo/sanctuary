@@ -14,7 +14,7 @@ export default function SlideCanvas({ slide, mini = false }) {
   const renderSlide = () => {
     switch (slide.type) {
       case 'logo':         return <LogoSlide slide={slide} />
-      case 'lyrics':       return <LyricsSlide slide={slide} />
+      case 'lyrics':       return <LyricsSlide slide={slide} mini={mini} />
       case 'countdown':    return <CountdownSlide slide={slide} />
       case 'blank':        return <BlankSlide slide={slide} />
       case 'scripture':    return <ScriptureSlide slide={slide} />

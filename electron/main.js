@@ -3,6 +3,8 @@ const { autoUpdater } = require('electron-updater')
 const path = require('path')
 const fs = require('fs')
 const https = require('https')
+const http = require('http')
+const os = require('os')
 
 const isDev = !app.isPackaged
 
@@ -299,6 +301,178 @@ ipcMain.handle('file:read', async (event, filePath) => {
   catch (_) { return null }
 })
 
+// ── Watch folder (Pastor photo pipeline) ─────────────────────────────────────
+
+const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.heic'])
+let watchFolderWatcher = null
+let watchFolderKnown = new Set()
+
+function stopWatchFolder() {
+  if (watchFolderWatcher) { watchFolderWatcher.close(); watchFolderWatcher = null }
+  watchFolderKnown.clear()
+}
+
+function startWatchFolder(folderPath) {
+  stopWatchFolder()
+  try {
+    fs.readdirSync(folderPath)
+      .filter(f => IMAGE_EXTS.has(path.extname(f).toLowerCase()))
+      .forEach(f => watchFolderKnown.add(f))
+  } catch (_) { return }
+
+  watchFolderWatcher = fs.watch(folderPath, (eventType, filename) => {
+    if (!filename || eventType !== 'rename') return
+    const ext = path.extname(filename).toLowerCase()
+    if (!IMAGE_EXTS.has(ext)) return
+    if (watchFolderKnown.has(filename)) return
+    watchFolderKnown.add(filename)
+    const fullPath = path.join(folderPath, filename)
+    // Wait for file to finish writing before reading
+    setTimeout(() => {
+      try {
+        if (!fs.existsSync(fullPath)) { watchFolderKnown.delete(filename); return }
+        const buffer = fs.readFileSync(fullPath)
+        const mime = (ext === '.jpg' || ext === '.jpeg') ? 'image/jpeg' : `image/${ext.slice(1)}`
+        const dataUrl = `data:${mime};base64,${buffer.toString('base64')}`
+        if (operatorWin && !operatorWin.isDestroyed()) {
+          operatorWin.webContents.send('watchFolder:newImage', { dataUrl, filename })
+        }
+      } catch (_) {}
+    }, 1500)
+  })
+}
+
+ipcMain.handle('dialog:openFolder', async () => {
+  const result = await dialog.showOpenDialog(operatorWin, {
+    title: 'Select Watch Folder',
+    properties: ['openDirectory'],
+  })
+  if (result.canceled || !result.filePaths.length) return null
+  return result.filePaths[0]
+})
+
+ipcMain.handle('watchFolder:set', (_, folderPath) => {
+  startWatchFolder(folderPath)
+  const p = loadPrefs(); p['watchFolderPath'] = folderPath
+  try { fs.writeFileSync(PREFS_FILE, JSON.stringify(p, null, 2)) } catch (_) {}
+  return { ok: true }
+})
+
+ipcMain.handle('watchFolder:get', () => loadPrefs()['watchFolderPath'] || null)
+
+ipcMain.handle('watchFolder:clear', () => {
+  stopWatchFolder()
+  const p = loadPrefs(); delete p['watchFolderPath']
+  try { fs.writeFileSync(PREFS_FILE, JSON.stringify(p, null, 2)) } catch (_) {}
+  return { ok: true }
+})
+
+// ── Phone WiFi upload server ──────────────────────────────────────────────────
+
+const PHONE_UPLOAD_PORT = 4242
+
+function getLocalIP() {
+  for (const ifaces of Object.values(os.networkInterfaces())) {
+    for (const iface of ifaces) {
+      if (iface.family === 'IPv4' && !iface.internal) return iface.address
+    }
+  }
+  return 'localhost'
+}
+
+const UPLOAD_PAGE_HTML = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Declare — Send Photo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111318;color:#fff;font-family:-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.sub{color:#666;font-size:14px;margin-bottom:36px;text-align:center}
+.btn{display:block;width:100%;max-width:320px;padding:18px;border:none;border-radius:14px;font-size:17px;font-weight:600;cursor:pointer;margin-bottom:12px;transition:opacity .15s}
+.btn:active{opacity:.75}
+.btn-lib{background:#4a9edd;color:#fff}
+.btn-cam{background:#22c55e;color:#fff}
+input[type=file]{display:none}
+#preview{width:100%;max-width:320px;border-radius:12px;margin-top:20px;display:none}
+#status{margin-top:20px;font-size:15px;min-height:22px;text-align:center;transition:color .2s}
+.ok{color:#22c55e}.err{color:#f87171}.busy{color:#aaa}
+</style>
+</head>
+<body>
+<h1>📸 Send to Declare</h1>
+<p class="sub">Select a photo to add it directly to the service</p>
+<button class="btn btn-lib" onclick="document.getElementById('lib').click()">Choose from Library</button>
+<input type="file" id="lib" accept="image/*" multiple>
+<button class="btn btn-cam" onclick="document.getElementById('cam').click()">Take Photo</button>
+<input type="file" id="cam" accept="image/*" capture="environment">
+<img id="preview">
+<div id="status"></div>
+<script>
+async function send(files){
+  const st=document.getElementById('status'),pr=document.getElementById('preview')
+  for(const f of files){
+    st.className='busy';st.textContent='Sending…'
+    const dataUrl=await new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(e.target.result);rd.readAsDataURL(f)})
+    pr.src=dataUrl;pr.style.display='block'
+    try{
+      const res=await fetch('/upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataUrl,filename:f.name})})
+      if(res.ok){st.className='ok';st.textContent='✓ Added to service!'}
+      else{st.className='err';st.textContent='Upload failed'}
+    }catch(e){st.className='err';st.textContent='Could not reach Declare'}
+    setTimeout(()=>{st.textContent=''},4000)
+  }
+}
+document.getElementById('lib').addEventListener('change',e=>send(e.target.files))
+document.getElementById('cam').addEventListener('change',e=>send(e.target.files))
+</script>
+</body>
+</html>`
+
+let phoneServer = null
+
+function startPhoneServer() {
+  if (phoneServer) return
+  phoneServer = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+
+    if (req.method === 'GET' && req.url === '/') {
+      res.writeHead(200, { 'Content-Type': 'text/html' })
+      res.end(UPLOAD_PAGE_HTML)
+      return
+    }
+
+    if (req.method === 'POST' && req.url === '/upload') {
+      let body = ''
+      req.on('data', chunk => { body += chunk; if (body.length > 20 * 1024 * 1024) req.destroy() })
+      req.on('end', () => {
+        try {
+          const { dataUrl, filename } = JSON.parse(body)
+          if (operatorWin && !operatorWin.isDestroyed()) {
+            operatorWin.webContents.send('watchFolder:newImage', { dataUrl, filename: filename || 'photo.jpg' })
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ ok: true }))
+        } catch (_) {
+          res.writeHead(400); res.end('Bad request')
+        }
+      })
+      return
+    }
+
+    res.writeHead(404); res.end()
+  })
+
+  phoneServer.listen(PHONE_UPLOAD_PORT, '0.0.0.0', () => {
+    console.log(`[phone-upload] listening on :${PHONE_UPLOAD_PORT}`)
+  })
+  phoneServer.on('error', err => console.log('[phone-upload] error:', err.message))
+}
+
+ipcMain.handle('phoneUpload:getUrl', () => `http://${getLocalIP()}:${PHONE_UPLOAD_PORT}`)
+
 // ── Service data persistence ──────────────────────────────────────────────────
 
 // Save service to local disk
@@ -393,6 +567,10 @@ ipcMain.handle('updater:install', () => {
 app.whenReady().then(() => {
   createOperatorWindow()
   setupAutoUpdater()
+  // Restore watch folder from prefs
+  const savedFolder = loadPrefs()['watchFolderPath']
+  if (savedFolder) startWatchFolder(savedFolder)
+  startPhoneServer()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createOperatorWindow()

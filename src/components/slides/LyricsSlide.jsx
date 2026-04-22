@@ -189,31 +189,6 @@ export default function LyricsSlide({
         ))}
       </div>
 
-      {/* Section badge — operator slide tiles only */}
-      {badge && mini && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "4%",
-            right: "3%",
-            background: badgeColor,
-            color: "#000",
-            fontFamily: "'Inter', sans-serif",
-            fontSize: "3.5cqh",
-            fontWeight: 800,
-            padding: "1% 2.5%",
-            borderRadius: "4px",
-            lineHeight: 1,
-            letterSpacing: "0.04em",
-            minWidth: "5%",
-            textAlign: "center",
-            zIndex: 2,
-          }}
-        >
-          {badge}
-        </div>
-      )}
-
       {/* Song title bottom-left — projector only */}
       {!mini && song && (
         <div

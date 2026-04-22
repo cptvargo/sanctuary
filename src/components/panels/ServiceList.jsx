@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSanctuaryStore } from '../../store/sanctuaryStore'
+import { useSanctuaryStore, makeSlide, uid } from '../../store/sanctuaryStore'
 import ChecklistPanel from './ChecklistPanel'
 import styles from './ServiceList.module.css'
 
@@ -41,7 +41,6 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
           const isDragging = dragIdx === idx
           const isDropTarget = dropIdx === idx && dragIdx !== idx
 
-          // Check if any slide in this item is live
           const hasLiveSlide = item.kind === 'song'
             ? item.slides.some(s => s.id === liveSlideId)
             : item.slide?.id === liveSlideId
@@ -70,17 +69,16 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
         <button className={styles.addItemBtn} onClick={() => setShowAddMenu(true)}>+ Add item</button>
       </div>
 
-      {/* Add menu */}
       {showAddMenu && (
         <div className={styles.overlay} onClick={() => setShowAddMenu(false)}>
           <div className={styles.addMenu} onClick={e => e.stopPropagation()}>
             <div className={styles.menuTitle}>Add to Service</div>
             {[
-              { type: 'song',         icon: '♪', label: 'Song',         desc: 'Song with lyrics editor' },
-              { type: 'logo',      icon: '✦', label: 'Church Logo',          desc: 'Logo / welcome screen' },
-              { type: 'countdown', icon: '⏱', label: 'Countdown',              desc: 'Pre-service timer' },
-              { type: 'image',     icon: '🖼', label: 'Image / Announcement',   desc: 'Photos, graphics, baby pics' },
-              { type: 'scripture', icon: '✝', label: 'Scripture',               desc: 'Bible verse' },
+              { type: 'song',         icon: '♪', label: 'Song',                     desc: 'Song with lyrics editor' },
+              { type: 'logo',         icon: '✦', label: 'Church Logo',               desc: 'Logo / welcome screen' },
+              { type: 'countdown',    icon: '⏱', label: 'Countdown',                 desc: 'Pre-service timer' },
+              { type: 'image',        icon: '🖼', label: 'Image / Announcement',      desc: 'Photos, graphics, baby pics' },
+              { type: 'scripture',    icon: '✝', label: 'Scripture',                  desc: 'Bible verse' },
             ].map(({ type, icon, label, desc }) => (
               <button key={type} className={styles.menuItem} onClick={() => handleAdd(type)}>
                 <span className={styles.menuIcon}>{icon}</span>
@@ -94,7 +92,6 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
         </div>
       )}
 
-      {/* Context menu */}
       {contextMenu && (
         <div className={styles.contextMenu} style={{ left: contextMenu.x, top: contextMenu.y }} onClick={e => e.stopPropagation()}>
           <button onClick={() => { removeItem(contextMenu.id); setContextMenu(null) }}>Remove</button>
