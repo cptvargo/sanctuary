@@ -11,6 +11,7 @@ const COUNTDOWN_THEMES = [
   { id: 'band-white',    label: 'Band — White',   timerStyle: 'band',    bgColor: '#0a0a0a', accentColor: '#ffffff', bgImageUrl: null, bgOverlayOpacity: 0.75 },
   { id: 'minimal-white', label: 'Minimal',        timerStyle: 'minimal', bgColor: '#000000', accentColor: '#ffffff', bgImageUrl: null, bgOverlayOpacity: 0.6 },
   { id: 'minimal-gold',  label: 'Minimal — Gold', timerStyle: 'minimal', bgColor: '#080600', accentColor: '#c8a84a', bgImageUrl: null, bgOverlayOpacity: 0.6 },
+{ id: 'circle-sky',    label: 'Circle — Sky',   timerStyle: 'circle',     bgColor: '#1a1008', accentColor: '#f5e6c8', bgImageUrl: './backgrounds/bg-heavenly-sky.jpg', bgOverlayOpacity: 0.60, message: '', subMessage: 'Service Begins Soon' },
   { id: 'risen',         label: 'He Is Risen',    timerStyle: 'risen',      bgColor: '#1a0800', accentColor: '#f5c842', bgImageUrl: './backgrounds/bg-he-is-risen.jpg', bgOverlayOpacity: 0.28, message: 'Service begins in', subMessage: 'He Is Risen' },
   { id: 'victorious',    label: 'Victorious',      timerStyle: 'victorious', bgColor: '#f0f0f0', accentColor: '#e8140a', bgImageUrl: './backgrounds/bg-victorious.jpg', bgOverlayOpacity: 0 },
 ]

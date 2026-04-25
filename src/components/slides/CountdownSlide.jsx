@@ -213,6 +213,48 @@ export function CountdownRenderer({ slide, timeStr, isExpired }) {
     )
   }
 
+  // ── Circle style ───────────────────────────────────────────────────────────
+  if (style === 'circle') {
+    return (
+      <div style={baseStyle}>
+        {overlay}
+        {/* Thin ring with tick marks at 12 and 6 o'clock */}
+        <svg
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}
+          viewBox="0 0 160 90"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <circle cx="80" cy="45" r="33" fill="none" stroke="rgba(255,235,180,0.85)" strokeWidth="0.35" />
+          <line x1="80" y1="12"   x2="80" y2="15.5" stroke="rgba(255,235,180,1)"    strokeWidth="0.6"  strokeLinecap="round" />
+          <line x1="80" y1="78"   x2="80" y2="74.5" stroke="rgba(255,235,180,1)"    strokeWidth="0.6"  strokeLinecap="round" />
+        </svg>
+        <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            fontSize: '20cqh', fontWeight: 200,
+            color: isExpired ? '#cc4444' : '#ffffff',
+            letterSpacing: '0.06em', fontVariantNumeric: 'tabular-nums',
+            lineHeight: 1, fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
+            textShadow: '0 2px 12px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7)',
+          }}>
+            {isExpired ? '—' : timeStr}
+          </div>
+          {subMessage && (
+            <div style={{
+              fontSize: '2cqh', color: '#ffffff',
+              letterSpacing: '0.32em', textTransform: 'uppercase',
+              fontWeight: 500, marginTop: '3cqh',
+              fontFamily: "'Inter', sans-serif",
+              textShadow: '0 1px 10px rgba(0,0,0,0.95), 0 0 20px rgba(0,0,0,0.8)',
+            }}>
+              {subMessage}
+            </div>
+          )}
+          <div style={{ width: '6cqh', height: '0.22cqh', background: 'rgba(240,178,75,0.7)', marginTop: '2cqh' }} />
+        </div>
+      </div>
+    )
+  }
+
   // ── Default style ──────────────────────────────────────────────────────────
   return (
     <div style={{ ...baseStyle, flexDirection: 'column', gap: '2%' }}>
