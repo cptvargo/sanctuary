@@ -118,9 +118,10 @@
 .slideTile {
   border-radius: var(--radius-lg);
   border: 2px solid var(--border-dim);
-  overflow: hidden;
+  overflow: visible;
+  position: relative;
   cursor: pointer;
-  transition: all var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
   background: var(--bg-card);
 }
 
@@ -144,6 +145,7 @@
   aspect-ratio: 16 / 9;
   pointer-events: none;
   overflow: hidden;
+  border-radius: calc(var(--radius-lg) - 2px) calc(var(--radius-lg) - 2px) 0 0;
 }
 
 .tileLabel {
@@ -152,7 +154,8 @@
   justify-content: space-between;
   padding: 6px 10px;
   background: var(--bg-raised);
-  border-top: 1px solid var(--border-dim);
+  border-top: 1px solid var(--border-mid);
+  border-radius: 0 0 calc(var(--radius-lg) - 2px) calc(var(--radius-lg) - 2px);
 }
 
 .tileName {
@@ -161,6 +164,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .tileLiveBadge {
@@ -183,6 +187,8 @@
   letter-spacing: 0.04em;
   flex-shrink: 0;
   line-height: 1.4;
+  position: relative;
+  z-index: 999;
 }
 
 /* ── Standalone editor ──────────────────────────────────────────────────── */

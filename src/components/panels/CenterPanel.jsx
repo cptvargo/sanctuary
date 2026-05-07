@@ -22,6 +22,12 @@ import smStyles from "../slides/editors/SmartMedia.module.css";
 function badgeColorFor(section) {
   const b = sectionBadge(section);
   const map = {
+    V: "#5ac8fa",
+    V1: "#5ac8fa",
+    V2: "#5ac8fa",
+    V3: "#5ac8fa",
+    V4: "#5ac8fa",
+    V5: "#5ac8fa",
     C: "#ff9500",
     C1: "#ff9500",
     C2: "#ff9500",
@@ -35,8 +41,11 @@ function badgeColorFor(section) {
     H: "#30d158",
   };
   if (map[b]) return map[b];
+  if (/^V\d*$/.test(b)) return "#5ac8fa";
+  if (/^C\d*$/.test(b)) return "#ff9500";
+  if (/^B\d*$/.test(b)) return "#bf5af2";
   if (/^\d+$/.test(b)) return "#7b8fff";
-  return "#636366";
+  return "#8a94a8";
 }
 
 function slidesToText(slides) {
@@ -337,7 +346,8 @@ function SongSlideGrid({ item }) {
       {item.slides.map((slide) => {
         const isActive = slide.id === activeSlideId;
         const isLiveSlide = slide.id === liveSlideId;
-        const badge = sectionBadge(slide.section);
+        const badgeSource = slide.section || slide.name || '';
+        const badge = sectionBadge(badgeSource);
         return (
           <div
             key={slide.id}
@@ -357,7 +367,7 @@ function SongSlideGrid({ item }) {
               {!isLiveSlide && badge && (
                 <span
                   className={styles.tileSectionBadge}
-                  style={{ background: badgeColorFor(slide.section) }}
+                  style={{ background: badgeColorFor(badgeSource) }}
                 >
                   {badge}
                 </span>

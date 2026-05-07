@@ -34,14 +34,15 @@ function ChurchLogoWatermark({ textColor, logoDataUrl: propLogoUrl }) {
 }
 
 export function sectionBadge(section = "") {
-  const s = section.trim();
+  // Strip split-slide suffix like "(2/3)" before matching
+  const s = section.trim().replace(/\s*\(\d+\/\d+\)$/, '');
   if (!s) return "";
   const u = s.toUpperCase();
   if (/^CHORUS\s*(\d*)$/.test(u)) {
     const n = u.replace("CHORUS", "").trim();
     return n ? `C${n}` : "C";
   }
-  if (/^VERSE\s*(\d+)$/.test(u)) {
+  if (/^VERSE\s*(\d*)$/.test(u)) {
     const n = u.replace("VERSE", "").trim();
     return n ? `V${n}` : "V";
   }
@@ -58,6 +59,12 @@ export function sectionBadge(section = "") {
 }
 
 const BADGE_COLORS = {
+  V: "#5ac8fa",
+  V1: "#5ac8fa",
+  V2: "#5ac8fa",
+  V3: "#5ac8fa",
+  V4: "#5ac8fa",
+  V5: "#5ac8fa",
   C: "#ff9500",
   C1: "#ff9500",
   C2: "#ff9500",
