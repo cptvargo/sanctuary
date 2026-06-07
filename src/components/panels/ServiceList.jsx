@@ -20,6 +20,7 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
   const [dropIdx, setDropIdx] = useState(null)
   const [contextMenu, setContextMenu] = useState(null)
   const [selectedIds, setSelectedIds] = useState(new Set())
+  const anchorIdxRef = useRef(null)
   const panelRef = useRef(null)
 
   if (activeSection === 'preService')  return <ChecklistPanel section="preService"  title="Pre-Service Checklist" />
@@ -34,20 +35,18 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
 
   const handleKeyDown = (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return
-    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
-      e.preventDefault()
-      setSelectedIds(new Set(serviceOrder.map(i => i.id)))
-    }
     if (e.key === 'Delete' && selectedIds.size > 0) {
       e.preventDefault()
       const count = selectedIds.size
       if (window.confirm(`Remove ${count} item${count !== 1 ? 's' : ''} from the service order?`)) {
         removeItemsById(selectedIds)
         setSelectedIds(new Set())
+        anchorIdxRef.current = null
       }
     }
     if (e.key === 'Escape') {
       setSelectedIds(new Set())
+      anchorIdxRef.current = null
     }
   }
 
@@ -88,9 +87,18 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
             <div
               key={item.id}
               className={`${styles.item} ${isActive ? styles.itemActive : ''} ${hasLiveSlide ? styles.itemLive : ''} ${isSelected ? styles.itemSelected : ''} ${isDragging ? styles.dragging : ''} ${isDropTarget ? styles.dropTarget : ''}`}
-              onClick={() => {
-                setSelectedIds(new Set())
-                onSelectItem(item)
+              onClick={(e) => {
+                if (e.shiftKey && anchorIdxRef.current !== null) {
+                  // Range select from anchor to this item
+                  const lo = Math.min(anchorIdxRef.current, idx)
+                  const hi = Math.max(anchorIdxRef.current, idx)
+                  setSelectedIds(new Set(serviceOrder.slice(lo, hi + 1).map(i => i.id)))
+                } else {
+                  // Regular click — clear selection, set anchor
+                  setSelectedIds(new Set())
+                  anchorIdxRef.current = idx
+                  onSelectItem(item)
+                }
               }}
               onContextMenu={e => { e.preventDefault(); setContextMenu({ id: item.id, x: e.clientX, y: e.clientY }) }}
               draggable
@@ -108,7 +116,7 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
         <button className={styles.addItemBtn} onClick={() => setShowAddMenu(true)}>+ Add item</button>
         {selectedIds.size > 0 && (
           <div className={styles.selectionHint}>
-            {selectedIds.size} selected — press Delete to remove
+            {selectedIds.size} selected — Delete to remove, Esc to cancel
           </div>
         )}
       </div>
