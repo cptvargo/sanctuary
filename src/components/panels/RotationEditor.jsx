@@ -10,6 +10,7 @@ const BUILT_IN_IMAGES = [
   { file: 'mothers_day.png',          label: "Mother's Day" },
   { file: 'verse_proverbs_1_7.png',   label: 'Proverbs 1:7' },
   { file: 'verse_proverbs_29_23.png', label: 'Proverbs 29:23' },
+  { file: 'verse_proverbs_4_13.png',  label: 'Proverbs 4:13' },
   { file: 'verse_psalm_45_1.png',     label: 'Psalm 45:1' },
   { file: 'bg-he-is-risen.png',       label: 'He Is Risen' },
   { file: 'bg-victorious.jpg',        label: 'Victorious' },
