@@ -130,6 +130,62 @@ export function SyncSettings({ onClose }) {
   );
 }
 
+// ─── Rotation image helpers (module-level — use store directly) ──────────────
+
+async function fetchBuiltinAsDataUrl(file) {
+  const resp = await fetch(`backgrounds/${file}`);
+  const blob = await resp.blob();
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => resolve(e.target.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function hydrateRotationImages(imagesMap) {
+  // imagesMap: { [rotationItemId]: [{ id, dataUrl }] }
+  useSanctuaryStore.setState((state) => ({
+    serviceOrder: state.serviceOrder.map((item) => {
+      if (item.kind !== "rotation") return item;
+      const saved = imagesMap[item.id];
+      if (!saved?.length) return item;
+      return {
+        ...item,
+        images: item.images.map((img) => {
+          const match = saved.find((s) => s.id === img.id);
+          return match?.dataUrl ? { ...img, dataUrl: match.dataUrl } : img;
+        }),
+      };
+    }),
+  }));
+}
+
+async function refetchBuiltinRotationImages() {
+  const state = useSanctuaryStore.getState();
+  for (const item of state.serviceOrder) {
+    if (item.kind !== "rotation") continue;
+    for (const img of item.images || []) {
+      if (img.source === "builtin" && img.file && !img.dataUrl) {
+        try {
+          const dataUrl = await fetchBuiltinAsDataUrl(img.file);
+          useSanctuaryStore.setState((s) => ({
+            serviceOrder: s.serviceOrder.map((i) =>
+              i.id !== item.id
+                ? i
+                : {
+                    ...i,
+                    images: i.images.map((im) =>
+                      im.id !== img.id ? im : { ...im, dataUrl },
+                    ),
+                  },
+            ),
+          }));
+        } catch (_) {}
+      }
+    }
+  }
+}
+
 // ─── Sync button component (used in TopBar) ───────────────────────────────────
 
 export function SyncButton() {
@@ -148,7 +204,6 @@ export function SyncButton() {
   const saveTimerRef = React.useRef(null);
   useEffect(() => {
     if (typeof window.sanctuary === "undefined") return;
-    // Debounce saves to avoid hammering disk on every keystroke
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => autoSaveLocal(), 2000);
     return () => clearTimeout(saveTimerRef.current);
@@ -158,39 +213,108 @@ export function SyncButton() {
   useEffect(() => {
     if (typeof window.sanctuary === "undefined") return;
     const handleUnload = () => {
-      // Synchronous save attempt on close
       window.sanctuary.saveService(getServiceData()).catch(() => {});
     };
     window.addEventListener("beforeunload", handleUnload);
     return () => window.removeEventListener("beforeunload", handleUnload);
   }, [serviceOrder, checklist, songLibrary]);
 
+  // Strip rotation image dataUrls — saved separately in rotation-images.json
   const getServiceData = () => ({
-    serviceOrder,
+    serviceOrder: serviceOrder.map((item) => {
+      if (item.kind !== "rotation") return item;
+      return {
+        ...item,
+        images: item.images.map(({ dataUrl, ...rest }) => rest),
+      };
+    }),
     songLibrary,
-    // checklist intentionally excluded — always loads from store defaults
     savedAt: new Date().toISOString(),
     version: "1.0",
   });
 
+  const getRotationImages = () => {
+    const result = {};
+    serviceOrder.forEach((item) => {
+      if (item.kind !== "rotation" || !item.images?.length) return;
+      const withData = item.images.filter((img) => img.dataUrl);
+      if (withData.length)
+        result[item.id] = withData.map(({ id, dataUrl }) => ({ id, dataUrl }));
+    });
+    return result;
+  };
+
   const autoSaveLocal = () => {
-    // Fire and forget — don't block UI waiting for disk write
     window.sanctuary.saveService(getServiceData()).catch(() => {});
+    window.sanctuary.saveSongLibrary(JSON.stringify(songLibrary)).catch(() => {});
+    const rotImages = getRotationImages();
+    if (Object.keys(rotImages).length > 0) {
+      window.sanctuary
+        .saveRotationImages(JSON.stringify(rotImages))
+        .catch(() => {});
+    }
   };
 
   const pullOnStartup = async () => {
     try {
-      // Always load local first — it's the most recent save
-      const local = await window.sanctuary.loadService();
-      if (local.ok && local.data) {
-        loadServiceData(local.data);
-        return;
-      }
-      // If no local data, try cloud
-      const cloud = await window.sanctuary.pullService();
-      if (cloud.ok && cloud.data) {
+      // Check if a GitHub token is configured before hitting the network
+      const cfg = await window.sanctuary.getConfig().catch(() => null);
+      const hasToken = cfg?.githubToken === "***set***";
+
+      // Load local file and (if token exists) cloud in parallel
+      const [local, cloud] = await Promise.all([
+        window.sanctuary.loadService(),
+        hasToken
+          ? window.sanctuary.pullService().catch(() => null)
+          : Promise.resolve(null),
+      ]);
+
+      const localTime =
+        local?.ok && local.data?.savedAt
+          ? new Date(local.data.savedAt).getTime()
+          : 0;
+      const cloudTime =
+        cloud?.ok && cloud.data?.savedAt
+          ? new Date(cloud.data.savedAt).getTime()
+          : 0;
+
+      if (cloudTime > localTime && cloud?.ok && cloud.data) {
+        // Cloud has a newer service (e.g. prepared at home) — use it
         loadServiceData(cloud.data);
+        await refetchBuiltinRotationImages();
         setLastSync(new Date());
+      } else if (local?.ok && local.data) {
+        // Local is current — use it and restore rotation images
+        loadServiceData(local.data);
+        const rotResult = await window.sanctuary.loadRotationImages();
+        if (rotResult.ok && rotResult.data) {
+          await hydrateRotationImages(rotResult.data);
+        } else {
+          await refetchBuiltinRotationImages();
+        }
+      } else {
+        // service.json missing or corrupt — recover songs from the dedicated backup
+        const libResult = await window.sanctuary.loadSongLibrary();
+        if (libResult?.ok && libResult.data) {
+          const current = useSanctuaryStore.getState();
+          const builtInNames = new Set(
+            current.songLibrary.map((s) => s.name.toLowerCase()),
+          );
+          const recovered = libResult.data.filter(
+            (s) => !builtInNames.has(s.name.toLowerCase()),
+          );
+          if (recovered.length > 0) {
+            useSanctuaryStore.setState((s) => ({
+              songLibrary: [...s.songLibrary, ...recovered],
+            }));
+          }
+        }
+        // Still use cloud if it loaded
+        if (cloud?.ok && cloud.data) {
+          loadServiceData(cloud.data);
+          await refetchBuiltinRotationImages();
+          setLastSync(new Date());
+        }
       }
     } catch (_) {}
   };
@@ -200,10 +324,8 @@ export function SyncButton() {
     const currentState = useSanctuaryStore.getState();
 
     // Merge saved song library with built-in defaults
-    // so new songs added in app updates always appear
-    let mergedLibrary = currentState.songLibrary; // start with built-in defaults
+    let mergedLibrary = currentState.songLibrary;
     if (data.songLibrary && data.songLibrary.length > 0) {
-      // Add any saved songs that aren't already in the built-in library
       const builtInNames = new Set(
         mergedLibrary.map((s) => s.name.toLowerCase()),
       );
@@ -216,7 +338,6 @@ export function SyncButton() {
     useSanctuaryStore.setState({
       serviceOrder: data.serviceOrder,
       songLibrary: mergedLibrary,
-      // Checklist always uses store defaults
     });
   };
 

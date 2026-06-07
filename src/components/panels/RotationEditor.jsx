@@ -73,7 +73,7 @@ export default function RotationEditor({ item }) {
     setAdding(img.file)
     try {
       const dataUrl = await fetchAsDataUrl(img.file)
-      addRotationImage(item.id, { dataUrl, caption: img.label })
+      addRotationImage(item.id, { dataUrl, caption: img.label, source: 'builtin', file: img.file })
     } catch (err) {
       console.error('Failed to load built-in image:', img.file, err)
     } finally {

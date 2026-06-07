@@ -36,10 +36,14 @@ contextBridge.exposeInMainWorld('sanctuary', {
   readFile:        (filePath) => ipcRenderer.invoke('file:read', filePath),
 
   // Service data sync
-  saveService: (data) => ipcRenderer.invoke('service:save', data),
-  loadService: ()     => ipcRenderer.invoke('service:load'),
-  pushService: (data) => ipcRenderer.invoke('service:push', data),
-  pullService: ()     => ipcRenderer.invoke('service:pull'),
+  saveService:         (data) => ipcRenderer.invoke('service:save', data),
+  loadService:         ()     => ipcRenderer.invoke('service:load'),
+  pushService:         (data) => ipcRenderer.invoke('service:push', data),
+  pullService:         ()     => ipcRenderer.invoke('service:pull'),
+  saveRotationImages:  (json) => ipcRenderer.invoke('service:saveRotationImages', json),
+  loadRotationImages:  ()     => ipcRenderer.invoke('service:loadRotationImages'),
+  saveSongLibrary:     (json) => ipcRenderer.invoke('service:saveSongLibrary', json),
+  loadSongLibrary:     ()     => ipcRenderer.invoke('service:loadSongLibrary'),
 
   // Config
   getConfig: ()    => ipcRenderer.invoke('config:get'),

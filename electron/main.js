@@ -18,8 +18,10 @@ app.setPath('userData', path.join(app.getPath('appData'), 'declare'))
 
 // User data dir for persisted service file
 const USER_DATA = app.getPath('userData')
-const SERVICE_FILE = path.join(USER_DATA, 'service.json')
-const CONFIG_FILE  = path.join(USER_DATA, 'config.json')
+const SERVICE_FILE          = path.join(USER_DATA, 'service.json')
+const ROTATION_IMAGES_FILE  = path.join(USER_DATA, 'rotation-images.json')
+const SONG_LIBRARY_FILE     = path.join(USER_DATA, 'song-library.json')
+const CONFIG_FILE           = path.join(USER_DATA, 'config.json')
 
 function loadConfig() {
   try {
@@ -499,7 +501,10 @@ ipcMain.handle('prefs:save', (_, prefs) => {
 
 ipcMain.handle('service:save', async (event, serviceData) => {
   try {
-    await fs.promises.writeFile(SERVICE_FILE, JSON.stringify(serviceData, null, 2), 'utf8')
+    const content = typeof serviceData === 'string' ? serviceData : JSON.stringify(serviceData, null, 2)
+    const tmp = SERVICE_FILE + '.tmp'
+    await fs.promises.writeFile(tmp, content, 'utf8')
+    await fs.promises.rename(tmp, SERVICE_FILE)
     return { ok: true }
   } catch (e) {
     return { ok: false, error: e.message }
@@ -511,6 +516,51 @@ ipcMain.handle('service:load', async () => {
   try {
     try { await fs.promises.access(SERVICE_FILE) } catch { return { ok: false, error: 'No saved service' } }
     const data = JSON.parse(await fs.promises.readFile(SERVICE_FILE, 'utf8'))
+    return { ok: true, data }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+// Save song library separately — survives service.json corruption
+ipcMain.handle('service:saveSongLibrary', async (event, json) => {
+  try {
+    const tmp = SONG_LIBRARY_FILE + '.tmp'
+    await fs.promises.writeFile(tmp, json, 'utf8')
+    await fs.promises.rename(tmp, SONG_LIBRARY_FILE)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+ipcMain.handle('service:loadSongLibrary', async () => {
+  try {
+    try { await fs.promises.access(SONG_LIBRARY_FILE) } catch { return { ok: false, error: 'No song library' } }
+    const data = JSON.parse(await fs.promises.readFile(SONG_LIBRARY_FILE, 'utf8'))
+    return { ok: true, data }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+// Save rotation images separately (large base64 blobs kept out of service.json)
+ipcMain.handle('service:saveRotationImages', async (event, json) => {
+  try {
+    const tmp = ROTATION_IMAGES_FILE + '.tmp'
+    await fs.promises.writeFile(tmp, json, 'utf8')
+    await fs.promises.rename(tmp, ROTATION_IMAGES_FILE)
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e.message }
+  }
+})
+
+// Load rotation images
+ipcMain.handle('service:loadRotationImages', async () => {
+  try {
+    try { await fs.promises.access(ROTATION_IMAGES_FILE) } catch { return { ok: false, error: 'No rotation images' } }
+    const data = JSON.parse(await fs.promises.readFile(ROTATION_IMAGES_FILE, 'utf8'))
     return { ok: true, data }
   } catch (e) {
     return { ok: false, error: e.message }
@@ -534,8 +584,10 @@ ipcMain.handle('service:pull', async () => {
     const config = loadConfig()
     const data = await pullServiceFromGist(config)
     if (!data) return { ok: false, error: 'No cloud data found' }
-    // Also save locally
-    fs.writeFileSync(SERVICE_FILE, JSON.stringify(data, null, 2))
+    // Also save locally (atomic write)
+    const tmp = SERVICE_FILE + '.tmp'
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2))
+    fs.renameSync(tmp, SERVICE_FILE)
     return { ok: true, data }
   } catch (e) {
     return { ok: false, error: e.message }
