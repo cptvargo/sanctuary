@@ -5,6 +5,8 @@ import LyricsSlide from './slides/LyricsSlide'
 import PptxSlide from './slides/PptxSlide'
 import BlankSlide, { ScriptureSlide, AnnouncementSlide } from './slides/BlankSlide'
 import ImageSlide from './slides/ImageSlide'
+import VideoSlide from './slides/VideoSlide'
+import RotationImageSlide from './slides/RotationImageSlide'
 import { CountdownRenderer } from './slides/CountdownSlide'
 
 // Projector-side countdown — uses same CountdownRenderer as operator.
@@ -21,15 +23,17 @@ function ProjectorCountdown({ slide, countdownRemaining }) {
 function renderSlide(slide, countdownRemaining) {
   if (!slide) return null
   switch (slide.type) {
-    case 'logo':         return <LogoSlide slide={slide} />
-    case 'lyrics':       return <LyricsSlide slide={slide} />
-    case 'countdown':    return <ProjectorCountdown slide={slide} countdownRemaining={countdownRemaining} />
-    case 'pptx':         return <PptxSlide slide={slide} />
-    case 'blank':        return <BlankSlide slide={slide} />
-    case 'scripture':    return <ScriptureSlide slide={slide} />
-    case 'announcement': return <AnnouncementSlide slide={slide} />
-    case 'image':         return <ImageSlide slide={slide} />
-    default:             return <BlankSlide slide={slide} />
+    case 'logo':           return <LogoSlide slide={slide} />
+    case 'lyrics':         return <LyricsSlide slide={slide} />
+    case 'countdown':      return <ProjectorCountdown slide={slide} countdownRemaining={countdownRemaining} />
+    case 'pptx':           return <PptxSlide slide={slide} />
+    case 'blank':          return <BlankSlide slide={slide} />
+    case 'scripture':      return <ScriptureSlide slide={slide} />
+    case 'announcement':   return <AnnouncementSlide slide={slide} />
+    case 'image':          return <ImageSlide slide={slide} />
+    case 'video':          return <VideoSlide slide={slide} />
+    case 'rotation-image': return <RotationImageSlide slide={slide} />
+    default:               return <BlankSlide slide={slide} />
   }
 }
 
@@ -53,11 +57,12 @@ export default function ProjectorView() {
   }, [])
 
   const handlePayload = (payload) => {
-    // For image slides, read full slide data from store (avoids BroadcastChannel size limits)
+    // For large-data slides, read from store as a fallback (same-process only)
     let resolvedPayload = payload
-    if (payload.slide?.type === 'image') {
+    const t = payload.slide?.type
+    if (t === 'image' || t === 'rotation-image') {
       const storeSlide = useSanctuaryStore.getState().getLiveSlide()
-      if (storeSlide?.type === 'image') {
+      if (storeSlide?.type === t) {
         resolvedPayload = { ...payload, slide: storeSlide }
       }
     }

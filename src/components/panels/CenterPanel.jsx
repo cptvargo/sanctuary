@@ -12,6 +12,8 @@ import ScriptureEditor, {
   AnnouncementEditor,
 } from "../slides/editors/ScriptureEditor";
 import ImageEditor from "../slides/editors/ImageEditor";
+import VideoEditor from "../slides/editors/VideoEditor";
+import RotationEditor from "./RotationEditor";
 import CustomImageManager from "./CustomImageManager";
 import ThemeManager from "./ThemeManager";
 import styles from "./CenterPanel.module.css";
@@ -413,6 +415,8 @@ function StandaloneEditor({ item }) {
         return <AnnouncementEditor {...props} />;
       case "image":
         return <ImageEditor {...props} />;
+      case "video":
+        return <VideoEditor {...props} />;
       default:
         return null;
     }
@@ -557,6 +561,7 @@ export default function CenterPanel({ activeItem }) {
   }
 
   const isSong = activeItem.kind === "song";
+  const isRotation = activeItem.kind === "rotation";
   const isEditMode = mode === "edit";
   const isClickToSend = isLive && mode === "preview";
   const { activeSlideId, updateSlide } = useSanctuaryStore();
@@ -564,17 +569,23 @@ export default function CenterPanel({ activeItem }) {
     ? activeItem.slides.find((s) => s.id === activeSlideId) || null
     : null;
 
+  const itemIcon = isSong ? "♪" : isRotation ? "⟳" : "◻";
+  const itemName = isSong ? activeItem.name : isRotation ? activeItem.name : activeItem.slide?.name;
+
   return (
     <div className={styles.panel}>
       <div className={styles.itemHeader}>
         <div className={styles.itemTitle}>
-          <span className={styles.itemIcon}>{isSong ? "♪" : "◻"}</span>
-          <span className={styles.itemName}>
-            {isSong ? activeItem.name : activeItem.slide?.name}
-          </span>
+          <span className={styles.itemIcon}>{itemIcon}</span>
+          <span className={styles.itemName}>{itemName}</span>
           {isSong && (
             <span className={styles.slideCount}>
               {activeItem.slides.length} slides
+            </span>
+          )}
+          {isRotation && (
+            <span className={styles.slideCount}>
+              {activeItem.images?.length || 0} images
             </span>
           )}
         </div>
@@ -597,6 +608,8 @@ export default function CenterPanel({ activeItem }) {
           <SongTextEditor item={activeItem} />
         ) : isSong ? (
           <SongSlideGrid item={activeItem} />
+        ) : isRotation ? (
+          <RotationEditor item={activeItem} />
         ) : (
           <StandaloneEditor item={activeItem} />
         )}

@@ -207,3 +207,15 @@
 
 .contextMenu button:hover { background: var(--bg-hover); color: var(--red); }
 
+.itemSelected {
+  background: rgba(74, 158, 221, 0.12) !important;
+  border-color: var(--accent-border) !important;
+}
+
+.selectionHint {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 6px 4px 2px;
+}
+

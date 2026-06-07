@@ -11,6 +11,7 @@ export const makeSlide = (type, overrides = {}) => {
     scripture:    { name: 'Scripture', reference: '', text: '', translation: 'KJV', bgColor: '#050813', textColor: '#e0e8ff' },
     announcement: { name: 'Announcement', title: '', body: '', bgColor: '#0a0a14', textColor: '#ffffff' },
     image:        { name: 'Announcement', images: [], currentIndex: 0, displayMode: 'announcement', bgColor: '#000000' },
+    video:        { name: 'Video', videoFilePath: null, videoObjectUrl: null, videoName: '', bgColor: '#000000' },
   }
   return { id: uid(), type, transition: 'cut', ...(defaults[type] || {}), ...overrides }
 }
@@ -91,6 +92,7 @@ export const flattenOrder = (order) => {
   for (const item of order) {
     if (item.kind === 'slide') slides.push(item.slide)
     else if (item.kind === 'song') slides.push(...item.slides)
+    else if (item.kind === 'rotation') slides.push({ id: item.id, type: 'rotation-image', name: item.name, images: item.images || [], intervalSeconds: item.intervalSeconds || 7 })
   }
   return slides
 }
@@ -586,6 +588,59 @@ export const useSanctuaryStore = create((set, get) => ({
     }))
     // Sync immediately so projector reflects the new time
     get()._syncProjector()
+  },
+
+  // ── Rotation items ────────────────────────────────────────────────────────
+  addRotationItem: (afterItemId = null) => {
+    const item = { id: uid(), kind: 'rotation', name: 'Pre-Service Rotation', images: [], intervalSeconds: 7 }
+    set(state => {
+      const order = [...state.serviceOrder]
+      const idx = afterItemId != null ? order.findIndex(i => i.id === afterItemId) + 1 : order.length
+      order.splice(idx, 0, item)
+      return { serviceOrder: order, activeSlideId: item.id }
+    })
+  },
+
+  updateRotationItem: (itemId, changes) => {
+    set(state => ({
+      serviceOrder: state.serviceOrder.map(i => i.id === itemId && i.kind === 'rotation' ? { ...i, ...changes } : i)
+    }))
+    const s = get()
+    if (s.isLive && s.liveSlideId === itemId) get()._syncProjector()
+  },
+
+  addRotationImage: (itemId, image) => {
+    set(state => ({
+      serviceOrder: state.serviceOrder.map(i =>
+        i.id === itemId && i.kind === 'rotation'
+          ? { ...i, images: [...(i.images || []), { id: uid(), ...image }] }
+          : i
+      )
+    }))
+    const s = get()
+    if (s.isLive && s.liveSlideId === itemId) get()._syncProjector()
+  },
+
+  removeRotationImage: (itemId, imgId) => {
+    set(state => ({
+      serviceOrder: state.serviceOrder.map(i =>
+        i.id === itemId && i.kind === 'rotation'
+          ? { ...i, images: (i.images || []).filter(img => img.id !== imgId) }
+          : i
+      )
+    }))
+    const s = get()
+    if (s.isLive && s.liveSlideId === itemId) get()._syncProjector()
+  },
+
+  // ── Multi-select delete ────────────────────────────────────────────────────
+  removeItemsById: (ids) => {
+    set(state => {
+      const idSet = ids instanceof Set ? ids : new Set(ids)
+      const order = state.serviceOrder.filter(i => !idSet.has(i.id))
+      const all = flattenOrder(order)
+      return { serviceOrder: order, activeSlideId: all[0]?.id || null }
+    })
   },
 
   // ── Projector sync ────────────────────────────────────────────────────────

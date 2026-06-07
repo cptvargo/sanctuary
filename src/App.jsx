@@ -14,7 +14,10 @@ export default function App() {
 
   const handleSelectItem = (item) => {
     setActiveItemId(item.id)
-    const firstSlide = item.kind === 'song' ? item.slides[0] : item.slide
+    // For rotation items, the virtual slide id is item.id itself
+    const firstSlide = item.kind === 'song' ? item.slides[0]
+      : item.kind === 'rotation' ? { id: item.id }
+      : item.slide
     if (firstSlide) {
       setActiveSlide(firstSlide.id)
       // If live + preview: clicking an item in the list immediately sends it to projector
