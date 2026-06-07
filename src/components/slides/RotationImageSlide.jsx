@@ -38,26 +38,16 @@ export default function RotationImageSlide({ slide, mini = false }) {
   const img = images[Math.min(displayIdx, images.length - 1)]
 
   return (
-    <div style={{ width: '100%', height: '100%', background: '#000', overflow: 'hidden', position: 'relative' }}>
+    <div style={{ width: '100%', height: '100%', background: '#000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <img
         src={img.dataUrl}
         alt=""
         style={{
-          width: '100%', height: '100%', objectFit: 'cover',
+          width: '100%', height: '100%', objectFit: 'contain',
           opacity: fading ? 0 : 1,
           transition: fading ? 'opacity 0.5s ease-out' : 'opacity 0.5s ease-in',
         }}
       />
-      {img.caption && !mini && (
-        <div style={{
-          position: 'absolute', bottom: '5%', left: '50%', transform: 'translateX(-50%)',
-          background: 'rgba(0,0,0,0.65)', color: '#fff', padding: '0.8cqh 2cqw',
-          borderRadius: '0.5cqh', fontSize: '1.8cqh', textAlign: 'center',
-          backdropFilter: 'blur(8px)', whiteSpace: 'nowrap',
-        }}>
-          {img.caption}
-        </div>
-      )}
     </div>
   )
 }

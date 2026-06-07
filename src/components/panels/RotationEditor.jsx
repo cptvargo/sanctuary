@@ -4,36 +4,13 @@ import SlideCanvas from '../slides/SlideCanvas'
 import cpStyles from './CenterPanel.module.css'
 import styles from './RotationEditor.module.css'
 
-// All images bundled in public/backgrounds/ — available in both dev and prod
+// Only pre-service and verse images — these have text baked into the image itself
 const BUILT_IN_IMAGES = [
   { file: 'pre_service_silence.png',  label: 'Silence Phones' },
-  { file: 'mothers_day.png',          label: "Mother's Day" },
   { file: 'verse_proverbs_1_7.png',   label: 'Proverbs 1:7' },
-  { file: 'verse_proverbs_29_23.png', label: 'Proverbs 29:23' },
   { file: 'verse_proverbs_4_13.png',  label: 'Proverbs 4:13' },
+  { file: 'verse_proverbs_29_23.png', label: 'Proverbs 29:23' },
   { file: 'verse_psalm_45_1.png',     label: 'Psalm 45:1' },
-  { file: 'bg-he-is-risen.png',       label: 'He Is Risen' },
-  { file: 'bg-victorious.jpg',        label: 'Victorious' },
-  { file: 'Victorious.png',           label: 'Victorious (alt)' },
-  { file: 'bg-divine-light.jpg',      label: 'Divine Light' },
-  { file: 'bg-divine-pillars.png',    label: 'Divine Pillars' },
-  { file: 'bg-empty-tomb.jpg',        label: 'Empty Tomb' },
-  { file: 'bg-three-crosses.jpg',     label: 'Three Crosses' },
-  { file: 'bg-crosses-sunset.jpg',    label: 'Crosses Sunset' },
-  { file: 'bg-crystal-cross.jpg',     label: 'Crystal Cross' },
-  { file: 'light-breaking-through.png', label: 'Light Breaking Through' },
-  { file: 'refiners-fire.png',        label: "Refiner's Fire" },
-  { file: 'bg-heavenly-sky.jpg',      label: 'Heavenly Sky' },
-  { file: 'bg-night-sky.jpg',         label: 'Night Sky' },
-  { file: 'bg-star-cluster.jpg',      label: 'Star Cluster' },
-  { file: 'bg-blue-nebula.jpg',       label: 'Blue Nebula' },
-  { file: 'bg-light-waves.jpg',       label: 'Light Waves' },
-  { file: 'bg-neon-burst.jpg',        label: 'Neon Burst' },
-  { file: 'bg-palm-leaves.jpg',       label: 'Palm Leaves' },
-  { file: 'bg-announcement.jpg',      label: 'Announcement BG' },
-  { file: 'cherry-dark.png',          label: 'Cherry Dark' },
-  { file: 'navy_abstract.png',        label: 'Navy Abstract' },
-  { file: 'red_sky.png',              label: 'Red Sky' },
 ]
 
 async function fetchAsDataUrl(filename) {
@@ -113,12 +90,7 @@ export default function RotationEditor({ item }) {
     }
   }
 
-  const handleCaption = (imgId, caption) => {
-    const updated = images.map(img => img.id === imgId ? { ...img, caption } : img)
-    updateRotationItem(item.id, { images: updated })
-  }
-
-  return (
+return (
     <div className={cpStyles.standaloneWrap}>
       <div
         className={`${cpStyles.standaloneCanvas} ${cpStyles.canvasClickable} ${isRunning ? cpStyles.canvasLive : ''}`}
@@ -163,12 +135,6 @@ export default function RotationEditor({ item }) {
                   <button className={styles.removeBtn} onClick={() => removeRotationImage(item.id, img.id)}>×</button>
                   <span className={styles.indexBadge}>{idx + 1}</span>
                 </div>
-                <input
-                  className={styles.captionInput}
-                  value={img.caption || ''}
-                  onChange={e => handleCaption(img.id, e.target.value)}
-                  placeholder="Caption…"
-                />
               </div>
             ))}
           </div>
