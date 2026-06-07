@@ -2,18 +2,12 @@
   border-top: 1px solid var(--border-dim);
   background: var(--bg-surface);
   flex-shrink: 0;
-  max-height: 260px;
+  max-height: 320px;
   overflow-y: auto;
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
 .controlRow {
@@ -66,26 +60,7 @@
 
 .stopBtn:hover { background: var(--red, #ff453a); color: #fff; }
 
-.dropZone {
-  border: 2px dashed var(--border-mid);
-  border-radius: var(--radius-lg);
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 12px;
-  transition: all var(--transition);
-  text-align: center;
-}
-
-.dropZone:hover { border-color: var(--accent-border); color: var(--accent); }
-
-.dropZoneIcon { font-size: 22px; color: var(--text-dim); }
-.dropZoneHint { font-size: 10px; color: var(--text-dim); }
-
+/* Added images grid */
 .imageGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -159,9 +134,15 @@
 .captionInput:focus { border-color: var(--accent-border); }
 .captionInput::placeholder { color: var(--text-dim); }
 
-.addMoreBtn {
-  width: 100%;
-  padding: 7px;
+/* Add buttons row */
+.addRow {
+  display: flex;
+  gap: 8px;
+}
+
+.addFileBtn {
+  flex: 1;
+  padding: 7px 10px;
   background: none;
   border: 1px dashed var(--border-dim);
   border-radius: var(--radius-md);
@@ -173,4 +154,64 @@
   text-align: center;
 }
 
-.addMoreBtn:hover { border-color: var(--accent-border); color: var(--accent); }
+.addFileBtn:hover { border-color: var(--accent-border); color: var(--accent); }
+.addFileBtnActive { border-color: var(--accent-border) !important; color: var(--accent) !important; border-style: solid !important; }
+
+/* Built-in image picker */
+.builtInGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 6px;
+}
+
+.builtInCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+}
+
+.builtInCard:hover:not(:disabled) { border-color: var(--accent-border); background: var(--accent-bg); }
+.builtInCard:disabled { opacity: 0.5; cursor: wait; }
+
+.builtInThumb {
+  aspect-ratio: 16 / 9;
+  border-radius: 2px;
+  background: var(--bg-card) center / cover no-repeat;
+  position: relative;
+  overflow: hidden;
+}
+
+.addingSpinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 14px;
+}
+
+.builtInLabel {
+  font-size: 9px;
+  color: var(--text-muted);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.emptyHint {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 8px 0 4px;
+}
