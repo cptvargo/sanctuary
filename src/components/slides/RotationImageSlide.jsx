@@ -37,15 +37,31 @@ export default function RotationImageSlide({ slide, mini = false }) {
   const displayIdx = mini ? 0 : currentIdx
   const img = images[Math.min(displayIdx, images.length - 1)]
 
+  const fadeStyle = {
+    opacity: fading ? 0 : 1,
+    transition: fading ? 'opacity 0.5s ease-out' : 'opacity 0.5s ease-in',
+  }
+
   return (
-    <div style={{ width: '100%', height: '100%', background: '#000', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ width: '100%', height: '100%', background: '#000', overflow: 'hidden', position: 'relative' }}>
+      {/* Blurred fill — hides black bars without cropping the main image */}
       <img
         src={img.dataUrl}
         alt=""
         style={{
-          width: '100%', height: '100%', objectFit: 'contain',
-          opacity: fading ? 0 : 1,
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          objectFit: 'cover', filter: 'blur(40px)', transform: 'scale(1.1)',
+          opacity: fading ? 0 : 0.3,
           transition: fading ? 'opacity 0.5s ease-out' : 'opacity 0.5s ease-in',
+        }}
+      />
+      {/* Main image — always fully visible */}
+      <img
+        src={img.dataUrl}
+        alt=""
+        style={{
+          position: 'relative', width: '100%', height: '100%',
+          objectFit: 'contain', ...fadeStyle,
         }}
       />
     </div>
