@@ -483,6 +483,32 @@ function StandaloneEditor({ item }) {
   );
 }
 
+// ─── Save to Library button ───────────────────────────────────────────────────
+
+function SaveToLibraryBtn({ item }) {
+  const [saved, setSaved] = useState(false)
+  const songLibrary = useSanctuaryStore((s) => s.songLibrary)
+  const saveSongToLibrary = useSanctuaryStore((s) => s.saveSongToLibrary)
+  const inLibrary = songLibrary.some(
+    (l) => l.name.toLowerCase() === item.name.toLowerCase(),
+  )
+
+  if (inLibrary && !saved) return null
+
+  return (
+    <button
+      className={styles.saveLibraryBtn}
+      onClick={() => {
+        saveSongToLibrary({ name: item.name, slides: item.slides })
+        setSaved(true)
+        setTimeout(() => setSaved(false), 1500)
+      }}
+    >
+      {saved ? "✓ Saved" : "💾 Save to Library"}
+    </button>
+  )
+}
+
 // ─── Save Style button (preview bar) ─────────────────────────────────────────
 
 function SaveStyleBtn({ item }) {
@@ -600,6 +626,7 @@ export default function CenterPanel({ activeItem }) {
               ✎ Editing — changes auto-save
             </span>
           )}
+          {isSong && <SaveToLibraryBtn item={activeItem} />}
         </div>
       </div>
 
@@ -663,11 +690,22 @@ export default function CenterPanel({ activeItem }) {
               max={180}
               step={1}
               value={selectedSlide.fontSize || 100}
-              onChange={(e) =>
-                updateSlide(selectedSlide.id, {
-                  fontSize: Number(e.target.value),
-                })
-              }
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                useSanctuaryStore.setState((state) => ({
+                  serviceOrder: state.serviceOrder.map((i) =>
+                    i.id !== activeItem.id
+                      ? i
+                      : {
+                          ...i,
+                          slides: i.slides.map((s) =>
+                            s.type === "lyrics" ? { ...s, fontSize: val } : s,
+                          ),
+                        },
+                  ),
+                }));
+                if (isLive) useSanctuaryStore.getState()._syncProjector();
+              }}
               style={{ width: 100, accentColor: "var(--accent)" }}
             />
             <span className={styles.tileEditorVal}>
@@ -675,12 +713,24 @@ export default function CenterPanel({ activeItem }) {
             </span>
             <button
               className={styles.tileEditorReset}
-              onClick={() => updateSlide(selectedSlide.id, { fontSize: 100 })}
+              onClick={() => {
+                useSanctuaryStore.setState((state) => ({
+                  serviceOrder: state.serviceOrder.map((i) =>
+                    i.id !== activeItem.id
+                      ? i
+                      : {
+                          ...i,
+                          slides: i.slides.map((s) =>
+                            s.type === "lyrics" ? { ...s, fontSize: 100 } : s,
+                          ),
+                        },
+                  ),
+                }));
+                if (isLive) useSanctuaryStore.getState()._syncProjector();
+              }}
             >
               ↺
             </button>
-            <span className={styles.tileEditorDivider} />
-            <SaveStyleBtn item={activeItem} />
           </div>
         )}
     </div>

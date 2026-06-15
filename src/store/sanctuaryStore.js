@@ -570,10 +570,22 @@ export const useSanctuaryStore = create((set, get) => ({
   },
 
   addSongFromLibrary: (libSong) => {
-    const themeProps = get().activeThemeProps || {}
+    const state = get()
+    // Same context-inheritance logic as addSongItem: use active theme or copy from first existing song
+    const inheritedTheme = state.activeThemeProps || (() => {
+      const existingSong = state.serviceOrder.find(i => i.kind === 'song' && i.slides?.some(s => s.type === 'lyrics'))
+      const s = existingSong?.slides?.find(sl => sl.type === 'lyrics')
+      return s ? { bgImageUrl: s.bgImageUrl || null, bgGradient: s.bgGradient || null, bgColor: s.bgColor || '#050813', textColor: s.textColor || '#ffffff', bgOverlayOpacity: s.bgOverlayOpacity ?? 0.55, fontSize: s.fontSize || 100, fontId: s.fontId || 'montserrat', smartMediaId: s.smartMediaId || null } : {}
+    })()
     const cloned = makeSong({
       name: libSong.name,
-      slides: libSong.slides.map(s => ({ ...s, id: uid(), ...themeProps })),
+      slides: libSong.slides.map(s => ({
+        ...s,
+        id: uid(),
+        ...inheritedTheme,
+        // If the library slide has an explicitly saved fontSize, it takes priority
+        ...(s.fontSize != null ? { fontSize: s.fontSize } : {}),
+      })),
     })
     set(state => ({ serviceOrder: [...state.serviceOrder, cloned] }))
   },
