@@ -170,6 +170,18 @@ export default function TopBar() {
           >
             {isBlackOut ? "● Screen Off" : "○ Black Out"}
           </button>
+          {isLive && (
+            <button
+              className={styles.fixProjectorBtn}
+              title="Fonts look wrong or running off screen? Click to fix the projector display."
+              onClick={async () => {
+                await window.sanctuary?.fixProjector(selectedDisplayId || null)
+                setTimeout(() => useSanctuaryStore.getState()._syncProjector(), 800)
+              }}
+            >
+              ⟳ Fix Display
+            </button>
+          )}
           <button
             className={`${styles.goLiveBtn} ${isLive ? styles.endLive : styles.startLive}`}
             onClick={handleGoLive}

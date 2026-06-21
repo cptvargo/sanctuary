@@ -387,3 +387,18 @@
 }
 
 .displayLaunch:hover { background: #e0e0e0; }
+
+.fixProjectorBtn {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 200, 0, 0.35);
+  background: rgba(255, 200, 0, 0.1);
+  color: #ffc800;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.fixProjectorBtn:hover { background: rgba(255, 200, 0, 0.2); }

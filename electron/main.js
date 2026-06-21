@@ -10,6 +10,7 @@ const isDev = !app.isPackaged
 
 let operatorWin = null
 let projectorWin = null
+let lastProjectorDisplayId = null
 
 // ─── Paths ────────────────────────────────────────────────────────────────────
 
@@ -177,23 +178,25 @@ function createOperatorWindow() {
   })
 }
 
-function createProjectorWindow(preferredDisplayId = null) {
+function pickProjectorDisplay(preferredDisplayId) {
   const displays = screen.getAllDisplays()
   const primary = screen.getPrimaryDisplay()
-  let target
   if (preferredDisplayId) {
-    target = displays.find(d => d.id === preferredDisplayId)
+    const found = displays.find(d => d.id === preferredDisplayId)
+    if (found) return found
   }
-  if (!target) {
-    const externals = displays.filter(d => d.id !== primary.id)
-    if (externals.length > 1) {
-      target = externals.reduce((a, b) =>
-        (b.bounds.width * b.bounds.height) > (a.bounds.width * a.bounds.height) ? b : a
-      )
-    } else {
-      target = externals[0] || primary
-    }
+  const externals = displays.filter(d => d.id !== primary.id)
+  if (externals.length > 0) {
+    return externals.reduce((a, b) =>
+      (b.bounds.width * b.bounds.height) > (a.bounds.width * a.bounds.height) ? b : a
+    )
   }
+  return primary
+}
+
+function createProjectorWindow(preferredDisplayId = null) {
+  const target = pickProjectorDisplay(preferredDisplayId)
+  lastProjectorDisplayId = target.id
 
   projectorWin = new BrowserWindow({
     x: target.bounds.x,
@@ -220,10 +223,21 @@ function createProjectorWindow(preferredDisplayId = null) {
     projectorWin.loadFile(path.join(__dirname, '../dist/index.html'), {
       query: { projector: '1' },
     })
-    if (target && target.id !== screen.getPrimaryDisplay().id) projectorWin.setFullScreen(true)
+    // Always fullscreen in production — primary/external check was the root cause
+    // of the resolution bug when display config changes during a live service
+    projectorWin.setFullScreen(true)
   }
 
   projectorWin.on('closed', () => { projectorWin = null })
+}
+
+// Re-fullscreen automatically if display config changes mid-service
+function handleDisplayChange() {
+  if (!projectorWin || projectorWin.isDestroyed() || isDev) return
+  projectorWin.setFullScreen(false)
+  setTimeout(() => {
+    if (projectorWin && !projectorWin.isDestroyed()) projectorWin.setFullScreen(true)
+  }, 500)
 }
 
 // ─── IPC handlers ─────────────────────────────────────────────────────────────
@@ -245,6 +259,13 @@ ipcMain.handle('projector:open', (event, preferredDisplayId = null) => {
 
 ipcMain.handle('projector:close', () => {
   if (projectorWin && !projectorWin.isDestroyed()) projectorWin.close()
+})
+
+// Close and reopen the projector on the correct display — call when fonts look wrong
+ipcMain.handle('projector:fix', (event, preferredDisplayId = null) => {
+  if (projectorWin && !projectorWin.isDestroyed()) projectorWin.close()
+  createProjectorWindow(preferredDisplayId || lastProjectorDisplayId)
+  return true
 })
 
 // Return all available displays so the UI can show a picker
@@ -623,6 +644,11 @@ app.whenReady().then(() => {
   const savedFolder = loadPrefs()['watchFolderPath']
   if (savedFolder) startWatchFolder(savedFolder)
   startPhoneServer()
+
+  // Auto-recover projector fullscreen when display config changes
+  screen.on('display-added',            handleDisplayChange)
+  screen.on('display-removed',          handleDisplayChange)
+  screen.on('display-metrics-changed',  handleDisplayChange)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createOperatorWindow()

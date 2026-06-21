@@ -181,7 +181,17 @@ function SongTextEditor({ item }) {
             smartMediaId: src.smartMediaId ?? null,
           };
         })();
-        const mergedSlides = newSlides.map((s) => ({ ...s, ...themeProps }));
+        const mergedSlides = newSlides.map((newSlide) => {
+          // Match to an existing slide by section+type to carry over its individual fontSize
+          const match = existingSlides.find(
+            (s) => s.type === newSlide.type && s.section === newSlide.section,
+          );
+          return {
+            ...newSlide,
+            ...themeProps,
+            ...(match?.fontSize != null ? { fontSize: match.fontSize } : {}),
+          };
+        });
 
         // Also sync back to song library if this song exists there (match by name)
         const updatedLibrary = state.songLibrary.map((libSong) =>
@@ -690,22 +700,11 @@ export default function CenterPanel({ activeItem }) {
               max={180}
               step={1}
               value={selectedSlide.fontSize || 100}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                useSanctuaryStore.setState((state) => ({
-                  serviceOrder: state.serviceOrder.map((i) =>
-                    i.id !== activeItem.id
-                      ? i
-                      : {
-                          ...i,
-                          slides: i.slides.map((s) =>
-                            s.type === "lyrics" ? { ...s, fontSize: val } : s,
-                          ),
-                        },
-                  ),
-                }));
-                if (isLive) useSanctuaryStore.getState()._syncProjector();
-              }}
+              onChange={(e) =>
+                updateSlide(selectedSlide.id, {
+                  fontSize: Number(e.target.value),
+                })
+              }
               style={{ width: 100, accentColor: "var(--accent)" }}
             />
             <span className={styles.tileEditorVal}>

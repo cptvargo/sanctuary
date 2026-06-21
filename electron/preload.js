@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('sanctuary', {
   openProjector:    (displayId) => ipcRenderer.invoke('projector:open', displayId),
   getDisplays:      () => ipcRenderer.invoke('displays:get'),
   closeProjector:   () => ipcRenderer.invoke('projector:close'),
+  fixProjector:     (displayId) => ipcRenderer.invoke('projector:fix', displayId),
   sendToProjector:  (payload) => ipcRenderer.send('projector:update', payload),
   onProjectorUpdate:(callback) => {
     ipcRenderer.on('projector:update', (event, payload) => callback(payload))
