@@ -92,7 +92,7 @@ export const flattenOrder = (order) => {
   for (const item of order) {
     if (item.kind === 'slide') slides.push(item.slide)
     else if (item.kind === 'song') slides.push(...item.slides)
-    else if (item.kind === 'rotation') slides.push({ id: item.id, type: 'rotation-image', name: item.name, images: item.images || [], intervalSeconds: item.intervalSeconds || 7 })
+    else if (item.kind === 'rotation') slides.push({ id: item.id, type: 'rotation-image', name: item.name, images: item.images || [], intervalSeconds: item.intervalSeconds || 7, countdownEnabled: item.countdownEnabled || false, countdownMinutes: item.countdownMinutes || 5, countdownMessage: item.countdownMessage || 'Service begins in', countdownPosition: item.countdownPosition || 'top' })
   }
   return slides
 }
@@ -201,11 +201,37 @@ function _startCountdownInterval(get, set) {
     const state = get()
     if (!state.isLive || !state.liveSlideId) return
     const liveSlide = state.getLiveSlide()
-    if (!liveSlide || liveSlide.type !== 'countdown') return
+    if (!liveSlide) return
+
+    const isStandaloneCountdown = liveSlide.type === 'countdown'
+    const isRotationCountdown   = liveSlide.type === 'rotation-image' && liveSlide.countdownEnabled
+
+    if (!isStandaloneCountdown && !isRotationCountdown) return
+
     const slideId = liveSlide.id
     const current = state.countdownRemaining[slideId] ?? 0
+
+    // Rotation countdown: tick and sync; fade to logo when it hits zero
+    if (isRotationCountdown) {
+      if (current > 0) {
+        set(s => ({ countdownRemaining: { ...s.countdownRemaining, [slideId]: current - 1 } }))
+        get()._syncProjector()
+      } else {
+        _stopCountdownInterval()
+        const logoSlide = state.getAllSlides().find(s => s.type === 'logo')
+        if (logoSlide) {
+          const slideWithFade = { ...logoSlide, transition: 'fade' }
+          set({ activeSlideId: logoSlide.id, liveSlideId: logoSlide.id, isBlackOut: false })
+          const payload = { isLive: true, isBlackOut: false, slide: slideWithFade, countdownRemaining: null }
+          if (typeof window !== 'undefined' && window.sanctuary) window.sanctuary.sendToProjector(payload)
+          try { const bc = new BroadcastChannel('sanctuary-projector'); bc.postMessage(payload); bc.close() } catch (_) {}
+        }
+      }
+      return
+    }
+
+    // Standalone countdown: existing advance/loop behavior
     if (current <= 0) {
-      // Handle onEnd
       const onEnd = liveSlide.onEnd || 'advance'
       if (onEnd === 'advance') {
         const all = state.getAllSlides()
@@ -671,7 +697,11 @@ export const useSanctuaryStore = create((set, get) => ({
     if (typeof window.sanctuary !== 'undefined') window.sanctuary.sendToProjector(payload)
     try { const bc = new BroadcastChannel('sanctuary-projector'); bc.postMessage(payload); bc.close() } catch (_) {}
     // Start/stop countdown interval based on what's now live
-    if (liveSlide && liveSlide.type === 'countdown') {
+    const needsTick = liveSlide && (
+      liveSlide.type === 'countdown' ||
+      (liveSlide.type === 'rotation-image' && liveSlide.countdownEnabled)
+    )
+    if (needsTick) {
       _startCountdownInterval(get, set)
     } else {
       _stopCountdownInterval()

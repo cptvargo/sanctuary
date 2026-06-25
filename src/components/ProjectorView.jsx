@@ -32,7 +32,7 @@ function renderSlide(slide, countdownRemaining) {
     case 'announcement':   return <AnnouncementSlide slide={slide} />
     case 'image':          return <ImageSlide slide={slide} />
     case 'video':          return <VideoSlide slide={slide} />
-    case 'rotation-image': return <RotationImageSlide slide={slide} />
+    case 'rotation-image': return <RotationImageSlide slide={slide} countdownRemaining={countdownRemaining} />
     default:               return <BlankSlide slide={slide} />
   }
 }

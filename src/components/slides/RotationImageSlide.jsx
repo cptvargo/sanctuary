@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-export default function RotationImageSlide({ slide, mini = false }) {
-  const { images = [], intervalSeconds = 7 } = slide
+function formatCountdown(seconds) {
+  if (seconds == null || seconds < 0) return null
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+export default function RotationImageSlide({ slide, mini = false, countdownRemaining }) {
+  const {
+    images = [], intervalSeconds = 7,
+    countdownEnabled = false, countdownMessage = 'Service begins in', countdownPosition = 'top',
+  } = slide
   const [currentIdx, setCurrentIdx] = useState(0)
   const [fading, setFading] = useState(false)
   const timerRef = useRef(null)
@@ -19,7 +29,6 @@ export default function RotationImageSlide({ slide, mini = false }) {
     return () => clearInterval(timerRef.current)
   }, [images.length, intervalSeconds, mini])
 
-  // Reset index when images change (e.g. new rotation item goes live)
   useEffect(() => { setCurrentIdx(0) }, [slide.id])
 
   if (!images.length) {
@@ -42,28 +51,64 @@ export default function RotationImageSlide({ slide, mini = false }) {
     transition: fading ? 'opacity 0.5s ease-out' : 'opacity 0.5s ease-in',
   }
 
+  const timeStr = formatCountdown(countdownRemaining)
+  const showCountdown = !mini && countdownEnabled && timeStr !== null
+
+  const countdownBar = showCountdown && (
+    <div style={{
+      background: '#000', flexShrink: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      gap: '2.5cqh', padding: '2.2cqh 0',
+    }}>
+      {countdownMessage && (
+        <span style={{
+          fontSize: '2.8cqh', color: 'rgba(255,255,255,0.65)',
+          letterSpacing: '0.18em', textTransform: 'uppercase',
+          fontFamily: "'Inter', sans-serif", fontWeight: 400,
+        }}>
+          {countdownMessage}
+        </span>
+      )}
+      <span style={{
+        fontSize: '6.5cqh', fontWeight: 700, color: '#ffffff',
+        fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em',
+        fontFamily: "'Inter', sans-serif",
+        textShadow: '0 2px 12px rgba(0,0,0,0.8)',
+      }}>
+        {timeStr}
+      </span>
+    </div>
+  )
+
   return (
-    <div style={{ width: '100%', height: '100%', background: '#000', overflow: 'hidden', position: 'relative' }}>
-      {/* Blurred fill — hides black bars without cropping the main image */}
-      <img
-        src={img.dataUrl}
-        alt=""
-        style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', filter: 'blur(40px)', transform: 'scale(1.1)',
-          opacity: fading ? 0 : 0.3,
-          transition: fading ? 'opacity 0.5s ease-out' : 'opacity 0.5s ease-in',
-        }}
-      />
-      {/* Main image — always fully visible */}
-      <img
-        src={img.dataUrl}
-        alt=""
-        style={{
-          position: 'relative', width: '100%', height: '100%',
-          objectFit: 'contain', ...fadeStyle,
-        }}
-      />
+    <div style={{
+      width: '100%', height: '100%', background: '#000', overflow: 'hidden',
+      display: 'flex', flexDirection: countdownPosition === 'top' ? 'column' : 'column-reverse',
+    }}>
+      {countdownBar}
+      {/* Image area fills remaining space — nothing is blocked */}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        {/* Blurred fill */}
+        <img
+          src={img.dataUrl}
+          alt=""
+          style={{
+            position: 'absolute', inset: 0, width: '100%', height: '100%',
+            objectFit: 'cover', filter: 'blur(40px)', transform: 'scale(1.1)',
+            opacity: fading ? 0 : 0.3,
+            transition: fading ? 'opacity 0.5s ease-out' : 'opacity 0.5s ease-in',
+          }}
+        />
+        {/* Main image */}
+        <img
+          src={img.dataUrl}
+          alt=""
+          style={{
+            position: 'relative', width: '100%', height: '100%',
+            objectFit: 'contain', ...fadeStyle,
+          }}
+        />
+      </div>
     </div>
   )
 }
