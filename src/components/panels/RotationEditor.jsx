@@ -1,16 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSanctuaryStore } from '../../store/sanctuaryStore'
 import SlideCanvas from '../slides/SlideCanvas'
 import cpStyles from './CenterPanel.module.css'
 import styles from './RotationEditor.module.css'
 
-// Only pre-service and verse images — these have text baked into the image itself
 const BUILT_IN_IMAGES = [
-  { file: 'pre_service_silence.png',  label: 'Silence Phones' },
-  { file: 'verse_proverbs_1_7.png',   label: 'Proverbs 1:7' },
-  { file: 'verse_proverbs_4_13.png',  label: 'Proverbs 4:13' },
-  { file: 'verse_proverbs_29_23.png', label: 'Proverbs 29:23' },
-  { file: 'verse_psalm_45_1.png',     label: 'Psalm 45:1' },
+  // Pre-service
+  { file: 'pre_service_silence.png',        label: 'Silence Phones' },
+  { file: 'pre_service_silence1.png',       label: 'Silence Phones 2' },
+  { file: 'pre_service_4th_of_july.png',    label: '4th of July' },
+  { file: 'pre_service_provers_1_7.png',    label: 'Proverbs 1:7' },
+  { file: 'pre_service_provers_15_1.png',   label: 'Proverbs 15:1' },
+  { file: 'pre_service_revelation_1_5.png', label: 'Revelation 1:5' },
+  { file: 'pre_service_romans_12_1.png',    label: 'Romans 12:1' },
+  // Verse cards
+  { file: 'verse_proverbs_1_7.png',         label: 'Proverbs 1:7 (card)' },
+  { file: 'verse_proverbs_4_13.png',        label: 'Proverbs 4:13 (card)' },
+  { file: 'verse_proverbs_29_23.png',       label: 'Proverbs 29:23 (card)' },
+  { file: 'verse_psalm_45_1.png',           label: 'Psalm 45:1 (card)' },
 ]
 
 async function fetchAsDataUrl(filename) {
@@ -45,15 +52,34 @@ async function pickImages() {
 }
 
 export default function RotationEditor({ item }) {
-  const { isLive, liveSlideId, mode, updateRotationItem, addRotationImage, removeRotationImage } = useSanctuaryStore()
+  const { isLive, liveSlideId, mode, updateRotationItem, addRotationImage, removeRotationImage, countdownRemaining, initCountdown, addCountdownMinutes } = useSanctuaryStore()
   const storeItem = useSanctuaryStore(s => s.serviceOrder.find(i => i.id === item.id)) || item
-  const { images = [], intervalSeconds = 7 } = storeItem
+  const { images = [], intervalSeconds = 7, countdownEnabled = false, countdownMinutes = 5, countdownMessage = 'Service begins in', countdownPosition = 'top' } = storeItem
   const isRunning = isLive && liveSlideId === item.id
   const isClickToSend = isLive && mode === 'preview'
   const [showBuiltIn, setShowBuiltIn] = useState(false)
   const [adding, setAdding] = useState(null) // filename being added
 
-  const previewSlide = { id: storeItem.id, type: 'rotation-image', images, intervalSeconds }
+  // Initialize countdown time when first enabled
+  useEffect(() => {
+    if (countdownEnabled && countdownRemaining[item.id] === undefined) {
+      initCountdown(item.id, countdownMinutes)
+    }
+  }, [countdownEnabled, item.id])
+
+  const remaining = countdownRemaining[item.id] ?? (countdownMinutes * 60)
+  const cdMins = Math.floor(remaining / 60)
+  const cdSecs = remaining % 60
+  const cdTimeStr = `${cdMins}:${String(cdSecs).padStart(2, '0')}`
+
+  const handleResetCountdown = () => {
+    useSanctuaryStore.setState(s => ({
+      countdownRemaining: { ...s.countdownRemaining, [item.id]: countdownMinutes * 60 },
+    }))
+    if (isRunning) useSanctuaryStore.getState()._syncProjector()
+  }
+
+  const previewSlide = { id: storeItem.id, type: 'rotation-image', images, intervalSeconds, countdownEnabled, countdownMessage, countdownPosition }
 
   const handleClick = () => {
     useSanctuaryStore.setState({ activeSlideId: item.id })
@@ -181,6 +207,66 @@ return (
             Add images above — they'll auto-advance with a fade transition
           </div>
         )}
+
+        {/* Countdown overlay section */}
+        <div className={styles.countdownSection}>
+          <div className={styles.countdownHeader}>
+            <span className={styles.controlLabel}>⏱ Countdown Overlay</span>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              {countdownEnabled && (
+                <button
+                  className={styles.toggleBtn}
+                  title="Position of the countdown bar"
+                  onClick={() => {
+                    updateRotationItem(item.id, { countdownPosition: countdownPosition === 'top' ? 'bottom' : 'top' })
+                    if (isRunning) setTimeout(() => useSanctuaryStore.getState()._syncProjector(), 50)
+                  }}
+                >
+                  {countdownPosition === 'top' ? '↑ Top' : '↓ Bottom'}
+                </button>
+              )}
+              <button
+                className={`${styles.toggleBtn} ${countdownEnabled ? styles.toggleBtnOn : ''}`}
+                onClick={() => {
+                  const next = !countdownEnabled
+                  updateRotationItem(item.id, { countdownEnabled: next })
+                  if (next && countdownRemaining[item.id] === undefined) {
+                    initCountdown(item.id, countdownMinutes)
+                  }
+                  if (isRunning) setTimeout(() => useSanctuaryStore.getState()._syncProjector(), 50)
+                }}
+              >
+                {countdownEnabled ? 'On' : 'Off'}
+              </button>
+            </div>
+          </div>
+
+          {countdownEnabled && (
+            <>
+              <div className={styles.countdownTime}>{cdTimeStr}</div>
+              <div className={styles.timeButtons}>
+                {[1, 2, 5, 10].map(m => (
+                  <button key={m} className={styles.timeBtn}
+                    onClick={() => {
+                      addCountdownMinutes(item.id, m)
+                      if (isRunning) useSanctuaryStore.getState()._syncProjector()
+                    }}
+                  >
+                    +{m} min
+                  </button>
+                ))}
+                <button className={styles.timeBtn} onClick={handleResetCountdown}>Reset</button>
+              </div>
+              <input
+                className={styles.messageInput}
+                type="text"
+                value={countdownMessage}
+                onChange={e => updateRotationItem(item.id, { countdownMessage: e.target.value })}
+                placeholder="Service begins in"
+              />
+            </>
+          )}
+        </div>
       </div>
     </div>
   )

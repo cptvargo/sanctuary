@@ -107,6 +107,61 @@ describe('LyricsSlide font-size scaling', () => {
   })
 })
 
+// ─── Rotation countdown ───────────────────────────────────────────────────────
+
+describe('rotation countdown', () => {
+  it('flattenOrder includes countdown fields from the rotation item', () => {
+    useSanctuaryStore.setState({
+      serviceOrder: [{
+        id: 'rot1', kind: 'rotation', name: 'Pre-Service', images: [],
+        intervalSeconds: 7, countdownEnabled: true, countdownMinutes: 10,
+        countdownMessage: 'Service starts in',
+      }],
+    })
+    const slides = getState().getAllSlides()
+    const rotSlide = slides.find(s => s.id === 'rot1')
+    expect(rotSlide.type).toBe('rotation-image')
+    expect(rotSlide.countdownEnabled).toBe(true)
+    expect(rotSlide.countdownMinutes).toBe(10)
+    expect(rotSlide.countdownMessage).toBe('Service starts in')
+  })
+
+  it('initCountdown seeds countdownRemaining keyed by rotation item id', () => {
+    getState().initCountdown('rot1', 15)
+    expect(getState().countdownRemaining['rot1']).toBe(15 * 60)
+  })
+
+  it('addCountdownMinutes adds time to the rotation countdown', () => {
+    useSanctuaryStore.setState({ countdownRemaining: { rot1: 5 * 60 } })
+    getState().addCountdownMinutes('rot1', 10)
+    expect(getState().countdownRemaining['rot1']).toBe(15 * 60)
+  })
+
+  it('countdown defaults to off when not set on rotation item', () => {
+    useSanctuaryStore.setState({
+      serviceOrder: [{ id: 'rot2', kind: 'rotation', name: 'Test', images: [], intervalSeconds: 7 }],
+    })
+    const slides = getState().getAllSlides()
+    expect(slides.find(s => s.id === 'rot2').countdownEnabled).toBe(false)
+  })
+
+  it('countdownMinutes defaults to 5 when not set on rotation item', () => {
+    useSanctuaryStore.setState({
+      serviceOrder: [{ id: 'rot3', kind: 'rotation', name: 'Test', images: [], intervalSeconds: 7 }],
+    })
+    const slides = getState().getAllSlides()
+    expect(slides.find(s => s.id === 'rot3').countdownMinutes).toBe(5)
+  })
+
+  it('addCountdownMinutes works with +1 and +2 increments', () => {
+    useSanctuaryStore.setState({ countdownRemaining: { rot1: 5 * 60 } })
+    getState().addCountdownMinutes('rot1', 1)
+    expect(getState().countdownRemaining['rot1']).toBe(6 * 60)
+    getState().addCountdownMinutes('rot1', 2)
+    expect(getState().countdownRemaining['rot1']).toBe(8 * 60)
+  })
+})
+
 // ─── autoSave per-slide fontSize preservation ─────────────────────────────────
 
 describe('autoSave per-slide fontSize matching', () => {

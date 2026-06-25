@@ -215,3 +215,88 @@
   text-align: center;
   padding: 8px 0 4px;
 }
+
+/* ── Countdown overlay section ───────────────────────────────────────────── */
+.countdownSection {
+  border-top: 1px solid var(--border-dim);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.countdownHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toggleBtn {
+  padding: 3px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-base);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.toggleBtnOn {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.countdownTime {
+  font-size: 28px;
+  font-weight: 200;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  line-height: 1;
+  padding: 4px 0;
+}
+
+.timeButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.timeBtn {
+  flex: 1;
+  padding: 5px 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-dim);
+  background: var(--bg-base);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.timeBtn:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.messageInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  background: var(--bg-base);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  outline: none;
+}
+
+.messageInput::placeholder { color: var(--text-dim); }
+.messageInput:focus { border-color: var(--accent-border); }
