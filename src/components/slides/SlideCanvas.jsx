@@ -8,6 +8,7 @@ import AnnouncementSlide from './AnnouncementSlide'
 import ImageSlide from './ImageSlide'
 import VideoSlide from './VideoSlide'
 import RotationImageSlide from './RotationImageSlide'
+import PdfSlide from './PdfSlide'
 import styles from './SlideCanvas.module.css'
 
 export default function SlideCanvas({ slide, mini = false }) {
@@ -24,6 +25,7 @@ export default function SlideCanvas({ slide, mini = false }) {
       case 'image':          return <ImageSlide slide={slide} />
       case 'video':          return <VideoSlide slide={slide} mini={mini} />
       case 'rotation-image': return <RotationImageSlide slide={slide} mini={mini} />
+      case 'pdf':            return <PdfSlide slide={slide} mini={mini} />
       default:               return <BlankSlide slide={slide} />
     }
   }

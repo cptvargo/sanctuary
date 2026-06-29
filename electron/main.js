@@ -324,6 +324,63 @@ ipcMain.handle('file:read', async (event, filePath) => {
   catch (_) { return null }
 })
 
+ipcMain.handle('dialog:openPdf', async () => {
+  const result = await dialog.showOpenDialog(operatorWin, {
+    title: 'Import PDF',
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+    properties: ['openFile'],
+  })
+  if (result.canceled || !result.filePaths.length) return null
+  const filePath = result.filePaths[0]
+  const buffer = fs.readFileSync(filePath)
+  return { name: path.basename(filePath, '.pdf'), base64: buffer.toString('base64') }
+})
+
+// ── PDF rendering via mupdf (WebAssembly, no native compilation) ─────────────
+
+let _mupdf = null
+async function getMupdf() {
+  if (!_mupdf) _mupdf = (await import('mupdf')).default
+  return _mupdf
+}
+
+ipcMain.handle('pdf:renderFromDialog', async () => {
+  const result = await dialog.showOpenDialog(operatorWin, {
+    title: 'Import PDF',
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+    properties: ['openFile'],
+  })
+  if (result.canceled || !result.filePaths.length) return null
+
+  const pdfPath = result.filePaths[0]
+  const pdfName = path.basename(pdfPath, '.pdf')
+
+  const mupdf = await getMupdf()
+  const pdfBuffer = fs.readFileSync(pdfPath)
+  const doc = mupdf.Document.openDocument(pdfBuffer, 'application/pdf')
+  const total = doc.countPages()
+
+  if (operatorWin && !operatorWin.isDestroyed())
+    operatorWin.webContents.send('pdf:renderProgress', { current: 0, total })
+
+  const pages = []
+  for (let i = 0; i < total; i++) {
+    const page = doc.loadPage(i)
+    const [x0, , x1] = page.getBounds()
+    const scale = 1920 / (x1 - x0)
+    const pixmap = page.toPixmap([scale, 0, 0, scale, 0, 0], mupdf.ColorSpace.DeviceRGB, false, true)
+    pages.push(`data:image/png;base64,${Buffer.from(pixmap.asPNG()).toString('base64')}`)
+    pixmap.destroy()
+    page.destroy()
+
+    if (operatorWin && !operatorWin.isDestroyed())
+      operatorWin.webContents.send('pdf:renderProgress', { current: i + 1, total })
+  }
+
+  doc.destroy()
+  return { name: pdfName, pages, numPages: total }
+})
+
 // ── Watch folder (Pastor photo pipeline) ─────────────────────────────────────
 
 const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.heic'])

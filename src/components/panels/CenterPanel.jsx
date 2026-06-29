@@ -14,6 +14,7 @@ import ScriptureEditor, {
 import ImageEditor from "../slides/editors/ImageEditor";
 import VideoEditor from "../slides/editors/VideoEditor";
 import RotationEditor from "./RotationEditor";
+import PdfEditor from "./PdfEditor";
 import CustomImageManager from "./CustomImageManager";
 import ThemeManager from "./ThemeManager";
 import styles from "./CenterPanel.module.css";
@@ -598,6 +599,7 @@ export default function CenterPanel({ activeItem }) {
 
   const isSong = activeItem.kind === "song";
   const isRotation = activeItem.kind === "rotation";
+  const isPdf = activeItem.kind === "pdf";
   const isEditMode = mode === "edit";
   const isClickToSend = isLive && mode === "preview";
   const { activeSlideId, updateSlide } = useSanctuaryStore();
@@ -605,8 +607,8 @@ export default function CenterPanel({ activeItem }) {
     ? activeItem.slides.find((s) => s.id === activeSlideId) || null
     : null;
 
-  const itemIcon = isSong ? "♪" : isRotation ? "⟳" : "◻";
-  const itemName = isSong ? activeItem.name : isRotation ? activeItem.name : activeItem.slide?.name;
+  const itemIcon = isSong ? "♪" : isRotation ? "⟳" : isPdf ? "⊞" : "◻";
+  const itemName = isSong ? activeItem.name : isRotation ? activeItem.name : isPdf ? activeItem.name : activeItem.slide?.name;
 
   return (
     <div className={styles.panel}>
@@ -622,6 +624,11 @@ export default function CenterPanel({ activeItem }) {
           {isRotation && (
             <span className={styles.slideCount}>
               {activeItem.images?.length || 0} images
+            </span>
+          )}
+          {isPdf && (
+            <span className={styles.slideCount}>
+              {activeItem.pages?.length || 0} pages
             </span>
           )}
         </div>
@@ -647,6 +654,8 @@ export default function CenterPanel({ activeItem }) {
           <SongSlideGrid item={activeItem} />
         ) : isRotation ? (
           <RotationEditor item={activeItem} />
+        ) : isPdf ? (
+          <PdfEditor item={activeItem} />
         ) : (
           <StandaloneEditor item={activeItem} />
         )}

@@ -6,13 +6,13 @@ import styles from './ServiceList.module.css'
 const ITEM_ICONS = {
   song: '♪', logo: '✦', countdown: '⏱', image: '🖼',
   blank: '◻', scripture: '✝', announcement: '!', lyrics: '♪',
-  video: '▶', rotation: '⟳',
+  video: '▶', rotation: '⟳', pdf: '⊞',
 }
 
 export default function ServiceList({ activeSongId, onSelectItem }) {
   const {
     serviceOrder, activeSection, liveSlideId, isLive, mode,
-    addSlideItem, addSongItem, addRotationItem, reorderItems, removeItem, removeItemsById,
+    addSlideItem, addSongItem, addRotationItem, addPdfItem, reorderItems, removeItem, removeItemsById,
     songLibrary, addSongFromLibrary,
   } = useSanctuaryStore()
 
@@ -33,6 +33,7 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
   const handleAdd = (type) => {
     if (type === 'song') addSongItem()
     else if (type === 'rotation') addRotationItem()
+    else if (type === 'pdf') addPdfItem()
     else addSlideItem(type)
     setShowAddMenu(false)
   }
@@ -43,6 +44,9 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
     }
     if (item.kind === 'rotation') {
       return { ...item, id: uid(), images: (item.images || []).map(img => ({ ...img, id: uid() })) }
+    }
+    if (item.kind === 'pdf') {
+      return { ...item, id: uid(), currentPageIndex: 0 }
     }
     return { ...item, id: uid(), slide: item.slide ? { ...item.slide, id: uid() } : item.slide }
   }
@@ -145,15 +149,17 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
 
           const hasLiveSlide = item.kind === 'song'
             ? item.slides.some(s => s.id === liveSlideId)
-            : item.kind === 'rotation'
+            : item.kind === 'rotation' || item.kind === 'pdf'
             ? isLive && liveSlideId === item.id
             : item.slide?.id === liveSlideId
 
           const icon = item.kind === 'song' ? '♪'
             : item.kind === 'rotation' ? '⟳'
+            : item.kind === 'pdf' ? '⊞'
             : ITEM_ICONS[item.slide?.type] || '◻'
           const name = item.kind === 'song' ? item.name
             : item.kind === 'rotation' ? item.name
+            : item.kind === 'pdf' ? item.name
             : item.slide?.name
 
           return (
@@ -205,6 +211,7 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
               { type: 'image',     icon: '🖼', label: 'Image / Announcement', desc: 'Photos, graphics, baby pics' },
               { type: 'video',     icon: '▶', label: 'Video',                 desc: 'Worship video for special events' },
               { type: 'rotation',  icon: '⟳', label: 'Image Rotation',       desc: 'Auto-advancing pre-service slides' },
+              { type: 'pdf',       icon: '⊞', label: 'PDF Presentation',      desc: 'Import a PDF to show sermon slides' },
               { type: 'scripture', icon: '✝', label: 'Scripture',             desc: 'Bible verse' },
             ].map(({ type, icon, label, desc }) => (
               <button key={type} className={styles.menuItem} onClick={() => handleAdd(type)}>
