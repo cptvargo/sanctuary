@@ -33,7 +33,14 @@ contextBridge.exposeInMainWorld('sanctuary', {
     load: ()           => ipcRenderer.invoke('prefs:load'),
     save: (prefs)      => ipcRenderer.invoke('prefs:save', prefs),
   },
-  openImagesDialog: () => ipcRenderer.invoke('dialog:openImages'),
+  openImagesDialog:    () => ipcRenderer.invoke('dialog:openImages'),
+  openPdfDialog:       () => ipcRenderer.invoke('dialog:openPdf'),
+  renderPdfFromDialog: () => ipcRenderer.invoke('pdf:renderFromDialog'),
+  onPdfProgress: (cb) => {
+    const handler = (_, data) => cb(data)
+    ipcRenderer.on('pdf:renderProgress', handler)
+    return () => ipcRenderer.removeListener('pdf:renderProgress', handler)
+  },
   readFile:        (filePath) => ipcRenderer.invoke('file:read', filePath),
 
   // Service data sync

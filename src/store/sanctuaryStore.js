@@ -93,6 +93,7 @@ export const flattenOrder = (order) => {
     if (item.kind === 'slide') slides.push(item.slide)
     else if (item.kind === 'song') slides.push(...item.slides)
     else if (item.kind === 'rotation') slides.push({ id: item.id, type: 'rotation-image', name: item.name, images: item.images || [], intervalSeconds: item.intervalSeconds || 7, countdownEnabled: item.countdownEnabled || false, countdownMinutes: item.countdownMinutes || 5, countdownMessage: item.countdownMessage || 'Service begins in', countdownPosition: item.countdownPosition || 'top' })
+    else if (item.kind === 'pdf') slides.push({ id: item.id, type: 'pdf', name: item.name, pages: item.pages || [], currentPageIndex: item.currentPageIndex || 0 })
   }
   return slides
 }
@@ -665,6 +666,54 @@ export const useSanctuaryStore = create((set, get) => ({
         i.id === itemId && i.kind === 'rotation'
           ? { ...i, images: (i.images || []).filter(img => img.id !== imgId) }
           : i
+      )
+    }))
+    const s = get()
+    if (s.isLive && s.liveSlideId === itemId) get()._syncProjector()
+  },
+
+  // ── PDF items ─────────────────────────────────────────────────────────────
+  addPdfItem: () => {
+    const item = { id: uid(), kind: 'pdf', name: 'PDF Presentation', pages: [], currentPageIndex: 0 }
+    set(state => ({ serviceOrder: [...state.serviceOrder, item], activeSlideId: item.id }))
+  },
+
+  updatePdfItem: (itemId, changes) => {
+    set(state => ({
+      serviceOrder: state.serviceOrder.map(i => i.id === itemId && i.kind === 'pdf' ? { ...i, ...changes } : i)
+    }))
+    const s = get()
+    if (s.isLive && s.liveSlideId === itemId) get()._syncProjector()
+  },
+
+  pdfNext: (itemId) => {
+    set(state => ({
+      serviceOrder: state.serviceOrder.map(i =>
+        i.id === itemId && i.kind === 'pdf'
+          ? { ...i, currentPageIndex: Math.min((i.currentPageIndex || 0) + 1, (i.pages?.length || 1) - 1) }
+          : i
+      )
+    }))
+    const s = get()
+    if (s.isLive && s.liveSlideId === itemId) get()._syncProjector()
+  },
+
+  pdfPrev: (itemId) => {
+    set(state => ({
+      serviceOrder: state.serviceOrder.map(i =>
+        i.id === itemId && i.kind === 'pdf'
+          ? { ...i, currentPageIndex: Math.max((i.currentPageIndex || 0) - 1, 0) }
+          : i
+      )
+    }))
+    const s = get()
+    if (s.isLive && s.liveSlideId === itemId) get()._syncProjector()
+  },
+
+  pdfGoTo: (itemId, index) => {
+    set(state => ({
+      serviceOrder: state.serviceOrder.map(i =>
+        i.id === itemId && i.kind === 'pdf' ? { ...i, currentPageIndex: index } : i
       )
     }))
     const s = get()

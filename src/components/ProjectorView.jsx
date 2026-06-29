@@ -7,6 +7,7 @@ import BlankSlide, { ScriptureSlide, AnnouncementSlide } from './slides/BlankSli
 import ImageSlide from './slides/ImageSlide'
 import VideoSlide from './slides/VideoSlide'
 import RotationImageSlide from './slides/RotationImageSlide'
+import PdfSlide from './slides/PdfSlide'
 import { CountdownRenderer } from './slides/CountdownSlide'
 
 // Projector-side countdown — uses same CountdownRenderer as operator.
@@ -33,6 +34,7 @@ function renderSlide(slide, countdownRemaining) {
     case 'image':          return <ImageSlide slide={slide} />
     case 'video':          return <VideoSlide slide={slide} />
     case 'rotation-image': return <RotationImageSlide slide={slide} countdownRemaining={countdownRemaining} />
+    case 'pdf':            return <PdfSlide slide={slide} />
     default:               return <BlankSlide slide={slide} />
   }
 }
