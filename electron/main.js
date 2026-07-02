@@ -324,6 +324,19 @@ ipcMain.handle('file:read', async (event, filePath) => {
   catch (_) { return null }
 })
 
+ipcMain.handle('backgrounds:list', () => {
+  const dir = isDev
+    ? path.join(__dirname, '../public/backgrounds')
+    : path.join(__dirname, '../dist/backgrounds')
+  try {
+    return fs.readdirSync(dir)
+      .filter(f => /\.(png|jpe?g|webp)$/i.test(f))
+      .sort()
+  } catch (_) {
+    return []
+  }
+})
+
 ipcMain.handle('dialog:openPdf', async () => {
   const result = await dialog.showOpenDialog(operatorWin, {
     title: 'Import PDF',

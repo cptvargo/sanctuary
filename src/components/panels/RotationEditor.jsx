@@ -4,29 +4,14 @@ import SlideCanvas from '../slides/SlideCanvas'
 import cpStyles from './CenterPanel.module.css'
 import styles from './RotationEditor.module.css'
 
-const BUILT_IN_IMAGES = [
-  // Pre-service
-  { file: 'pre_service_silence.png',        label: 'Silence Phones' },
-  { file: 'pre_service_silence1.png',       label: 'Silence Phones 2' },
-  { file: 'pre_service_silence3.png',       label: 'Silence Phones 3' },
-  { file: 'pre_service_4th_of_july.png',    label: '4th of July' },
-  { file: 'pre_service_provers_1_7.png',    label: 'Proverbs 1:7' },
-  { file: 'pre_service_provers_15_1.png',   label: 'Proverbs 15:1' },
-  { file: 'pre_service_revelation_1_5.png', label: 'Revelation 1:5' },
-  { file: 'pre_service_romans_12_1.png',    label: 'Romans 12:1' },
-  { file: 'pre_service_1_john.png',         label: '1 John' },
-  { file: 'pre_service_acts_1.png',         label: 'Acts' },
-  { file: 'pre_service_philippians_1.png',  label: 'Philippians' },
-  { file: 'pre_service_psalm_1.png',        label: 'Psalm 1' },
-  { file: 'pre_service_psalms_119.png',     label: 'Psalm 119' },
-  { file: 'pre_service_psalms_139.png',     label: 'Psalm 139' },
-  { file: 'pre_service_romans_8.png',       label: 'Romans 8' },
-  // Verse cards
-  { file: 'verse_proverbs_1_7.png',         label: 'Proverbs 1:7 (card)' },
-  { file: 'verse_proverbs_4_13.png',        label: 'Proverbs 4:13 (card)' },
-  { file: 'verse_proverbs_29_23.png',       label: 'Proverbs 29:23 (card)' },
-  { file: 'verse_psalm_45_1.png',           label: 'Psalm 45:1 (card)' },
-]
+function fileToLabel(filename) {
+  return filename
+    .replace(/\.[^.]+$/, '')               // strip extension
+    .replace(/^pre_service_/, '')          // strip prefix
+    .replace(/_/g, ' ')                    // underscores → spaces
+    .replace(/([a-z])(\d)/g, '$1 $2')     // silence3 → silence 3
+    .replace(/\b\w/g, c => c.toUpperCase()) // capitalize
+}
 
 async function fetchAsDataUrl(filename) {
   // Use relative path (no leading /) — works in both Vite dev and Electron prod
@@ -66,7 +51,18 @@ export default function RotationEditor({ item }) {
   const isRunning = isLive && liveSlideId === item.id
   const isClickToSend = isLive && mode === 'preview'
   const [showBuiltIn, setShowBuiltIn] = useState(false)
-  const [adding, setAdding] = useState(null) // filename being added
+  const [adding, setAdding] = useState(null)
+  const [builtInImages, setBuiltInImages] = useState([])
+
+  useEffect(() => {
+    window.sanctuary?.listBackgrounds?.().then(files => {
+      setBuiltInImages(
+        files
+          .filter(f => f.startsWith('pre_service_'))
+          .map(file => ({ file, label: fileToLabel(file) }))
+      )
+    })
+  }, [])
 
   // Initialize countdown time when first enabled
   useEffect(() => {
@@ -190,7 +186,7 @@ return (
         {/* Built-in image picker */}
         {showBuiltIn && (
           <div className={styles.builtInGrid}>
-            {BUILT_IN_IMAGES.map(img => (
+            {builtInImages.map(img => (
               <button
                 key={img.file}
                 className={styles.builtInCard}

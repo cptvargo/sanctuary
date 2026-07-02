@@ -33,6 +33,7 @@ contextBridge.exposeInMainWorld('sanctuary', {
     load: ()           => ipcRenderer.invoke('prefs:load'),
     save: (prefs)      => ipcRenderer.invoke('prefs:save', prefs),
   },
+  listBackgrounds:     () => ipcRenderer.invoke('backgrounds:list'),
   openImagesDialog:    () => ipcRenderer.invoke('dialog:openImages'),
   openPdfDialog:       () => ipcRenderer.invoke('dialog:openPdf'),
   renderPdfFromDialog: () => ipcRenderer.invoke('pdf:renderFromDialog'),
