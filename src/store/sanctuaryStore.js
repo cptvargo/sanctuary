@@ -321,7 +321,7 @@ export const useSanctuaryStore = create((set, get) => ({
       // Fallback: inherit from first existing song's lyrics slides only
       const existingSong = state.serviceOrder.find(i => i.kind === 'song' && i.slides?.some(s => s.type === 'lyrics'))
       const s = existingSong?.slides?.find(sl => sl.type === 'lyrics')
-      return s ? { bgImageUrl: s.bgImageUrl || null, bgGradient: s.bgGradient || null, bgColor: s.bgColor || '#050813', textColor: s.textColor || '#ffffff', bgOverlayOpacity: s.bgOverlayOpacity ?? 0.55, fontSize: s.fontSize || 100, fontId: s.fontId || 'montserrat', smartMediaId: s.smartMediaId || null } : {}
+      return s ? { bgImageUrl: s.bgImageUrl || null, bgGradient: s.bgGradient || null, bgColor: s.bgColor || '#050813', textColor: s.textColor || '#ffffff', bgOverlayOpacity: s.bgOverlayOpacity ?? 0, fontSize: s.fontSize || 100, fontId: s.fontId || 'montserrat', smartMediaId: s.smartMediaId || null } : {}
     })()
     const song = makeSong({ name: 'New Song', slideOverrides: themeProps })
     set(state => {
@@ -607,7 +607,7 @@ export const useSanctuaryStore = create((set, get) => ({
     const inheritedTheme = state.activeThemeProps || (() => {
       const existingSong = state.serviceOrder.find(i => i.kind === 'song' && i.slides?.some(s => s.type === 'lyrics'))
       const s = existingSong?.slides?.find(sl => sl.type === 'lyrics')
-      return s ? { bgImageUrl: s.bgImageUrl || null, bgGradient: s.bgGradient || null, bgColor: s.bgColor || '#050813', textColor: s.textColor || '#ffffff', bgOverlayOpacity: s.bgOverlayOpacity ?? 0.55, fontSize: s.fontSize || 100, fontId: s.fontId || 'montserrat', smartMediaId: s.smartMediaId || null } : {}
+      return s ? { bgImageUrl: s.bgImageUrl || null, bgGradient: s.bgGradient || null, bgColor: s.bgColor || '#050813', textColor: s.textColor || '#ffffff', bgOverlayOpacity: s.bgOverlayOpacity ?? 0, fontSize: s.fontSize || 100, fontId: s.fontId || 'montserrat', smartMediaId: s.smartMediaId || null } : {}
     })()
     const cloned = makeSong({
       name: libSong.name,

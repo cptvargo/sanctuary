@@ -97,7 +97,7 @@ export default function LyricsSlide({
     bgGradient = null,
     textColor = "#ffffff",
     bgImageUrl = null,
-    bgOverlayOpacity = 0.55,
+    bgOverlayOpacity = 0,
     fontSize = 100,
     fontId = "montserrat",
     _logoDataUrl = null,

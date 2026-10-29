@@ -81,7 +81,7 @@ export default function ThemeManager({ onClose }) {
       bgGradient: null,
       bgColor: '#000',
       textColor: '#ffffff',
-      overlayOpacity: 0.55,
+      overlayOpacity: 0,
       fontId: 'montserrat',
       isBuiltIn: false,
     }

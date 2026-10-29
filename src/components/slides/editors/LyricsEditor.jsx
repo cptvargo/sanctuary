@@ -12,7 +12,7 @@ export default function LyricsEditor({ slide, onChange }) {
     fontSize = 100,
     smartMediaId = 'none',
     bgImageUrl = null,
-    bgOverlayOpacity = 0.55,
+    bgOverlayOpacity = 0,
     fontId = 'montserrat',
   } = slide
 
@@ -204,7 +204,7 @@ export default function LyricsEditor({ slide, onChange }) {
               bgImageUrl: img.dataUrl,
               bgGradient: null,
               bgColor: '#000000',
-              bgOverlayOpacity: 0.50,
+              bgOverlayOpacity: 0,
               textColor: '#ffffff',
               smartMediaId: img.id,
               fontId: 'montserrat',

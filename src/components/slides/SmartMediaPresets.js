@@ -363,7 +363,10 @@ export const SMART_MEDIA_PRESETS = [
   },
 ]
 
-export function applySmartMedia(preset, customImageUrl = null, overlayOpacity = 0.60) {
+// New backgrounds start undimmed; use the Dim slider per service to darken.
+export const DEFAULT_DIM = 0
+
+export function applySmartMedia(preset, customImageUrl = null, overlayOpacity = DEFAULT_DIM) {
   if (customImageUrl) {
     return {
       bgColor: '#000000',
@@ -379,7 +382,7 @@ export function applySmartMedia(preset, customImageUrl = null, overlayOpacity = 
     bgColor: preset.bgColor,
     bgGradient: preset.bgGradient || null,
     bgImageUrl: preset.bgImageUrl || null,
-    bgOverlayOpacity: preset.overlayOpacity,
+    bgOverlayOpacity: DEFAULT_DIM,
     textColor: preset.textColor,
     smartMediaId: preset.id,
     fontId: preset.fontId || 'montserrat',

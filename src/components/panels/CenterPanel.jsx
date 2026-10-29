@@ -176,7 +176,7 @@ function SongTextEditor({ item }) {
             bgGradient: src.bgGradient ?? null,
             bgColor: src.bgColor ?? "#050813",
             textColor: src.textColor ?? "#ffffff",
-            bgOverlayOpacity: src.bgOverlayOpacity ?? 0.55,
+            bgOverlayOpacity: src.bgOverlayOpacity ?? 0,
             fontSize: src.fontSize ?? 100,
             fontId: src.fontId ?? "montserrat",
             smartMediaId: src.smartMediaId ?? null,
@@ -272,7 +272,7 @@ function SongTextEditor({ item }) {
               bgImageUrl: img.dataUrl,
               bgGradient: null,
               bgColor: "#000000",
-              bgOverlayOpacity: 0.5,
+              bgOverlayOpacity: 0,
               textColor: "#ffffff",
               smartMediaId: img.id,
               fontId: "montserrat",
@@ -535,7 +535,7 @@ function SaveStyleBtn({ item }) {
       bgGradient: src.bgGradient ?? null,
       bgColor: src.bgColor ?? "#050813",
       textColor: src.textColor ?? "#ffffff",
-      bgOverlayOpacity: src.bgOverlayOpacity ?? 0.55,
+      bgOverlayOpacity: src.bgOverlayOpacity ?? 0,
       fontSize: src.fontSize ?? 100,
       fontId: src.fontId ?? "montserrat",
       smartMediaId: src.smartMediaId ?? null,
@@ -680,7 +680,7 @@ export default function CenterPanel({ activeItem }) {
                   min={0}
                   max={0.95}
                   step={0.05}
-                  value={selectedSlide.bgOverlayOpacity ?? 0.55}
+                  value={selectedSlide.bgOverlayOpacity ?? 0}
                   onChange={(e) => {
                     const val = Number(e.target.value);
                     const store = useSanctuaryStore.getState();
@@ -697,7 +697,7 @@ export default function CenterPanel({ activeItem }) {
                   style={{ width: 90, accentColor: "var(--accent)" }}
                 />
                 <span className={styles.tileEditorVal}>
-                  {Math.round((selectedSlide.bgOverlayOpacity ?? 0.55) * 100)}%
+                  {Math.round((selectedSlide.bgOverlayOpacity ?? 0) * 100)}%
                 </span>
                 <span className={styles.tileEditorDivider} />
               </>
