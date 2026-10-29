@@ -22,6 +22,7 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
   const [dropIdx, setDropIdx] = useState(null)
   const [contextMenu, setContextMenu] = useState(null)
   const [selectedIds, setSelectedIds] = useState(new Set())
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const anchorIdxRef = useRef(null)
   const panelRef = useRef(null)
   const searchRef = useRef(null)
@@ -80,12 +81,8 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
 
     if (e.key === 'Delete' && selectedIds.size > 0) {
       e.preventDefault()
-      const count = selectedIds.size
-      if (window.confirm(`Remove ${count} item${count !== 1 ? 's' : ''} from the service order?`)) {
-        removeItemsById(selectedIds)
-        setSelectedIds(new Set())
-        anchorIdxRef.current = null
-      }
+      // In-app dialog: native window.confirm leaves the search input unfocusable in Electron
+      setConfirmDelete(true)
     }
     if (e.key === 'Escape') {
       setSelectedIds(new Set())
@@ -222,6 +219,31 @@ export default function ServiceList({ activeSongId, onSelectItem }) {
                 </div>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div className={styles.overlay} onClick={() => setConfirmDelete(false)}>
+          <div className={styles.confirmBox} onClick={e => e.stopPropagation()}>
+            <div className={styles.confirmText}>
+              Remove {selectedIds.size} item{selectedIds.size !== 1 ? 's' : ''} from the service order?
+            </div>
+            <div className={styles.confirmBtns}>
+              <button className={styles.confirmCancel} onClick={() => setConfirmDelete(false)}>Cancel</button>
+              <button
+                className={styles.confirmRemove}
+                autoFocus
+                onClick={() => {
+                  removeItemsById(selectedIds)
+                  setSelectedIds(new Set())
+                  anchorIdxRef.current = null
+                  setConfirmDelete(false)
+                }}
+              >
+                Remove
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -26,6 +26,7 @@ export default function ChecklistPanel({ section, title }) {
     toggleChecklistItem,
     addChecklistItem,
     removeChecklistItem,
+    checkAllChecklist,
     resetChecklist,
     updateChecklistMeta,
     serviceOrder,
@@ -437,6 +438,14 @@ export default function ChecklistPanel({ section, title }) {
 
       {/* Actions */}
       <div className={styles.headerActions}>
+        <button
+          className={styles.actionBtn}
+          onClick={() => checkAllChecklist(section)}
+          disabled={isComplete || items.length === 0}
+          title="Mark every item as done"
+        >
+          <span className={styles.actionIcon}>✓</span> Check All
+        </button>
         <button
           className={styles.actionBtn}
           onClick={handlePrint}

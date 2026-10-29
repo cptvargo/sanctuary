@@ -563,6 +563,11 @@ export const useSanctuaryStore = create((set, get) => ({
       checklist: { ...state.checklist, [section]: state.checklist[section].filter(i => i.id !== id) }
     }))
   },
+  checkAllChecklist: (section) => {
+    set(state => ({
+      checklist: { ...state.checklist, [section]: state.checklist[section].map(i => ({ ...i, done: true })) }
+    }))
+  },
   resetChecklist: (section) => {
     set(state => ({
       checklist: { ...state.checklist, [section]: state.checklist[section].map(i => ({ ...i, done: false })) }
