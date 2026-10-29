@@ -1,6 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useSanctuaryStore } from "../../store/sanctuaryStore";
+import { persistGet, persistSet } from "../../utils/persistentStorage";
 import styles from "./SyncManager.module.css";
+
+// One-time: songs saved before dim defaulted to 0 keep their old dim (e.g. 20%).
+// Zero it once so every song starts undimmed; the Dim slider still works after.
+async function resetLegacyDimOnce() {
+  const KEY = "sanctuary-dim-reset-v1";
+  try {
+    if (await persistGet(KEY)) return;
+    if (useSanctuaryStore.getState().serviceOrder.length === 0) return;
+    const zeroDim = (slides) =>
+      slides?.map((s) => (s.bgOverlayOpacity ? { ...s, bgOverlayOpacity: 0 } : s));
+    useSanctuaryStore.setState((state) => ({
+      serviceOrder: state.serviceOrder.map((item) =>
+        item.kind === "song" ? { ...item, slides: zeroDim(item.slides) } : item,
+      ),
+      songLibrary: state.songLibrary.map((song) => ({
+        ...song,
+        slides: zeroDim(song.slides),
+      })),
+    }));
+    await persistSet(KEY, true);
+  } catch (_) {}
+}
 
 // ─── Update notification banner ───────────────────────────────────────────────
 
@@ -316,6 +339,7 @@ export function SyncButton() {
           setLastSync(new Date());
         }
       }
+      await resetLegacyDimOnce();
     } catch (_) {}
   };
 

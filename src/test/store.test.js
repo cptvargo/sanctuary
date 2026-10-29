@@ -40,6 +40,17 @@ describe('addSongFromLibrary', () => {
     expect(added.slides[0].fontSize).toBe(90)
   })
 
+  it('starts at 0 dim even when the saved song and active theme were dimmed', () => {
+    useSanctuaryStore.setState({
+      activeThemeProps: { bgImageUrl: 'x.jpg', bgOverlayOpacity: 0.2 },
+    })
+    getState().addSongFromLibrary({
+      name: 'Way Maker',
+      slides: [{ id: 'lib1', type: 'lyrics', bgOverlayOpacity: 0.55, lines: [] }],
+    })
+    expect(getState().serviceOrder[0].slides[0].bgOverlayOpacity).toBe(0)
+  })
+
   it('assigns new unique ids to all cloned slides', () => {
     getState().addSongFromLibrary({
       name: 'Way Maker',

@@ -323,7 +323,8 @@ export const useSanctuaryStore = create((set, get) => ({
       const s = existingSong?.slides?.find(sl => sl.type === 'lyrics')
       return s ? { bgImageUrl: s.bgImageUrl || null, bgGradient: s.bgGradient || null, bgColor: s.bgColor || '#050813', textColor: s.textColor || '#ffffff', bgOverlayOpacity: s.bgOverlayOpacity ?? 0, fontSize: s.fontSize || 100, fontId: s.fontId || 'montserrat', smartMediaId: s.smartMediaId || null } : {}
     })()
-    const song = makeSong({ name: 'New Song', slideOverrides: themeProps })
+    // Dim always starts at 0 — darken per service with the Dim slider
+    const song = makeSong({ name: 'New Song', slideOverrides: { ...themeProps, bgOverlayOpacity: 0 } })
     set(state => {
       const order = [...state.serviceOrder]
       const idx = afterItemId ? order.findIndex(i => i.id === afterItemId) + 1 : order.length
@@ -617,6 +618,8 @@ export const useSanctuaryStore = create((set, get) => ({
         ...inheritedTheme,
         // If the library slide has an explicitly saved fontSize, it takes priority
         ...(s.fontSize != null ? { fontSize: s.fontSize } : {}),
+        // Dim is chosen per service, so a saved song never brings its old dim back
+        bgOverlayOpacity: 0,
       })),
     })
     set(state => ({ serviceOrder: [...state.serviceOrder, cloned] }))
