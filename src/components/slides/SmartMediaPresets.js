@@ -92,7 +92,9 @@ export const SMART_MEDIA_PRESETS = [
     preview: './backgrounds/bg-newimage1.jpg',
     bgColor: '#e9d9a6', bgGradient: null,
     bgImageUrl: './backgrounds/bg-newimage1.jpg',
-    textColor: '#2b1a08', overlayOpacity: 0, fontId: 'cormorant',
+    textColor: '#3b2410', overlayOpacity: 0, fontId: 'cormorant',
+    lightBackground: true,     // dark text on light art: flips to altTextColor once dimmed past 55%
+    altTextColor: '#fff1cf',
     bgPosition: 'left bottom', // keep the crosses artwork in view when the screen isn't 16:9
   },
   {
@@ -103,6 +105,8 @@ export const SMART_MEDIA_PRESETS = [
     bgColor: '#1a0f0e', bgGradient: null,
     bgImageUrl: './backgrounds/bg-newimage2.jpg',
     textColor: '#ffffff', overlayOpacity: 0, fontId: 'montserrat',
+    bgPosition: 'right center', // the hiker is on the right edge; a non-16:9 screen crops the empty left instead
+    safeRight: '17%',           // keep lyrics and the logo clear of the hiker
   },
   {
     id: 'neon-flow',

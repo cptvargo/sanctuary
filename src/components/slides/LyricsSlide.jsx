@@ -2,7 +2,7 @@ import React from "react";
 import { FONT_OPTIONS, SMART_MEDIA_PRESETS } from "./SmartMediaPresets";
 import { useSanctuaryStore } from "../../store/sanctuaryStore";
 
-function ChurchLogoWatermark({ logoDataUrl: propLogoUrl }) {
+function ChurchLogoWatermark({ logoDataUrl: propLogoUrl, right = "3%" }) {
   const serviceOrder = useSanctuaryStore((s) => s.serviceOrder);
   const logoSlide = serviceOrder.find((i) => i.slide?.type === "logo")?.slide;
   // The bundled logo.png is the source of truth (relative path so it also resolves
@@ -16,7 +16,7 @@ function ChurchLogoWatermark({ logoDataUrl: propLogoUrl }) {
       style={{
         position: "absolute",
         bottom: "3.4%",
-        right: "3%",
+        right,
         zIndex: 2,
         display: "flex",
         alignItems: "center",
@@ -28,7 +28,7 @@ function ChurchLogoWatermark({ logoDataUrl: propLogoUrl }) {
       <img
         src={src}
         alt="logo"
-        style={{ height: "12cqh", width: "auto", objectFit: "contain" }}
+        style={{ height: "7.5cqh", width: "auto", objectFit: "contain" }}
         onError={(e) => {
           if (fallbackUrl && !useFallback) setUseFallback(true);
           else e.target.style.display = "none";
@@ -113,7 +113,7 @@ export default function LyricsSlide({
     section = "",
     bgColor = "#050813",
     bgGradient = null,
-    textColor = "#ffffff",
+    textColor: slideTextColor = "#ffffff",
     bgImageUrl = null,
     bgOverlayOpacity = 0,
     fontSize = 100,
@@ -123,9 +123,17 @@ export default function LyricsSlide({
     _logoDataUrl = null,
   } = slide;
 
-  // Backgrounds with artwork in a corner anchor there, so a non-16:9 screen crops the empty side instead
-  const bgPosition =
-    SMART_MEDIA_PRESETS.find((p) => p.id === smartMediaId)?.bgPosition || "center";
+  // Backgrounds with artwork at an edge anchor there, so a non-16:9 screen crops the empty side
+  // instead, and keep lyrics and the logo clear of it (safeRight)
+  const preset = SMART_MEDIA_PRESETS.find((p) => p.id === smartMediaId);
+  const bgPosition = preset?.bgPosition || "center";
+  const safeRight = preset?.safeRight || null;
+
+  // Dark text on a light background goes unreadable once the Dim slider darkens that
+  // background, so past 55% dim it flips to the preset's light colour.
+  const flipToLight =
+    preset?.lightBackground && bgOverlayOpacity >= 0.55 && !isLightColor(slideTextColor);
+  const textColor = flipToLight ? preset.altTextColor || "#fff1cf" : slideTextColor;
 
   const lightText = isLightColor(textColor);
 
@@ -170,7 +178,7 @@ export default function LyricsSlide({
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        padding: "6% 8%",
+        padding: safeRight ? `6% ${safeRight} 6% 8%` : "6% 8%",
         position: "relative",
         fontFamily: fontFamily,
         overflow: "hidden",
@@ -281,7 +289,7 @@ export default function LyricsSlide({
 
       {/* Church logo bottom-right — projector only */}
       {!mini && (
-        <ChurchLogoWatermark logoDataUrl={_logoDataUrl} />
+        <ChurchLogoWatermark logoDataUrl={_logoDataUrl} right={safeRight || "3%"} />
       )}
     </div>
   );
