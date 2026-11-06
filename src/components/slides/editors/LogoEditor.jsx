@@ -64,6 +64,9 @@ export default function LogoEditor({ slide, onChange }) {
           </button>
         )}
       </div>
+      <div className={styles.row} style={{ fontSize: 11, color: "var(--text-dim)", lineHeight: 1.4 }}>
+        The app's logo.png is used first. An imported logo only shows if that file is missing.
+      </div>
       <div className={styles.row}>
         <label className={styles.label}>Background</label>
         <input

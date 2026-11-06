@@ -84,6 +84,36 @@ export const SMART_MEDIA_PRESETS = [
     fontId: 'montserrat',
   },
 
+  // ── Worship image backgrounds ────────────────────────────────────────────
+  {
+    id: 'golden-parchment',
+    label: 'Golden Parchment',
+    type: 'image',
+    preview: './backgrounds/bg-newimage1.jpg',
+    bgColor: '#e9d9a6', bgGradient: null,
+    bgImageUrl: './backgrounds/bg-newimage1.jpg',
+    textColor: '#2b1a08', overlayOpacity: 0, fontId: 'cormorant',
+    titleLeft: '30%', // crosses artwork sits in the bottom-left corner
+  },
+  {
+    id: 'summit-sunrise',
+    label: 'Summit Sunrise',
+    type: 'image',
+    preview: './backgrounds/bg-newimage2.jpg',
+    bgColor: '#1a0f0e', bgGradient: null,
+    bgImageUrl: './backgrounds/bg-newimage2.jpg',
+    textColor: '#ffffff', overlayOpacity: 0, fontId: 'montserrat',
+  },
+  {
+    id: 'neon-flow',
+    label: 'Neon Flow',
+    type: 'image',
+    preview: './backgrounds/bg-newimage3.jpg',
+    bgColor: '#000', bgGradient: null,
+    bgImageUrl: './backgrounds/bg-newimage3.jpg',
+    textColor: '#ffffff', overlayOpacity: 0, fontId: 'montserrat',
+  },
+
   // ── New church image backgrounds ─────────────────────────────────────────
   {
     id: 'empty-tomb',

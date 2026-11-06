@@ -14,6 +14,14 @@ const COUNTDOWN_THEMES = [
 { id: 'circle-sky',    label: 'Circle — Sky',   timerStyle: 'circle',     bgColor: '#1a1008', accentColor: '#f5e6c8', bgImageUrl: './backgrounds/bg-heavenly-sky.jpg', bgOverlayOpacity: 0.60, message: '', subMessage: 'Service Begins Soon' },
   { id: 'risen',         label: 'He Is Risen',    timerStyle: 'risen',      bgColor: '#1a0800', accentColor: '#f5c842', bgImageUrl: './backgrounds/bg-he-is-risen.jpg', bgOverlayOpacity: 0.28, message: 'Service begins in', subMessage: 'He Is Risen' },
   { id: 'victorious',    label: 'Victorious',      timerStyle: 'victorious', bgColor: '#f0f0f0', accentColor: '#e8140a', bgImageUrl: './backgrounds/bg-victorious.jpg', bgOverlayOpacity: 0 },
+  { id: 'ring-dark',     label: 'Ring — Dark',     timerStyle: 'ring',       bgColor: '#1b1b1d', accentColor: '#d6d6d6', bgImageUrl: null, bgOverlayOpacity: 0 },
+  { id: 'ring-slate',    label: 'Ring — Slate',    timerStyle: 'ring',       bgColor: '#141415', accentColor: '#d6d6d6', bgImageUrl: './backgrounds/bg-countdown1.jpg', bgOverlayOpacity: 0 },
+  { id: 'dawn',          label: 'Dawn',            timerStyle: 'dawn',       bgColor: '#141a3a', accentColor: '#fff1e6', bgImageUrl: './backgrounds/bg-countdown2.jpg', bgOverlayOpacity: 0 },
+  { id: 'glow',          label: 'Glow',            timerStyle: 'glow',       bgColor: '#0a0604', accentColor: '#f6e7cf', bgImageUrl: './backgrounds/bg-countdown3.jpg', bgOverlayOpacity: 0 },
+  { id: 'starfield',     label: 'Starfield',       timerStyle: 'starfield',  bgColor: '#05091a', accentColor: '#dbe8ff', bgImageUrl: './backgrounds/bg-countdown4.jpg', bgOverlayOpacity: 0 },
+  { id: 'rays',          label: 'Rays',            timerStyle: 'rays',       bgColor: '#0c0804', accentColor: '#fff3dc', bgImageUrl: './backgrounds/bg-countdown5.jpg', bgOverlayOpacity: 0.35 },
+  { id: 'waves',         label: 'Waves',           timerStyle: 'waves',      bgColor: '#02070c', accentColor: '#cfeff0', bgImageUrl: './backgrounds/bg-countdown6.jpg', bgOverlayOpacity: 0 },
+  { id: 'mist',          label: 'Mist',            timerStyle: 'ticks',      bgColor: '#2a3340', accentColor: '#e6edf5', bgImageUrl: './backgrounds/bg-countdown7.jpg', bgOverlayOpacity: 0.3 },
 ]
 
 const CUSTOM_KEY = 'sanctuary-countdown-themes'

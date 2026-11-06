@@ -9,6 +9,12 @@ export default function LogoSlide({ slide }) {
     textColor = "#c8a84a",
   } = slide;
 
+  // The bundled logo.png is the source of truth, so updating that file updates the logo
+  // everywhere. An imported logo is only a fallback if the file is missing.
+  const [stage, setStage] = React.useState("bundled"); // bundled -> imported -> none
+  const logoSrc =
+    stage === "bundled" ? "./logo.png" : stage === "imported" ? logoDataUrl : null;
+
   return (
     <div
       style={{
@@ -24,11 +30,14 @@ export default function LogoSlide({ slide }) {
       }}
     >
       {/* Logo area */}
-      {logoDataUrl ? (
+      {logoSrc ? (
         <img
-          src={logoDataUrl}
+          src={logoSrc}
           alt="Church logo"
           style={{ width: "55%", maxHeight: "60%", objectFit: "contain" }}
+          onError={() =>
+            setStage(stage === "bundled" && logoDataUrl ? "imported" : "none")
+          }
         />
       ) : (
         <div

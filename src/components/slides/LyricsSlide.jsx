@@ -1,37 +1,55 @@
 import React from "react";
-import { FONT_OPTIONS } from "./SmartMediaPresets";
+import { FONT_OPTIONS, SMART_MEDIA_PRESETS } from "./SmartMediaPresets";
 import { useSanctuaryStore } from "../../store/sanctuaryStore";
 
-function ChurchLogoWatermark({ textColor, logoDataUrl: propLogoUrl }) {
+function ChurchLogoWatermark({ logoDataUrl: propLogoUrl }) {
   const serviceOrder = useSanctuaryStore((s) => s.serviceOrder);
   const logoSlide = serviceOrder.find((i) => i.slide?.type === "logo")?.slide;
-  // Use prop logo, then service logo, then public default, then text fallback
-  const logoDataUrl = propLogoUrl || logoSlide?.logoDataUrl || "/logo.png";
+  // The bundled logo.png is the source of truth (relative path so it also resolves
+  // under file:// in the installed app); an imported logo is only a fallback.
+  const fallbackUrl = propLogoUrl || logoSlide?.logoDataUrl || null;
+  const [useFallback, setUseFallback] = React.useState(false);
+  const src = useFallback && fallbackUrl ? fallbackUrl : "./logo.png";
 
   return (
     <div
       style={{
         position: "absolute",
-        bottom: "3%",
+        bottom: "3.4%",
         right: "3%",
         zIndex: 2,
         display: "flex",
         alignItems: "center",
-        gap: "1.2%",
-        opacity: 0.55,
+        // Lift the logo off any background without changing its colours
+        filter:
+          "drop-shadow(0 0.5cqh 1.6cqh rgba(0,0,0,0.55)) drop-shadow(0 0 1.2cqh rgba(255,255,255,0.22))",
       }}
     >
       <img
-        src={logoDataUrl}
+        src={src}
         alt="logo"
-        style={{ height: "5cqh", width: "auto", objectFit: "contain" }}
+        style={{ height: "12cqh", width: "auto", objectFit: "contain" }}
         onError={(e) => {
-          e.target.style.display = "none";
+          if (fallbackUrl && !useFallback) setUseFallback(true);
+          else e.target.style.display = "none";
         }}
       />
     </div>
   );
 }
+
+// True when a #rgb / #rrggbb colour is light (so text in it needs a dark chip, and vice versa)
+function isLightColor(hex = "#ffffff") {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return true;
+  const h = m[1].length === 3 ? m[1].replace(/./g, "$&$&") : m[1];
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.55;
+}
+
+const TITLE_KEYFRAMES = `
+@keyframes lyricTitleIn { from { opacity: 0; transform: translateY(1.2cqh); } to { opacity: 1; transform: translateY(0); } }
+`;
 
 export function sectionBadge(section = "") {
   // Strip split-slide suffix like "(2/3)" before matching
@@ -100,8 +118,16 @@ export default function LyricsSlide({
     bgOverlayOpacity = 0,
     fontSize = 100,
     fontId = "montserrat",
+    accentColor = "#f0b24b",
+    smartMediaId = null,
     _logoDataUrl = null,
   } = slide;
+
+  // Some backgrounds have artwork in the bottom-left corner; their preset moves the title clear of it
+  const titleLeft =
+    SMART_MEDIA_PRESETS.find((p) => p.id === smartMediaId)?.titleLeft || "3%";
+
+  const lightText = isLightColor(textColor);
 
   const fontOpt = FONT_OPTIONS.find((f) => f.id === fontId) || FONT_OPTIONS[1];
   const fontFamily = fontOpt.family;
@@ -184,9 +210,11 @@ export default function LyricsSlide({
               lineHeight: 1.3,
               fontFamily,
               fontWeight,
-              textShadow: bgImageUrl
-                ? "0 2px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,1), 0 4px 24px rgba(0,0,0,0.9)"
-                : "0 2px 8px rgba(0,0,0,0.8)",
+              textShadow: !lightText
+                ? "0 1px 3px rgba(255,255,255,0.35)"
+                : bgImageUrl
+                  ? "0 2px 12px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,1), 0 4px 24px rgba(0,0,0,0.9)"
+                  : "0 2px 8px rgba(0,0,0,0.8)",
               letterSpacing: fontId === "impact" ? "0.05em" : "0.01em",
               width: "100%",
             }}
@@ -199,31 +227,61 @@ export default function LyricsSlide({
       {/* Song title bottom-left — projector only */}
       {!mini && song && (
         <div
+          key={song}
           style={{
             position: "absolute",
-            bottom: "3%",
-            left: "3%",
-            fontSize: "1.8cqh",
-            color: `${textColor}99`,
-            fontFamily: "'Inter', sans-serif",
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            textShadow: "0 1px 6px rgba(0,0,0,0.9)",
-            maxWidth: "55%",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
+            bottom: "3.4%",
+            left: titleLeft,
             zIndex: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: "1.3cqh",
+            padding: "1.1cqh 2.4cqh 1.1cqh 1.6cqh",
+            borderRadius: "0.9cqh",
+            maxWidth: "52%",
+            background: lightText ? "rgba(8,10,20,0.40)" : "rgba(255,255,255,0.50)",
+            border: `1px solid ${lightText ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.12)"}`,
+            backdropFilter: "blur(10px) saturate(1.2)",
+            WebkitBackdropFilter: "blur(10px) saturate(1.2)",
+            boxShadow: "0 0.6cqh 2.4cqh rgba(0,0,0,0.30)",
+            animation: "lyricTitleIn 0.7s ease-out both",
           }}
         >
-          {song}
+          <style>{TITLE_KEYFRAMES}</style>
+          {/* Accent bar */}
+          <div
+            style={{
+              width: "0.5cqh",
+              height: "3.6cqh",
+              borderRadius: "0.25cqh",
+              background: `linear-gradient(to bottom, ${accentColor}, ${accentColor}99)`,
+              boxShadow: `0 0 1.4cqh ${accentColor}66`,
+              flexShrink: 0,
+            }}
+          />
+          <div
+            style={{
+              fontSize: "2.3cqh",
+              color: lightText ? "rgba(255,255,255,0.94)" : textColor,
+              fontFamily: "'Montserrat', 'Inter', sans-serif",
+              fontWeight: 600,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              textShadow: lightText ? "0 1px 8px rgba(0,0,0,0.55)" : "none",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              lineHeight: 1.1,
+            }}
+          >
+            {song}
+          </div>
         </div>
       )}
 
       {/* Church logo bottom-right — projector only */}
       {!mini && (
-        <ChurchLogoWatermark textColor={textColor} logoDataUrl={_logoDataUrl} />
+        <ChurchLogoWatermark logoDataUrl={_logoDataUrl} />
       )}
     </div>
   );
