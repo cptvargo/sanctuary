@@ -1,7 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useSanctuaryStore } from "../../store/sanctuaryStore";
 import { persistGet, persistSet } from "../../utils/persistentStorage";
+import { walnutifyParchmentSlides } from "../../utils/parchmentTextMigration";
 import styles from "./SyncManager.module.css";
+
+// One-time: recolour saved Golden Parchment songs from the old near-black default to walnut.
+async function walnutifyParchmentOnce() {
+  const KEY = "sanctuary-parchment-walnut-v1";
+  try {
+    if (await persistGet(KEY)) return;
+    if (useSanctuaryStore.getState().serviceOrder.length === 0) return;
+    useSanctuaryStore.setState((state) => ({
+      serviceOrder: state.serviceOrder.map((item) =>
+        item.kind === "song"
+          ? { ...item, slides: walnutifyParchmentSlides(item.slides) }
+          : item,
+      ),
+      songLibrary: state.songLibrary.map((song) => ({
+        ...song,
+        slides: walnutifyParchmentSlides(song.slides),
+      })),
+    }));
+    await persistSet(KEY, true);
+  } catch (_) {}
+}
 
 // One-time: songs saved before dim defaulted to 0 keep their old dim (e.g. 20%).
 // Zero it once so every song starts undimmed; the Dim slider still works after.
@@ -340,6 +362,7 @@ export function SyncButton() {
         }
       }
       await resetLegacyDimOnce();
+      await walnutifyParchmentOnce();
     } catch (_) {}
   };
 
