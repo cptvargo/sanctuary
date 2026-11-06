@@ -1,6 +1,6 @@
 {
   "name": "declare",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "description": "Church presentation software — Declare",
   "main": "electron/main.js",
   "scripts": {

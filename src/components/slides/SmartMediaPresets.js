@@ -93,7 +93,7 @@ export const SMART_MEDIA_PRESETS = [
     bgColor: '#e9d9a6', bgGradient: null,
     bgImageUrl: './backgrounds/bg-newimage1.jpg',
     textColor: '#2b1a08', overlayOpacity: 0, fontId: 'cormorant',
-    titleLeft: '30%', // crosses artwork sits in the bottom-left corner
+    bgPosition: 'left bottom', // keep the crosses artwork in view when the screen isn't 16:9
   },
   {
     id: 'summit-sunrise',

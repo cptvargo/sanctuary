@@ -123,9 +123,9 @@ export default function LyricsSlide({
     _logoDataUrl = null,
   } = slide;
 
-  // Some backgrounds have artwork in the bottom-left corner; their preset moves the title clear of it
-  const titleLeft =
-    SMART_MEDIA_PRESETS.find((p) => p.id === smartMediaId)?.titleLeft || "3%";
+  // Backgrounds with artwork in a corner anchor there, so a non-16:9 screen crops the empty side instead
+  const bgPosition =
+    SMART_MEDIA_PRESETS.find((p) => p.id === smartMediaId)?.bgPosition || "center";
 
   const lightText = isLightColor(textColor);
 
@@ -153,7 +153,7 @@ export default function LyricsSlide({
   // Build background style
   let background;
   if (bgImageUrl) {
-    background = `url(${bgImageUrl}) center/cover no-repeat`;
+    background = `url(${bgImageUrl}) ${bgPosition}/cover no-repeat`;
   } else if (bgGradient) {
     background = bgGradient;
   } else {
@@ -231,7 +231,7 @@ export default function LyricsSlide({
           style={{
             position: "absolute",
             bottom: "3.4%",
-            left: titleLeft,
+            left: "3%",
             zIndex: 2,
             display: "flex",
             alignItems: "center",
